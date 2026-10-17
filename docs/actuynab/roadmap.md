@@ -139,6 +139,15 @@ balances, and it creates no payees or transactions. See
 3. Add ActuYNAB branding only where it does not make upstream merge conflict
    resolution expensive; preserve Portuguese and English translations.
 
+### Hosting proof of concept (complete; not a milestone)
+
+The Vercel PoC adds a static frontend configuration for the existing Vite
+browser build. It leaves synchronization, authentication, bank integrations,
+and all durable financial storage on a separately hosted Actual sync server;
+no Vercel deployment or production approval is implied. The configuration,
+validation contract, security boundaries, and Docker/browser-only comparison
+are recorded in [Vercel frontend proof of concept](vercel-deployment.md).
+
 ## M6 — secure online operation
 
 **Goal:** validate a private, supportable self-hosted service.

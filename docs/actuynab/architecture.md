@@ -52,6 +52,12 @@ service; it is not a replacement database for budget calculations.
 5. **Automation UI.** Compose new React views from the component library and
    existing account/rule/import hooks. Reuse translation and responsive
    conventions; do not redesign the entire application.
+6. **Static web hosting.** The existing Vite browser output can be served from
+   a static host, including Vercel, when it preserves SPA fallback,
+   cross-origin-isolation headers, and the WASM MIME type. This hosts the React
+   client and browser SQLite runtime only; keep `packages/sync-server` on a
+   separately operated host with durable storage. See
+   [Vercel frontend proof of concept](vercel-deployment.md).
 
 ## Financial correctness constraints
 
