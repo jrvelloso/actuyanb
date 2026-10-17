@@ -53,6 +53,16 @@ The Windows 11 setup and evidence from the validation run are recorded in
 [Functional validation](validation.md). The provider-specific status for
 ActivoBank and Revolut is in [Bank statement imports](bank-imports.md).
 
+## Milestone 2 migration assurance
+
+Milestone 2 adds a synthetic YNAB 4 archive and an isolated-destination
+validation harness. It verifies account balances, transaction amounts and
+counts, transfers, splits, category/payee mappings, allocations and rollover,
+and reconciliation states, then produces JSON or Markdown reports. Confirmed
+model differences—scheduled transactions, YNAB payee rules, account types,
+and reconciliation checkpoints—are explicit report entries rather than
+hidden migration losses. See [YNAB 4 migration](ynab4-migration.md).
+
 ## Project documents
 
 - [Architecture](architecture.md) — package boundaries, extension seams, and

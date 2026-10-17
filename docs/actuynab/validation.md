@@ -167,3 +167,25 @@ The expected out-of-sync-migration diagnostic in one `main.test.ts` scenario
 is part of that test's assertion, not a failure. Vite also emits its current
 configuration-loader deprecation warning; it does not affect the passing
 validation result.
+
+## Milestone 2 YNAB 4 migration validation
+
+The focused YNAB 4 assurance test uses an entirely synthetic `.ynab4` ZIP and
+creates a new temporary Actual budget for each run. It verifies that parsing
+does not modify either source object or source archive, removes the temporary
+destination through the normal abort-import path, and repeats the migration to
+assert byte-for-byte equal JSON report data.
+
+Run it with the existing importer regression test:
+
+```text
+yarn workspace @actual-app/core vitest --run src/server/importers/ynab4.test.ts src/server/importers/ynab4-validation.test.ts
+```
+
+The report covers account balances, transaction count and aggregate amount,
+transfers, split totals, category and payee mappings, allocations/carryover,
+and reconciliation state. It separately records expected model differences:
+YNAB 4 schedules and payee rename rules are not imported; account type and
+account reconciliation checkpoint metadata are not stored by Actual. The
+current Node 24 Windows-1252 parser baseline issue remains unrelated to this
+archive workflow and is intentionally unchanged.

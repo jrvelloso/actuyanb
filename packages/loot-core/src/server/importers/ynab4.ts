@@ -421,7 +421,7 @@ function findLatestDevice(
   return devices[devices.length - 1].deviceGUID;
 }
 
-export async function doImport(data: YNAB4.YFull) {
+async function importWithEntityIdMap(data: YNAB4.YFull) {
   const entityIdMap = new Map<string, string>();
 
   await runImportSteps([
@@ -456,6 +456,23 @@ export async function doImport(data: YNAB4.YFull) {
       run: tick => importBudgets(data, entityIdMap, tick),
     },
   ]);
+
+  // The caller normally ignores this, but the mapping lets a validation
+  // harness compare the newly-created Actual entities with their YNAB 4
+  // source counterparts without writing source identifiers into the budget.
+  return entityIdMap;
+}
+
+export async function doImport(data: YNAB4.YFull): Promise<void> {
+  await importWithEntityIdMap(data);
+}
+
+/**
+ * Import into the current disposable destination and return an in-memory map
+ * for post-import validation. Source IDs are never persisted in Actual.
+ */
+export function importForValidation(data: YNAB4.YFull) {
+  return importWithEntityIdMap(data);
 }
 
 export function getBudgetName(filepath) {
