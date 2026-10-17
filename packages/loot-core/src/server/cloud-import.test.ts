@@ -8,7 +8,7 @@ import type { ServerHandlers } from '#types/server-handlers';
 
 import { installAPI } from './api';
 import { app as budgetFilesApp } from './budgetfiles/app';
-import { download, importBuffer } from './cloud-storage';
+import { download, exportBuffer, importBuffer } from './cloud-storage';
 import * as prefs from './prefs';
 import { safeZip } from './util/zip';
 
@@ -17,16 +17,31 @@ vi.mock('#server/main', () => ({ handlers: {} }));
 
 let directory: string;
 let databaseBytes: Buffer;
+let previousDataDir: string | undefined;
 
 beforeEach(async () => {
   vi.spyOn(Date, 'now').mockReturnValue(Date.UTC(2026, 8, 27));
   directory = mkdtempSync(join(tmpdir(), 'actual-import-'));
+  previousDataDir = process.env.ACTUAL_DATA_DIR;
+  process.env.ACTUAL_DATA_DIR = directory;
   fs._setDocumentDir(directory);
   const filename = join(directory, 'source.sqlite');
   const database = await sqlite.openDatabase(filename);
   sqlite.execQuery(
     database,
-    "CREATE TABLE accounts (id TEXT PRIMARY KEY, name TEXT); INSERT INTO accounts VALUES ('account', 'Incoming account')",
+    `
+      CREATE TABLE accounts (id TEXT PRIMARY KEY, name TEXT);
+      CREATE TABLE transactions (
+        id TEXT PRIMARY KEY,
+        acct TEXT,
+        date TEXT,
+        amount INTEGER,
+        payee TEXT
+      );
+      CREATE TABLE kvcache (key TEXT PRIMARY KEY, value TEXT);
+      CREATE TABLE kvcache_key (key TEXT PRIMARY KEY, value TEXT);
+      INSERT INTO accounts VALUES ('account', 'Incoming account');
+    `,
   );
   sqlite.closeDatabase(database);
   databaseBytes = readFileSync(filename);
@@ -35,6 +50,11 @@ beforeEach(async () => {
 afterEach(() => {
   vi.restoreAllMocks();
   vi.unstubAllGlobals();
+  if (previousDataDir === undefined) {
+    delete process.env.ACTUAL_DATA_DIR;
+  } else {
+    process.env.ACTUAL_DATA_DIR = previousDataDir;
+  }
   rmSync(directory, { recursive: true, force: true });
 });
 
@@ -98,6 +118,58 @@ it('ignores IDs from local archive imports, including path-like IDs', async () =
       readFileSync(join(fs.getBudgetDir(id), 'metadata.json'), 'utf8'),
     ),
   ).toMatchObject({ id, cloudFileId: null });
+});
+
+it('exports and restores synthetic financial records without changing balances', async () => {
+  const source = await createLocal('synthetic-budget');
+  const sourceDatabase = await sqlite.openDatabase(join(source, 'db.sqlite'));
+  sqlite.execQuery(
+    sourceDatabase,
+    `
+      INSERT INTO accounts VALUES ('checking', 'Everyday checking');
+      INSERT INTO accounts VALUES ('savings', 'Rainy-day savings');
+      INSERT INTO accounts VALUES ('credit', 'Credit card');
+      INSERT INTO transactions VALUES
+        ('opening-checking', 'checking', '2024-01-01', 150000, 'Opening balance'),
+        ('salary', 'checking', '2024-01-05', 350000, 'Example employer'),
+        ('rent', 'checking', '2024-01-10', -120000, 'Example landlord'),
+        ('transfer-out', 'checking', '2024-01-25', -50000, 'Rainy-day savings'),
+        ('transfer-in', 'savings', '2024-01-25', 50000, 'Everyday checking'),
+        ('card-purchase', 'credit', '2024-01-28', -4250, 'Example grocer');
+    `,
+  );
+  sqlite.closeDatabase(sourceDatabase);
+
+  await prefs.loadPrefs('synthetic-budget');
+  const exported = await exportBuffer();
+  expect(exported).not.toBeNull();
+  if (exported == null) {
+    throw new Error('Expected synthetic budget export');
+  }
+
+  const { id } = await importBuffer(
+    { fileId: null, groupId: null },
+    exported.data,
+  );
+  const restored = await sqlite.openDatabase(
+    join(fs.getBudgetDir(id), 'db.sqlite'),
+  );
+  const balances = sqlite.runQuery<{
+    acct: string;
+    balance: number;
+  }>(
+    restored,
+    'SELECT acct, SUM(amount) AS balance FROM transactions GROUP BY acct ORDER BY acct',
+    [],
+    true,
+  );
+  sqlite.closeDatabase(restored);
+
+  expect(balances).toEqual([
+    { acct: 'checking', balance: 330000 },
+    { acct: 'credit', balance: -4250 },
+    { acct: 'savings', balance: 50000 },
+  ]);
 });
 
 it('rejects replacement of a budget associated with another cloud file', async () => {

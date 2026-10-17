@@ -40,6 +40,13 @@ outside the host; its exact tool and destination are intentionally deferred so
 they match the owner's infrastructure and recovery objectives. Never place
 backups or real sample budgets in this repository.
 
+For a local, non-production budget, use **Settings > Export data** to create a
+portable ZIP. To restore it, choose the budget-name menu, **Switch file >
+Import file > Actual**, then select the ZIP. Importing produces a separate
+budget copy; inspect that copy before deleting or replacing anything. This is
+the path exercised by the synthetic archive/export test described in
+[Functional validation](validation.md).
+
 ## Recovery drill
 
 A backup is considered valid only after a test restore:

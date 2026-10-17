@@ -39,6 +39,10 @@ async function createTestBudget(name) {
   const budgetPath = fs.join(__dirname, '/../mocks/files/budgets/test-budget');
   fs._setDocumentDir(fs.join(budgetPath, '..'));
 
+  // A previous interrupted run may have left this test-only fixture behind.
+  if (await fs.exists(budgetPath)) {
+    await fs.removeDirRecursively(budgetPath);
+  }
   await fs.mkdir(budgetPath);
   await fs.copyFile(
     fs.join(templatePath, 'metadata.json'),
@@ -52,6 +56,10 @@ async function createTestBudget(name) {
 
 describe('Budgets', () => {
   afterEach(async () => {
+    // The outer cleanup also closes the budget, but nested cleanup runs
+    // first. Close the SQLite handle before Windows attempts to remove the
+    // temporary budget directory.
+    db.closeDatabase();
     fs._setDocumentDir(null);
     const budgetPath = fs.join(
       __dirname,

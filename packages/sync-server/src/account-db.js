@@ -23,6 +23,13 @@ export function getAccountDb() {
   return _accountDb;
 }
 
+export function closeAccountDb() {
+  if (_accountDb !== undefined) {
+    _accountDb.close();
+    _accountDb = undefined;
+  }
+}
+
 export function needsBootstrap() {
   const accountDb = getAccountDb();
   const rows = accountDb.all('SELECT * FROM auth');
