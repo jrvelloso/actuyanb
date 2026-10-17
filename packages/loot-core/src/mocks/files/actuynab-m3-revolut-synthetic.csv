@@ -1,0 +1,6 @@
+Completed Date,Description,Amount,Fee,Currency,State,Reference,ID,Type,Exchange Amount,Exchange Currency
+2024-03-03,Bank transfer from Activo,100.00,0,EUR,COMPLETED,TRF-20240303,REV-0001,bank_transfer,,
+2024-03-04,Coffee Shop,-3.50,0,EUR,COMPLETED,,REV-0002,card_payment,,
+2024-03-05,Refund Coffee Shop,3.50,0,EUR,COMPLETED,,REV-0003,card_refund,,
+2024-03-06,USD purchase,-25.00,0.30,USD,COMPLETED,,REV-0004,card_payment,-22.94,EUR
+2024-03-07,Pending metro,-1.80,0,EUR,PENDING,,REV-0005,card_payment,,

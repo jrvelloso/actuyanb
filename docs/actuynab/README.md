@@ -63,6 +63,19 @@ model differences—scheduled transactions, YNAB payee rules, account types,
 and reconciliation checkpoints—are explicit report entries rather than
 hidden migration losses. See [YNAB 4 migration](ynab4-migration.md).
 
+## Milestone 3 bank-import automation
+
+Milestone 3 adds a deliberately narrow bank-statement preparation layer for
+synthetic ActivoBank-style and Revolut-style CSV fixtures. It normalizes
+European dates and amounts, source identities, pending/booked transactions,
+refunds, explicit fees, and disclosed settlement amounts before delegating to
+Actual's established reconciliation flow. Repeated and overlapping files are
+financially idempotent, ambiguous fallback matches require review, and transfer
+references produce suggestions rather than automatic account links. Each run
+returns a non-sensitive Markdown or JSON audit record; the scope does not add
+real bank connectivity, credential handling, source-file persistence, or a new
+interface. See [Bank statement imports](bank-imports.md).
+
 ## Project documents
 
 - [Architecture](architecture.md) — package boundaries, extension seams, and
