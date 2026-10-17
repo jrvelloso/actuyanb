@@ -7,6 +7,11 @@ installation based on Actual's sync server. Its persistent `/data` volume is
 the critical operational asset. Do not expose a development server or an
 unauthenticated sync service to the public internet.
 
+The optional [Vercel frontend proof of concept](vercel-deployment.md) serves
+only the browser client. It does not replace this persistent sync-server
+deployment, its `/data` volume, authentication, server-side bank credentials,
+or recovery responsibilities.
+
 For a private test deployment:
 
 1. Pin and record the tested image/build rather than treating a production

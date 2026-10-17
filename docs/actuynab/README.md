@@ -111,6 +111,8 @@ stored. See [Synced import review](import-review.md).
   household safeguards, and preview contract.
 - [Operations](operations.md) — private Docker deployment, HTTPS, backups, and
   recovery verification.
+- [Vercel frontend proof of concept](vercel-deployment.md) — static frontend
+  boundary, external-sync requirement, safe rollout steps, and hosting tradeoffs.
 
 - [Functional validation](validation.md) â€” Windows setup, synthetic data,
   repeatable import/backup procedures, and results.
