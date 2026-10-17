@@ -1,60 +1,107 @@
 # Categorization strategy
 
-Actual already has a transparent rules engine. Imported transactions retain the
-original `imported_payee`; rules run in ordered `pre`, default, and `post`
-stages. It can learn a payee-to-category rule from recent categorized activity,
-and users can inspect, edit, disable, or override these rules.
-
-ActuYNAB extends that model; it does not replace it with an opaque classifier.
+Actual already has a transparent, ordered rules engine. Imported transactions
+retain their original `imported_payee`; Actual evaluates enabled `pre`, default,
+and `post` rules, including its existing visible learned payee/category rules.
+ActuYNAB extends that model with a preview service. It does not add a second
+writer, calculation engine, or opaque classifier.
 
 ## Decision order
 
-1. An explicit, enabled user rule.
-2. A confirmed normalized-payee/category association.
-3. A sufficiently consistent historical match for the same normalized payee.
-4. Deterministic bank- or text-specific heuristics.
-5. An optional AI suggestion, only after explicit configuration and consent.
-6. A manual-review queue when confidence is inadequate or signals conflict.
+For an uncategorized transaction, Milestone 4 applies these deterministic
+layers in order:
 
-Every automatic outcome must state its source, such as “Rule: Continente”,
-“Confirmed association”, or “History: 8 of last 9 transactions”. This makes a
-description such as `PAG CARTAO CONTINENTE MONTIJO 123456` explainable: an
-adapter/rule can normalize it to a visible payee candidate, then the ordinary
-rules and learning system can set the category.
+1. An enabled Actual rule, evaluated through `runRules`.
+2. A user-confirmed normalized-payee/category association supplied to the
+   preview.
+3. Reliable history: at least three matching normalized payees with one
+   non-empty category and no conflicting category.
+4. A monthly recurring pattern with one category and no conflict.
+5. A narrow, configured merchant heuristic after Milestone 3 normalization.
+6. A manual-review result for unknown, incomplete, or conflicting evidence.
 
-## Confidence and correction
+The existing Actual rule runner cannot distinguish an automatically learned
+visible rule from a hand-authored visible rule. Both remain in the first layer
+because changing their precedence would risk overriding a user's current
+budget behavior. A future synced provenance model can make that distinction
+without changing this safety rule.
 
-Confidence is a deterministic policy value, not a financial calculation. It is
-derived from signals such as exact rule match, stable identifier, normalized
-payee match, historical count/ratio, amount/date patterns, and conflicts. The
-initial policy should be conservative:
+Structural transfer detection protects the category layers. A confirmed
+internal transfer, credit-card bill payment, or transfer to the `Home` or
+`Tesla` off-budget account is not proposed as a household expense, even if an
+otherwise matching historical category exists. A manually categorized row is
+preserved before all automatic processing.
 
-- automatically apply explicit rules and strong confirmed associations;
-- present medium-confidence matches as editable suggestions;
-- queue low-confidence or conflicting suggestions for review;
-- let a user correction create or update a visible rule/association only with
-  their chosen scope.
+## Explainable results
 
-This preserves the user's ability to see, edit, disable, and reverse learned
-behaviour.
+`classifyHouseholdTransaction` returns a pure preview with:
+
+- the normalized and proposed payee (an existing payee ID when one is known);
+- a proposed category ID when appropriate;
+- a named deterministic reason;
+- qualitative `high`, `medium`, or `review` confidence; and
+- an explicit `requiresManualReview` flag and, for transfers, the target
+  account ID.
+
+Confidence is a policy label, not a probability or a percentage. The service
+does not change amounts, dates, reconciled/cleared state, account balances,
+source descriptions, payees, categories, or transactions. It never creates a
+payee; callers must use Actual's established transaction and transfer flows to
+apply a reviewed suggestion.
+
+## Household rules
+
+The synthetic fixture models the initial shared household accounts:
+
+- on-budget `Activo`, `Millenium`, `CC-Activo-Classic`,
+  `CC-Millenium-Gold`, and `CC-Millenium-Classic`;
+- off-budget `Tesla` vehicle financing and `Home` mortgage.
+
+Transfer identification is intentionally configured with exact, normalized
+description tokens or an existing Actual transfer payee. A payment to a credit
+card produces `credit-card-bill-payment` with no expense category. A payment
+to `Home` or `Tesla` produces `off-budget-financing-transfer`; it receives no
+invented principal or interest category. When a loan payment already contains
+a principal/interest split, the result is `provided-loan-split-preserved` and
+the subtransactions are left untouched.
+
+An incoming contribution from a personal account is only classified as income
+when the adapter or caller explicitly marks it `externalContribution`. Text
+alone is not enough to infer a personal account. Refunds retain their original
+positive amount and can use a confirmed merchant/category mapping; they are
+not converted into a new expense.
 
 ## Data and privacy boundaries
 
-- Keep original imported descriptions for existing rule behavior and audit
-  explanations, applying normal data-protection practices.
-- Store aliases, rules, provenance, and confidence in additive, synchronized
-  records only after a schema/API review.
-- Do not send transaction descriptions, balances, or derived profiles to an
-  external model by default.
-- Any future AI integration needs separate user consent, provider/data-flow
-  documentation, opt-out, retention policy, and a guarantee that it can only
-  suggest—not write—financial data without user confirmation.
+- Original bank descriptions remain in `imported_payee`; normalization is only
+  a matching and display candidate.
+- The service has no database writes and stores no source statement data.
+- Confirmed mappings are an explicit caller input until a synchronized,
+  user-visible association record and review UI are designed.
+- No external model or AI service is part of this milestone.
 
-## First implementation tasks
+## Validation
 
-1. Inventory the existing automatic category-learning behavior with tests.
-2. Add normalized-payee aliases and source/explanation metadata without
-   changing rule precedence.
-3. Define and test confidence thresholds against synthetic transaction history.
-4. Build a review queue that uses existing transaction edits/rules for the
-   final action.
+`packages/loot-core/src/server/transactions/actuynab-classification.fixture.ts`
+contains only fictional household accounts, merchant names, categories,
+history, and integer amounts. Its companion test covers rule precedence,
+manual corrections, known and unknown merchants, conflicting history, refunds,
+splits, internal transfers, credit-card payments, mortgage and vehicle
+financing, personal contributions, repeatability, input preservation, and
+payee/transaction non-creation.
+
+Run the focused validation from the repository root:
+
+```text
+yarn workspace @actual-app/core test:node src/server/transactions/actuynab-classification.test.ts
+```
+
+On 2026-10-17, the focused classifier suite passed all six tests. The broader
+Actual rules and M1-M3 import/migration regression set also passed 60 tests
+together. The normal Vite configuration-loader deprecation warning was present
+but does not affect the results.
+
+The follow-on work is a synced, user-visible review queue that records a
+confirmed association through Actual rules or a reviewed additive model. It
+must retain this module's no-write preview boundary until the user confirms an
+action.

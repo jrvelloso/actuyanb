@@ -76,6 +76,17 @@ returns a non-sensitive Markdown or JSON audit record; the scope does not add
 real bank connectivity, credential handling, source-file persistence, or a new
 interface. See [Bank statement imports](bank-imports.md).
 
+## Milestone 4 intelligent categorization
+
+Milestone 4 adds a deterministic, side-effect-free classification preview for
+the synthetic shared household. It runs Actual rules first, then confirmed
+payee/category mappings, conflict-free history, recurring patterns, and narrow
+merchant heuristics. It returns a proposed payee/category, named reason,
+qualitative confidence, and review requirement without changing a budget.
+Transfers, credit-card bill payments, mortgage and vehicle-financing payments,
+manual corrections, refunds, and provided splits have explicit safe handling.
+See [Categorization](categorization.md).
+
 ## Project documents
 
 - [Architecture](architecture.md) — package boundaries, extension seams, and
@@ -85,8 +96,8 @@ interface. See [Bank statement imports](bank-imports.md).
   validation-report design.
 - [Bank statement imports](bank-imports.md) — Portuguese-bank extension model,
   idempotency, and review flow.
-- [Categorization](categorization.md) — deterministic decision order and future
-  opt-in AI boundary.
+- [Categorization](categorization.md) — deterministic decision order,
+  household safeguards, and preview contract.
 - [Operations](operations.md) — private Docker deployment, HTTPS, backups, and
   recovery verification.
 

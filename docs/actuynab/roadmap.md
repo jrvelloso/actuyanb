@@ -107,17 +107,24 @@ work before real bank exports can be supported is private verification of the
 actual export schemas, a reviewed column mapping, and a deliberately designed
 synced history/review UI. See [Bank statement imports](bank-imports.md).
 
-## M4 — intelligent categorization
+## M4 — intelligent categorization — complete
 
 **Goal:** improve automation using explainable, deterministic signals first.
 
-1. Make rule and learned-category provenance visible on a transaction.
-2. Add normalized-payee aliases and historical matching with conservative,
-   testable confidence thresholds.
-3. Add a review queue for low-confidence suggestions and feed corrections back
-   into user-visible rules/associations.
-4. Evaluate local or expressly opted-in AI suggestions only after the
-   deterministic flow is complete.
+Milestone 4 adds a no-write household-classification preview that runs
+Actual's existing rules engine first, then applies confirmed mappings,
+conflict-free history, recurring patterns, and narrow normalized-merchant
+heuristics. Each result names its proposed payee/category, reason, qualitative
+confidence, and review requirement.
+
+The fixture covers the shared Activo and Millenium checking accounts, the
+three named credit cards, and off-budget Tesla and Home liabilities. Internal
+transfers and credit-card bill payments never receive a new expense category.
+Loan principal/interest is preserved only when it is already present in a
+split; absent amounts are never invented. The service preserves manual
+classifications, raw descriptions, monetary and reconciliation fields, and
+balances, and it creates no payees or transactions. See
+[Categorization](categorization.md).
 
 ## M5 — ActuYNAB experience
 
@@ -125,6 +132,8 @@ synced history/review UI. See [Bank statement imports](bank-imports.md).
 
 1. Create the automation dashboard for imports, uncategorized rows,
    duplicates, transfer suggestions, rules, errors, and processing history.
+   Include a synced, user-visible confirmation path for M4 classifications;
+   do not turn suggestions into writes without confirmation.
 2. Improve desktop/mobile workflow friction using existing design tokens and
    component primitives.
 3. Add ActuYNAB branding only where it does not make upstream merge conflict
