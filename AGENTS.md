@@ -606,3 +606,23 @@ When running the app for manual testing or demos, use **"View demo"** on the ini
 - Lage caches test results in `.lage/`. If tests behave unexpectedly, clear with `rm -rf .lage`.
 - Native modules (`better-sqlite3`, `bcrypt`) require build tools (`gcc`, `make`, `python3`). These are pre-installed in the Cloud VM.
 - All yarn commands must be run from the repository root, never from child workspaces.
+
+## ActuYNAB fork guidance
+
+ActuYNAB is a maintained, privacy-first fork of Actual Budget. Keep custom work
+isolated, small, and documented in [`docs/actuynab/`](docs/actuynab/README.md)
+so that upstream integration remains practical.
+
+- Reuse Actual's SQLite model, sync protocol, transaction rules, import pipeline,
+  and component library. Do not replace core financial logic or introduce an
+  external financial datastore without an approved architecture decision.
+- Monetary values remain Actual integer amounts. Any change affecting balances,
+  imports, transfers, reconciliation, splits, or budgets requires focused
+  regression tests with synthetic data.
+- Treat imports as user-reviewable and idempotent. Never silently drop an
+  ambiguous transaction, upload financial data to an AI service, or commit real
+  financial data or credentials.
+- Prefer deterministic payee normalization and rules. AI assistance, if ever
+  added, must be opt-in and documented separately.
+- Read the ActuYNAB architecture and roadmap before starting a feature; update
+  them when an implementation changes a documented decision or milestone.
