@@ -138,25 +138,25 @@ variables, or deploy. Its final validation record must report these separately:
 
 ### Current local result (2026-10-17)
 
-- `yarn typecheck` passed for the workspace, including web, core, and sync
-  server packages.
-- The packaging command `yarn build:browser --skip-translations` could not
-  start on this Windows machine because its POSIX-script interpreter resolved
-  to a broken WSL Bash mount before running project code. Running its exact
-  build body, `yarn lage build:browser --to=@actual-app/web`, passed for
-  plugins-service, CRDT, core, and the web browser build.
-- A Vite preview of the generated output returned HTTP 200 for `/`, an
-  arbitrary browser route, `/sql-wasm.wasm`, `/data/default-db.sqlite`, and a
-  generated `kcab` worker. The WASM asset had `application/wasm`; the client
-  route returned the same `index.html` as `/`.
-- JSON assertions confirmed the committed build command, output directory, SPA
-  rewrite, and WASM header. `oxfmt --check` passed for the configuration and
-  updated documentation.
-- The available automation environment did not expose a browser surface, and
-  its Playwright Chromium executable was not installed. It was not downloaded
-  for this PoC, so interactive IndexedDB/WASM initialization could not be
-  observed. No Vercel project was linked, preview created, or remote sync
-  server contacted.
+- Git for Windows `sh.exe` is now explicitly placed on `PATH`, allowing the
+  exact `yarn build:browser --skip-translations` command to pass on Windows.
+- Chromium ran the generated static bundle: the browser initialized its worker,
+  cross-origin-isolated SQLite/WASM runtime, and synthetic demo budget. The
+  deployment readiness test also asserted SPA fallback, the default database,
+  WASM MIME type, and the deployed security headers.
+- A local HTTPS native-server drill authenticated two independent browser
+  profiles, synchronized a synthetic M5 review confirmation across a restart,
+  and loaded an isolated `/data` restore. This validates the external-server
+  boundary locally, not a Vercel-to-server deployment.
+- The `jrvellosos-projects` team now has an empty
+  `actuynab-private-preview` project with password protection enabled. No
+  deployment, project link, custom domain, environment variable, financial
+  data, or server credential was created.
+
+The remaining action is an owner-controlled protected preview deployment from
+the Milestone 6 branch and a synthetic connection to a trusted-certificate,
+durable external server. The exact setup and gates are in
+[Deployment readiness](deployment-readiness.md).
 
 ## Windows development note
 

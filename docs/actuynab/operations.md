@@ -12,6 +12,13 @@ only the browser client. It does not replace this persistent sync-server
 deployment, its `/data` volume, authentication, server-side bank credentials,
 or recovery responsibilities.
 
+The tested private baseline in
+[`deploy/actuynab-private`](../../deploy/actuynab-private) builds this fork's
+native sync server, stores all durable state in a host-owned path, and uses
+Caddy for TLS. Its exact bootstrap, Vercel boundary, and synthetic validation
+evidence are in [Deployment readiness](deployment-readiness.md). It is not an
+authorization to make a new service publicly reachable.
+
 For a private test deployment:
 
 1. Pin and record the tested image/build rather than treating a production
@@ -25,6 +32,9 @@ For a private test deployment:
    only when its operational model is deliberately configured and tested.
 5. Keep all secrets outside Git and use environment variables or supported
    configuration mechanisms with least privilege.
+6. Create the first Actual password from a trusted private network before
+   exposing the hostname; an uninitialized server must not be publicly
+   claimable.
 
 Bank-provider credentials are server-side secrets and, per Actual's upstream
 documentation, are not protected by budget end-to-end encryption. Self-hosting

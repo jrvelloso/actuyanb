@@ -1,0 +1,55 @@
+name: actuynab-private
+
+services:
+  actual-server:
+    build:
+      context: ../..
+      dockerfile: sync-server.Dockerfile
+    image: actuynab-sync-server:local
+    restart: unless-stopped
+    environment:
+      ACTUAL_DATA_DIR: /data
+      ACTUAL_LOGIN_METHOD: password
+    expose:
+      - '5006'
+    volumes:
+      - ${ACTUYNAB_DATA_DIR:?Set ACTUYNAB_DATA_DIR in .env}:/data
+    healthcheck:
+      test: ['CMD', 'node', 'build/scripts/health-check.js']
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 30s
+    security_opt:
+      - no-new-privileges:true
+    networks:
+      - private
+
+  caddy:
+    image: caddy:2.10.2-alpine
+    restart: unless-stopped
+    depends_on:
+      actual-server:
+        condition: service_healthy
+    environment:
+      ACTUYNAB_SYNC_HOST: ${ACTUYNAB_SYNC_HOST:?Set ACTUYNAB_SYNC_HOST in .env}
+      ACTUYNAB_TLS_EMAIL: ${ACTUYNAB_TLS_EMAIL:?Set ACTUYNAB_TLS_EMAIL in .env}
+    ports:
+      - '80:80'
+      - '443:443'
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy-data:/data
+      - caddy-config:/config
+    security_opt:
+      - no-new-privileges:true
+    networks:
+      - private
+
+volumes:
+  caddy-data:
+  caddy-config:
+
+networks:
+  private:
+    internal: false

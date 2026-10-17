@@ -1,0 +1,16 @@
+{
+	email {$ACTUYNAB_TLS_EMAIL}
+}
+
+{$ACTUYNAB_SYNC_HOST} {
+	encode zstd gzip
+
+	reverse_proxy actual-server:5006
+
+	header {
+		Strict-Transport-Security "max-age=31536000; includeSubDomains"
+		Referrer-Policy "strict-origin-when-cross-origin"
+		X-Content-Type-Options "nosniff"
+		-Server
+	}
+}

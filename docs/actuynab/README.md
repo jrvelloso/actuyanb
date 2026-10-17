@@ -98,6 +98,15 @@ IDs. Additive synced audit, queue, and decision records survive reloads and
 participate in Actual's normal CRDT synchronization; raw bank files are never
 stored. See [Synced import review](import-review.md).
 
+## Milestone 6 deployment readiness
+
+Milestone 6 combines the sibling Vercel PoC and synced-review work on an
+integration branch without changing their existing pull requests. It adds a
+private Docker/Caddy deployment baseline, a production-bundle browser test,
+and a synthetic two-client sync, restart, and isolated restore drill. The
+private environment is ready for an owner-controlled remote-host exercise; it
+is not a production deployment. See [Deployment readiness](deployment-readiness.md).
+
 ## Project documents
 
 - [Architecture](architecture.md) — package boundaries, extension seams, and
@@ -119,6 +128,9 @@ stored. See [Synced import review](import-review.md).
 
 - [Synced import review](import-review.md) — confirmation workflow, synced
   audit data, safeguards, validation, and current limitations.
+
+- [Deployment readiness](deployment-readiness.md) — integration plan, private
+  Docker baseline, Vercel preview settings, browser/sync evidence, and gates.
 
 ## Working agreement
 
