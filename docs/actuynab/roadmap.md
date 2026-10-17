@@ -126,18 +126,33 @@ classifications, raw descriptions, monetary and reconciliation fields, and
 balances, and it creates no payees or transactions. See
 [Categorization](categorization.md).
 
-## M5 — ActuYNAB experience
+## M5 — synced import review and confirmation — complete
 
-**Goal:** add an automation dashboard and incremental identity improvements.
+**Goal:** make statement import, deterministic categorization, explicit human
+confirmation, and synced persistence a single safe desktop workflow.
 
-1. Create the automation dashboard for imports, uncategorized rows,
-   duplicates, transfer suggestions, rules, errors, and processing history.
-   Include a synced, user-visible confirmation path for M4 classifications;
-   do not turn suggestions into writes without confirmation.
-2. Improve desktop/mobile workflow friction using existing design tokens and
-   component primitives.
-3. Add ActuYNAB branding only where it does not make upstream merge conflict
-   resolution expensive; preserve Portuguese and English translations.
+### M5 implementation result
+
+Milestone 5 keeps Actual's import preview and reconciliation path intact, then
+opens a responsive **Import review** modal for the returned transaction IDs.
+It displays the imported description, date, amount, reason, qualitative
+confidence, potential duplicates, transfer candidates, and protected/manual
+items. Users can approve safe suggestions in bulk or approve, correct, and
+reject individual unprotected suggestions.
+
+The additive synced audit model records source-bank/format labels, a file-free
+fingerprint, aggregate processing counts, review status, pending item IDs, and
+confirmed mappings. Confirmation writes only existing payee/category IDs using
+Actual's normal batch transaction API; no monetary, date, reconciliation,
+split, or transfer value can be changed. Reconciled, split, manually
+categorized, transfer, credit-card-payment, mortgage, and vehicle-financing
+rows are held out of automation.
+
+Focused synthetic tests prove persisted reload behavior, repeat-review
+idempotency, correction validation, native CRDT sync messages, and household
+safeguards. A private two-device sync-server round trip remains a deployment
+validation task, not a claim made by this implementation. See [Synced import
+review](import-review.md).
 
 ## M6 — secure online operation
 

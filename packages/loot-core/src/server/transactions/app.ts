@@ -12,6 +12,12 @@ import type {
   TransactionEntity,
 } from '#types/models';
 
+import {
+  confirmImportReview,
+  listPendingImportReviews,
+  loadImportReview,
+  prepareImportReview,
+} from './actuynab-review';
 import { exportQueryToCSV, exportToCSV } from './export/export-to-csv';
 import { parseFile } from './import/parse-file';
 import type { ParseFileOptions } from './import/parse-file';
@@ -20,6 +26,10 @@ import { mergeTransactions } from './merge';
 import { batchUpdateTransactions } from '.';
 
 export type TransactionHandlers = {
+  'actuynab-review-confirm': typeof confirmImportReview;
+  'actuynab-review-list-pending': typeof listPendingImportReviews;
+  'actuynab-review-load': typeof loadImportReview;
+  'actuynab-review-prepare': typeof prepareImportReview;
   'transactions-batch-update': typeof handleBatchUpdateTransactions;
   'transaction-add': typeof addTransaction;
   'transaction-update': typeof updateTransaction;
@@ -152,6 +162,10 @@ async function getLatestTransaction() {
 
 export const app = createApp<TransactionHandlers>();
 
+app.method('actuynab-review-confirm', mutator(undoable(confirmImportReview)));
+app.method('actuynab-review-list-pending', listPendingImportReviews);
+app.method('actuynab-review-load', loadImportReview);
+app.method('actuynab-review-prepare', mutator(prepareImportReview));
 app.method(
   'transactions-batch-update',
   mutator(undoable(handleBatchUpdateTransactions)),

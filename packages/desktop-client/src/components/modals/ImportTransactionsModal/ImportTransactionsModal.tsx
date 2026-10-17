@@ -233,6 +233,9 @@ export function ImportTransactionsModal({
   const [multiplierEnabled, setMultiplierEnabled] = useState(false);
   const [reconcile, setReconcile] = useState(true);
   const [importNotes, setImportNotes] = useState(true);
+  const [sourceBank, setSourceBank] = useState<
+    'activobank' | 'revolut' | 'other'
+  >('other');
 
   // This cannot be set after parsing the file, because changing it
   // requires re-parsing the file. This is different from the other
@@ -787,16 +790,27 @@ export function ImportTransactionsModal({
         reimportDeleted,
       },
       {
-        onSuccess: async didChange => {
-          if (didChange) {
+        onSuccess: async result => {
+          if (result.didChange) {
             void queryClient.invalidateQueries(payeeQueries.list());
           }
 
-          if (onImported) {
-            onImported(didChange);
-          }
-
           close();
+
+          if (onImported) {
+            onImported({
+              ...result,
+              auditTransactions: finalTransactions.map(transaction => ({
+                amount: transaction.amount,
+                date: transaction.date,
+                importedId: transaction.imported_id ?? null,
+                importedPayee: transaction.imported_payee ?? null,
+              })),
+              parsed: finalTransactions.length,
+              sourceBank,
+              sourceFormat: filetype,
+            });
+          }
         },
       },
     );
@@ -1173,6 +1187,35 @@ export function ImportTransactionsModal({
                 </View>
 
                 {/* CSV Options */}
+                <View style={{ marginLeft: 10, gap: 5 }}>
+                  <SectionLabel title={t('IMPORT REVIEW')} />
+                  <label
+                    htmlFor="actuynab-source-bank"
+                    style={{
+                      display: 'flex',
+                      flexDirection: 'row',
+                      gap: 5,
+                      alignItems: 'baseline',
+                    }}
+                  >
+                    <Trans>Source bank:</Trans>
+                    <Select
+                      id="actuynab-source-bank"
+                      options={[
+                        ['other', t('Other statement')],
+                        ['activobank', 'ActivoBank'],
+                        ['revolut', 'Revolut'],
+                      ]}
+                      value={sourceBank}
+                      onChange={value => {
+                        setSourceBank(
+                          value as 'activobank' | 'revolut' | 'other',
+                        );
+                      }}
+                      style={{ width: 145 }}
+                    />
+                  </label>
+                </View>
                 {filetype === 'csv' && (
                   <View style={{ marginLeft: 10, gap: 5 }}>
                     <SectionLabel title={t('CSV OPTIONS')} />

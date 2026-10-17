@@ -638,9 +638,41 @@ class AccountInternal extends PureComponent<
                 options: {
                   accountId,
                   filename: res[0],
-                  onImported: (didChange: boolean) => {
-                    if (didChange) {
+                  onImported: result => {
+                    if (result.didChange) {
                       this.fetchTransactions();
+                    }
+                    if (
+                      result.added.length +
+                        result.updated.length +
+                        result.duplicate >
+                      0
+                    ) {
+                      this.props.dispatch(
+                        pushModal({
+                          modal: {
+                            name: 'actuynab-import-review',
+                            options: {
+                              accountId,
+                              auditCounts: {
+                                duplicate: result.duplicate,
+                                failed: result.failed,
+                                imported: result.added.length,
+                                parsed: result.parsed,
+                                updated: result.updated.length,
+                              },
+                              sourceTransactions: result.auditTransactions,
+                              sourceBank: result.sourceBank,
+                              sourceFormat: result.sourceFormat,
+                              transactionIds: [
+                                ...result.added,
+                                ...result.updated,
+                              ],
+                              updatedTransactionIds: result.updated,
+                            },
+                          },
+                        }),
+                      );
                     }
                   },
                 },
@@ -650,6 +682,19 @@ class AccountInternal extends PureComponent<
         }
       }
     }
+  };
+
+  onReviewImports = () => {
+    const accountId = this.props.accountId;
+    if (!accountId) return;
+    this.props.dispatch(
+      pushModal({
+        modal: {
+          name: 'actuynab-import-review',
+          options: { accountId },
+        },
+      }),
+    );
   };
 
   onExport = async (accountName: string) => {
@@ -1892,6 +1937,7 @@ class AccountInternal extends PureComponent<
                 }
                 onSync={this.onSync}
                 onImport={this.onImport}
+                onReviewImports={this.onReviewImports}
                 onBatchDelete={this.onBatchDelete}
                 onBatchDuplicate={this.onBatchDuplicate}
                 onRunRules={this.onRunRules}

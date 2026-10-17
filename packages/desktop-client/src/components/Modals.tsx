@@ -16,6 +16,7 @@ import { AccountAutocompleteModal } from './modals/AccountAutocompleteModal';
 import { AccountGroupsModal } from './modals/AccountGroupsModal';
 import { AccountMenuModal } from './modals/AccountMenuModal';
 import { AccountReconcileModal } from './modals/AccountReconcileModal';
+import { ActuynabImportReviewModal } from './modals/ActuynabImportReviewModal';
 import { AkahuInitialiseModal } from './modals/AkahuInitialiseModal';
 import { BudgetAutomationsModal } from './modals/BudgetAutomationsModal';
 import { BudgetPageMenuModal } from './modals/BudgetPageMenuModal';
@@ -131,6 +132,9 @@ export function Modals() {
 
         case 'import-transactions':
           return <ImportTransactionsModal key={key} {...modal.options} />;
+
+        case 'actuynab-import-review':
+          return <ActuynabImportReviewModal key={key} {...modal.options} />;
 
         case 'add-account':
           return <CreateAccountModal key={key} {...modal.options} />;

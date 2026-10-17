@@ -73,11 +73,13 @@ non-sensitive fingerprint, total rows and amount, and counts of imported,
 updated, exact duplicates, skipped/review items, errors, warnings, and explicit
 user approvals. It is produced without manipulating SQLite tables.
 
-The audit is deliberately returned to the caller as JSON or Markdown rather
-than persisted in a new local table. Actual has no synced import-batch entity;
-adding an unsynced history store would be misleading on another device. A
-future history/review UI should introduce a proper synced model only after its
-privacy, retention, and conflict semantics are designed.
+Milestone 3 continues to return JSON or Markdown without directly writing
+SQLite. Milestone 5 now consumes the reconciled transaction IDs in a separate,
+additive synced review flow. Its audit records source-bank/format labels,
+file-free fingerprints, aggregate counts, pending review references, and
+explicit user decisions through Actual's normal CRDT persistence path. See
+[Synced import review](import-review.md). It still does not retain source files
+or raw rows.
 
 ## Milestone 3 implementation
 
@@ -147,6 +149,24 @@ imports an overlapping row without its stable ID; protects a confirmed payee;
 blocks an ambiguous date/amount fallback; reruns after a simulated lost audit
 handoff; and verifies the suggested transfer has a zero combined balance. It
 also validates JSON and Markdown audit output.
+
+## Milestone 5 review integration
+
+The existing Actual import dialog remains the parser and first confirmation
+step. After a reconciled import returns added or updated transaction IDs, the
+desktop client opens **Import review**. The user may identify a CSV/QIF audit
+as ActivoBank, Revolut, or Other statement, inspect the M4 classification
+reason/confidence, then approve safe suggestions in bulk or individually
+approve, correct, or reject the rest.
+
+Repeated statement imports remain governed by Actual's imported-ID and
+fallback reconciliation rules. M5 records matched/updated rows as possible
+duplicates for review but does not create another financial transaction. An
+ambiguous M3 source row remains skipped until its existing importer-specific
+review is resolved; M5 never lowers the matching threshold or manufactures a
+transfer. The review's audit/mapping persistence, account safeguards, and
+reopen-after-refresh behavior are documented in
+[Synced import review](import-review.md).
 
 ## Test sequence
 
