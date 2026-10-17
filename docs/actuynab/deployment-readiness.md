@@ -83,12 +83,19 @@ with any non-synthetic budget.
 ## Vercel preview setup
 
 An empty, password-protected project named `actuynab-private-preview` was
-created in the owner's `jrvellosos-projects` team. No deployment, DNS mapping,
-environment variable, or financial data was created. Do not use it as a
-production project.
+created in the owner's `jrvellosos-projects` team. No deployment remains, and
+no DNS mapping, environment variable, or financial data was created. Do not use
+it as a production project.
 
-When the owner is ready to create a protected preview from the Milestone 6
-branch, use these project settings:
+A direct Vercel CLI upload was started while verifying the project, but the CLI
+reported its target as **Production** even without `--prod`. It was removed
+while still building, and `vercel list` then confirmed that the project had
+zero deployments. Do not use that direct CLI path for this project. Create the
+first deployment from the dashboard's explicitly labelled **Preview** flow and
+verify its environment before allowing the build to proceed.
+
+When the owner is ready to create the first protected preview from the
+Milestone 6 branch, use the Vercel dashboard and these project settings:
 
 | Setting | Value |
 | --- | --- |
@@ -97,11 +104,12 @@ branch, use these project settings:
 | Install Command | `yarn install --immutable` |
 | Build Command | `yarn build:browser --skip-translations` |
 | Output Directory | `packages/desktop-client/build` |
-| Deployment branch | `feature/milestone-6-deployment-readiness` until reviewed |
+| Preview source branch | `feature/milestone-6-deployment-readiness` until reviewed |
 | Environment variables | None required; never add `ACTUAL_*`, passwords, bank secrets, or a sync token |
 | Protection | Password protection enabled before deployment; retain team protection and do not add custom production domains |
 
-`vercel.json` supplies SPA fallback, `application/wasm`, cross-origin
+Confirm the dashboard identifies the new deployment as **Preview**, not
+Production, before accepting it. `vercel.json` supplies SPA fallback, `application/wasm`, cross-origin
 isolation, restrictive browser security headers, and an HTTPS-only `connect-src`
 policy. The client route fallback never proxies `/sync`, `/account`, or any
 other server endpoint.
@@ -138,9 +146,10 @@ together with synthetic data. The remaining owner-controlled procedure is:
    uninitialized service; use the supplied configuration with a host data path.
 2. Bootstrap Actual authentication privately, then verify Caddy obtains a
    trusted certificate and the data directory survives a container restart.
-3. Deploy the protected Vercel preview from the documented branch, open the
-   preview in two separate browser profiles, and configure the synthetic HTTPS
-   server URL in each.
+3. Deploy the protected Vercel preview through the dashboard from the
+   documented branch, confirm its environment is Preview, open it in two
+   separate browser profiles, and configure the synthetic HTTPS server URL in
+   each.
 4. Repeat the import -> review -> confirmation -> reload -> second-client ->
    repeated-import -> server-restart -> isolated-restore checklist.
 5. Obtain explicit authorization before associating a production domain,

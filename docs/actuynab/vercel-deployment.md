@@ -150,8 +150,12 @@ variables, or deploy. Its final validation record must report these separately:
   boundary locally, not a Vercel-to-server deployment.
 - The `jrvellosos-projects` team now has an empty
   `actuynab-private-preview` project with password protection enabled. No
-  deployment, project link, custom domain, environment variable, financial
-  data, or server credential was created.
+  deployment remains, and no project link, custom domain, environment variable,
+  financial data, or server credential was created.
+- A direct CLI upload was immediately removed while building after Vercel
+  classified it as a Production target despite no `--prod` option. `vercel
+  list` subsequently returned no deployments. Use the dashboard's visibly
+  labelled Preview flow, not that direct CLI path, for the first upload.
 
 The remaining action is an owner-controlled protected preview deployment from
 the Milestone 6 branch and a synthetic connection to a trusted-certificate,
