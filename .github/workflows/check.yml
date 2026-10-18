@@ -122,7 +122,7 @@ jobs:
             bin/test-results/junit*.xml
             packages/*/test-results/junit*.xml
   check-gh-actions:
-    runs-on: depot-ubuntu-latest
+    runs-on: ubuntu-latest
     permissions:
       security-events: write
     steps:
