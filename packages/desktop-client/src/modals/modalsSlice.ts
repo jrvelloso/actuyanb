@@ -59,6 +59,7 @@ export type Modal =
             parsed: number;
             sourceBank: 'activobank' | 'revolut' | 'other';
             sourceFormat: string;
+            warnings: number;
           },
         ) => void;
       };
@@ -73,6 +74,7 @@ export type Modal =
           imported: number;
           parsed: number;
           updated: number;
+          warnings?: number;
         };
         batchId?: string;
         sourceTransactions?: Array<{

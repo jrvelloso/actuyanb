@@ -25,7 +25,9 @@ budgeting engine, or use browser component state as durable storage.
 2. For a CSV or QIF statement, choose the audit source bank in the **Import
    review** section: ActivoBank, Revolut, or Other statement. This identifies
    the audit record only; it does not claim that the generic parser recognized
-   a real bank export schema.
+   a real bank export schema. A structurally recognized ActivoBank XLSX export
+   labels itself automatically as `ActivoBank XLSX`; parser warnings, including
+   a running-balance inconsistency, appear above its normal preview.
 3. Complete Actual's normal reconciled import. When rows are added or matched,
    the **Import review** modal opens automatically. The account header also
    provides **Review imports** to reopen the latest pending review after a
@@ -124,8 +126,9 @@ must be completed in a private deployment test before production use.
   financial import selection is confirmed in the upstream modal first, while
   categorization is confirmed in the next modal.
 - Only the default reconciled import path can create an automatic review queue.
-- The audit stores an explicit source-bank label selected for CSV/QIF imports;
-  it does not autodetect a production bank schema or validate a real export.
+- CSV/QIF audit labels remain explicit. XLSX recognition is limited to the
+  validated one-sheet ActivoBank structure described in [Bank statement
+  imports](bank-imports.md); other layouts are rejected rather than guessed.
 - Transfer candidates are protective classifications, not automatically linked
   transfers. Bank account connections and live synchronization are out of
   scope.

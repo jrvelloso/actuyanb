@@ -218,6 +218,33 @@ role reload, structural-payment protection, ledger/balance preservation, and
 the existing M4/M5 safeguards. See [Household budget
 experience](household-budget.md).
 
+## M8 - ActivoBank XLSX import - complete
+
+**Goal:** support the verified ActivoBank Portugal Excel statement safely in
+the established import, classification, review, and household workflow.
+
+### M8 implementation result
+
+Milestone 8 adds a narrow, structural XLSX adapter for a one-sheet ActivoBank
+export containing `Data Lanc.`, `Data Valor`, `Descrição`, `Valor`, and
+`Saldo`. It parses booking and value dates separately, preserves signed EUR
+amounts as exact minor units, validates the running balance in either row
+order, and rejects unknown or malformed workbook layouts without relying on a
+filename. The synthetic in-memory fixture covers card purchase, direct debit,
+transfer, MB WAY, ATM cash withdrawal, credit-card bill payment, and refund.
+
+The adapter feeds M3's account-scoped identity and duplicate checks, Actual's
+normal reconciliation, M4 classification, M5's synced review records, and M7
+account-role protections. Repeated and overlapping files add no financial
+transactions; same-date/same-amount legitimate movements remain distinct.
+Malformed data is rejected and a running-balance issue is shown as a visible
+warning. Browser validation against the local Docker server imported and
+reviewed the synthetic workbook, persisted an explicit grocery correction
+across a clean client and server restart, and reimported the workbook as zero
+transactions with the balance unchanged. No real statement, account,
+credential, bank API, or public deployment was used. See [Bank statement
+imports](bank-imports.md) and [Functional validation](validation.md).
+
 ## Deferred evaluation
 
 Open Banking/PSD2 automation, advanced forecasts, PWA capabilities, and a SaaS

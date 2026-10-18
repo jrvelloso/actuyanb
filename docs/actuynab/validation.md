@@ -375,3 +375,46 @@ These are local SQLite/CRDT tests. They prove the new metadata emits Actual
 sync messages, not that a newly deployed remote server or a real bank account
 has been exercised. The Windows Node 24 Windows-1252 parser baseline remains
 unrelated and unchanged.
+
+## Milestone 8 ActivoBank XLSX validation
+
+Milestone 8 uses only the generated synthetic workbook in
+`actuynab-activobank-xlsx.fixture.ts`. The fixture is an in-memory OOXML XLSX
+file with synthetic metadata, account label, descriptions, references, amounts,
+and balances. No bank export, account identifier, credential, or raw financial
+file is required or committed.
+
+Run the focused core regression from the repository root:
+
+```text
+yarn workspace @actual-app/core vitest --run src/server/transactions/import/actuynab-activobank-xlsx.test.ts src/server/transactions/import/actuynab-bank-import.test.ts src/server/transactions/import/parse-file.test.ts src/server/transactions/actuynab-review.test.ts src/server/transactions/actuynab-household.test.ts src/server/transactions/actuynab-classification.test.ts
+```
+
+The XLSX test validates structural header detection, exact booking/value-date
+handling, signed minor-unit amounts, all observed transaction-type tags,
+running-balance checking in chronological and reversed row order, duplicate
+source records, same-date/same-amount legitimate movements, repeated and
+overlapping imports, and malformed/empty/non-EUR input. It verifies a first
+import adds seven synthetic movements with a `-321.97 EUR` aggregate amount;
+the same and overlapping statements add zero further movements.
+
+### Executed local Chromium result (2026-10-18)
+
+The existing localhost-only Docker sync server at `127.0.0.1:5006` and Vite
+frontend at `127.0.0.1:3001` were used with a synthetic `My Finances` budget.
+Chromium selected the generated workbook through Actual's real Import picker.
+The normal preview displayed seven rows, the detected `ActivoBank XLSX` label,
+the distinct booking/value date note, and a normalized `Continente` payee
+candidate. Importing changed the target Activo balance by exactly `-321.97 EUR`
+and opened the M5 review with M7 protection for the synthetic Millenium
+transfer and the CC Activo bill payment.
+
+An explicit correction assigned the synthetic Continente card purchase to the
+existing Groceries category. A clean authenticated Chromium session observed
+the corrected transaction and the unchanged balance `-317,831.65 EUR`. After
+the local sync-server restart, another clean session observed the same result.
+Selecting the identical generated XLSX again produced `Import 0 transactions`;
+the balance did not change. A separate malformed-balance fixture visibly
+displayed the parser warning and was not imported. This validates local browser
+functionality and native local persistence, not a public deployment, live
+bank connection, or unknown ActivoBank export variant.

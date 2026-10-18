@@ -221,6 +221,7 @@ export function ImportTransactionsModal({
     parsed: boolean;
     message: string;
   } | null>(null);
+  const [parseWarnings, setParseWarnings] = useState<string[]>([]);
   const [filename, setFilename] = useState(originalFileName);
   const [transactions, setTransactions] = useState<ImportTransaction[]>([]);
   const [parsedTransactions, setParsedTransactions] = useState<
@@ -301,9 +302,9 @@ export function ImportTransactionsModal({
       multiplierAmount: string,
     ) => {
       const previewTransactions = [];
-      const inOutModeEnabled = isOfxFile(filetype) ? false : inOutMode;
+      const inOutModeEnabled = isPreParsedFile(filetype) ? false : inOutMode;
       const getTransDate: (trans: ImportTransaction) => string | null =
-        isOfxFile(filetype)
+        isPreParsedFile(filetype)
           ? trans => trans.date ?? null
           : trans => parseDate(trans.date, parseDateFormat);
 
@@ -369,7 +370,10 @@ export function ImportTransactionsModal({
           ...finalTransaction,
           category: category_id,
           date,
-          amount: amountToInteger(amount),
+          amount:
+            typeof trans.amount_minor === 'number'
+              ? trans.amount_minor
+              : amountToInteger(amount),
           cleared: clearOnImport,
         });
       }
@@ -391,13 +395,14 @@ export function ImportTransactionsModal({
       setFilename(filename);
       setFileType(filetype);
 
-      const { errors, transactions: parsedTransactions = [] } = await send(
-        'transactions-parse-file',
-        {
-          filepath: filename,
-          options,
-        },
-      );
+      const {
+        errors,
+        transactions: parsedTransactions = [],
+        warnings = [],
+      } = await send('transactions-parse-file', {
+        filepath: filename,
+        options: { ...options, accountId },
+      });
 
       let index = 0;
       const transactions = parsedTransactions.map(trans => {
@@ -406,11 +411,12 @@ export function ImportTransactionsModal({
         trans.trx_id = String(index++);
         // Select all parsed transactions before first preview run
         // @ts-expect-error - trans is unknown type, adding properties dynamically
-        trans.selected = true;
+        trans.selected = !trans.source_skip;
         return trans;
       });
 
       setError(null);
+      setParseWarnings(warnings.map(warning => warning.message));
 
       /// Do fine grained reporting between the old and new OFX importers.
       if (errors.length > 0) {
@@ -560,7 +566,7 @@ export function ImportTransactionsModal({
       filters: [
         {
           name: 'Financial Files',
-          extensions: ['qif', 'ofx', 'qfx', 'csv', 'tsv', 'xml'],
+          extensions: ['qif', 'ofx', 'qfx', 'csv', 'tsv', 'xml', 'xlsx'],
         },
       ],
     });
@@ -656,10 +662,9 @@ export function ImportTransactionsModal({
 
       trans = fieldMappings ? applyFieldMappings(trans, fieldMappings) : trans;
 
-      const date =
-        isOfxFile(filetype) || isCamtFile(filetype)
-          ? trans.date
-          : parseDate(trans.date, parseDateFormat);
+      const date = isPreParsedFile(filetype)
+        ? trans.date
+        : parseDate(trans.date, parseDateFormat);
       if (date == null) {
         errorMessage = t(
           'Unable to parse date {{date}} with given date format',
@@ -671,7 +676,7 @@ export function ImportTransactionsModal({
       const { amount } = parseAmountFields(
         trans,
         splitMode,
-        isOfxFile(filetype) ? false : inOutMode,
+        isPreParsedFile(filetype) ? false : inOutMode,
         outValue,
         flipAmount,
         multiplierAmount,
@@ -693,7 +698,11 @@ export function ImportTransactionsModal({
         ignored: _ignored,
         selected: _selected,
         selected_merge: _selected_merge,
+        amount_minor: _amountMinor,
+        source_skip: _sourceSkip,
+        statement_balance_minor: _statementBalanceMinor,
         trx_id: _trx_id,
+        value_date: _valueDate,
         ...finalTransaction
       } = trans;
 
@@ -718,7 +727,10 @@ export function ImportTransactionsModal({
         ...finalTransaction,
         category: category_id,
         date,
-        amount: amountToInteger(amount),
+        amount:
+          typeof trans.amount_minor === 'number'
+            ? trans.amount_minor
+            : amountToInteger(amount),
         cleared: clearOnImport,
         notes: importNotes ? finalTransaction.notes : null,
       });
@@ -730,7 +742,7 @@ export function ImportTransactionsModal({
       return;
     }
 
-    if (!isOfxFile(filetype) && !isCamtFile(filetype)) {
+    if (!isPreParsedFile(filetype)) {
       const key = `parse-date-${accountId}-${filetype}`;
       savePrefs({ [key]: parseDateFormat });
     }
@@ -807,8 +819,11 @@ export function ImportTransactionsModal({
                 importedPayee: transaction.imported_payee ?? null,
               })),
               parsed: finalTransactions.length,
-              sourceBank,
+              sourceBank: isActivoBankXlsxFile(filetype)
+                ? 'activobank'
+                : sourceBank,
               sourceFormat: filetype,
+              warnings: parseWarnings.length,
             });
           }
         },
@@ -820,7 +835,7 @@ export function ImportTransactionsModal({
 
   const onImportPreview = useEffectEvent(async () => {
     // Filter by start date before preview and deduplication
-    const isPreParsed = isOfxFile(filetype) || isCamtFile(filetype);
+    const isPreParsed = isPreParsedFile(filetype);
     const filteredTransactions = filterByStartDate(
       parsedTransactions,
       startDate,
@@ -976,6 +991,24 @@ export function ImportTransactionsModal({
                 </strong>{' '}
                 {error.message}
               </Text>
+            </View>
+          )}
+          {parseWarnings.length > 0 && (
+            <View
+              style={{
+                color: theme.warningText,
+                alignItems: 'center',
+                marginBottom: 10,
+              }}
+            >
+              {parseWarnings.map(warning => (
+                <Text key={warning} style={{ maxWidth: 650 }}>
+                  <strong>
+                    <Trans>Warning:</Trans>
+                  </strong>{' '}
+                  {warning}
+                </Text>
+              ))}
             </View>
           )}
           {(!error || !error.parsed) && (
@@ -1145,7 +1178,7 @@ export function ImportTransactionsModal({
             </CheckboxToggle>
           )}
 
-          {(isOfxFile(filetype) || isCamtFile(filetype)) && (
+          {isPreParsedFile(filetype) && (
             <CheckboxToggle
               id="form_dont_reconcile"
               checked={reconcile}
@@ -1155,7 +1188,7 @@ export function ImportTransactionsModal({
             </CheckboxToggle>
           )}
 
-          {(isOfxFile(filetype) || isCamtFile(filetype)) && reconcile && (
+          {isPreParsedFile(filetype) && reconcile && (
             <CheckboxToggle
               id="form_reimport_deleted"
               checked={reimportDeleted}
@@ -1398,6 +1431,15 @@ export function ImportTransactionsModal({
             </View>
           )}
 
+          {isActivoBankXlsxFile(filetype) && (
+            <View style={{ marginTop: 10 }}>
+              <SectionLabel title={t('IMPORT REVIEW')} />
+              <Text>
+                <Trans>Detected statement: ActivoBank XLSX</Trans>
+              </Text>
+            </View>
+          )}
+
           <View style={{ flexDirection: 'row', marginTop: 5 }}>
             {/*Submit Button */}
             <View
@@ -1488,4 +1530,16 @@ function isOfxFile(fileType: string) {
 
 function isCamtFile(fileType: string) {
   return fileType === 'xml';
+}
+
+function isActivoBankXlsxFile(fileType: string) {
+  return fileType === 'xlsx';
+}
+
+function isPreParsedFile(fileType: string) {
+  return (
+    isOfxFile(fileType) ||
+    isCamtFile(fileType) ||
+    isActivoBankXlsxFile(fileType)
+  );
 }
