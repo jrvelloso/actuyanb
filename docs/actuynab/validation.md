@@ -281,3 +281,62 @@ claim that a remote server synchronized two devices. The remaining private
 deployment validation is a compatible sync-server two-device round trip, plus
 the normal HTTPS/authentication/backup operational checks. The known Node 24
 Windows-1252 parser baseline remains unrelated and unchanged.
+
+## Milestone 6 deployment-readiness validation
+
+Milestone 6 uses only temporary, fictional household data and an isolated
+native sync-server data directory. It does not load a bank statement, personal
+budget, credential, or production database.
+
+The production browser bundle was built on Windows 11 with Git for Windows'
+`sh.exe` ahead of other shells on `PATH`:
+
+```powershell
+$env:Path = "C:\Program Files\Git\usr\bin;$env:Path"
+yarn build:browser --skip-translations
+```
+
+It was then served by the repository static server and validated with a real
+Chromium runtime:
+
+```text
+E2E_START_URL=http://localhost:4173 E2E_USE_BUILD=true \
+  yarn workspace @actual-app/web playwright test \
+  e2e/deployment-readiness.test.ts --browser=chromium --workers=1
+
+Test Files  1 passed (1)
+Tests       1 passed (1)
+```
+
+The check requests the built SQLite WASM and default database assets, follows a
+client route through the SPA fallback, asserts cross-origin isolation and the
+worker bridge, opens the synthetic demo budget, and asserts the deployment
+security headers. The existing onboarding browser regression also passed from
+the production bundle:
+
+```text
+Test Files  1 passed (1)
+Tests       6 passed (6)
+```
+
+For the native sync drill, two independent Chromium profiles connected to a
+temporary HTTPS sync server using its password flow. The first client created
+only the synthetic Activo, Millenium, three credit-card, Home, and Tesla
+accounts, prepared a fictional categorized import review, and confirmed it.
+After a server restart, the second profile authenticated and observed the same
+budget. Repeating the test source through the existing M3/M5 regression path
+created no duplicate financial rows. A stopped-server archive of the temporary
+`/data` directory restored into a different data directory; a separate server
+then authenticated a third client, which observed all seven accounts and the
+confirmed review state.
+
+The self-signed certificate and browser certificate bypass used for this local
+test are test-only. A remotely accessible deployment must use a trusted Caddy
+certificate and repeat the complete synthetic procedure from a protected Vercel
+preview. See [Deployment readiness](deployment-readiness.md) for the exact
+remaining gates and backup procedure.
+
+`docker compose config -q` accepted the supplied private deployment definition
+with fictional placeholder values. The local Docker Desktop Linux engine was
+not running, so the Caddy container was not started or runtime-validated here;
+that remains a target-host preflight rather than a passed local test.

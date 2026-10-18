@@ -154,7 +154,16 @@ safeguards. A private two-device sync-server round trip remains a deployment
 validation task, not a claim made by this implementation. See [Synced import
 review](import-review.md).
 
-## M6 — secure online operation
+### Hosting proof of concept (complete; not a milestone)
+
+The Vercel PoC adds a static frontend configuration for the existing Vite
+browser build. It leaves synchronization, authentication, bank integrations,
+and all durable financial storage on a separately hosted Actual sync server;
+no Vercel deployment or production approval is implied. The configuration,
+validation contract, security boundaries, and Docker/browser-only comparison
+are recorded in [Vercel frontend proof of concept](vercel-deployment.md).
+
+## M6 — deployment readiness and end-to-end validation — partially complete
 
 **Goal:** validate a private, supportable self-hosted service.
 
@@ -163,6 +172,27 @@ review](import-review.md).
 2. Review logs and operational configuration for financial-data exposure.
 3. Run focused financial, import, sync, and security regressions before any
    production deployment approval.
+
+### M6 implementation result
+
+The Milestone 6 integration branch safely combines the sibling Vercel PoC and
+synced review branches without merging, force-pushing, or deleting any existing
+pull request. It adds a Docker/Caddy configuration that builds the fork's
+native sync server, retains its durable `/data` model, and defines a protected
+static Vercel preview without client-side secrets.
+
+Using only synthetic data, the production browser bundle initialized in real
+Chromium with WASM/worker storage and enforced static-host headers; Actual
+password authentication, two isolated browser clients, native sync after a
+server restart, M5 review confirmation persistence, and an isolated server
+data restore all passed locally. A focused regression protects static asset,
+SPA fallback, and security-header behavior.
+
+The milestone remains partial because a trusted remote certificate, durable
+private host, and protected Vercel preview have not yet been connected to one
+another. Supabase was evaluated and deliberately not used: replacing Actual's
+server protocol with a Supabase adapter would be a material, unapproved sync
+server rewrite. See [Deployment readiness](deployment-readiness.md).
 
 ## Deferred evaluation
 

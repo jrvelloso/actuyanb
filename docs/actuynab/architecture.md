@@ -57,6 +57,18 @@ service; it is not a replacement database for budget calculations.
    receives only IDs returned from Actual's reconciled importer, then applies
    selected existing payee/category IDs through `batchUpdateTransactions`.
    It never stores raw bank files or becomes a transaction database.
+7. **Static web hosting.** The existing Vite browser output can be served from
+   a static host, including Vercel, when it preserves SPA fallback,
+   cross-origin-isolation headers, and the WASM MIME type. This hosts the React
+   client and browser SQLite runtime only; keep `packages/sync-server` on a
+   separately operated host with durable storage. See
+   [Vercel frontend proof of concept](vercel-deployment.md).
+8. **Private operation.** Keep the native sync server, its `/data` volume, and
+   Actual authentication intact. `deploy/actuynab-private` builds this fork's
+   sync server and uses Caddy only as a TLS reverse proxy. Supabase is not a
+   drop-in persistence layer for the server's CRDT/filesystem protocol; do not
+   add an adapter without a separately approved compatibility design. See
+   [Deployment readiness](deployment-readiness.md).
 
 ## Financial correctness constraints
 
@@ -94,3 +106,4 @@ branch, run regression tests, and record any adaptation in these documents.
 | Classification persistence | M5 persists confirmed mappings and reviewed transaction updates through Actual's CRDT sync path                                | Keep the model additive and validate sync-server behavior privately     |
 | Bank-secret exposure       | Upstream docs state provider secrets are not covered by E2E encryption                                                         | Self-host, restrict server access, and document backup/secret handling  |
 | Windows test cleanup       | Baseline test teardown can leave SQLite files locked                                                                           | Run CI on Linux; make future Windows tests close handles before cleanup |
+| Deployment boundary        | A Vercel build is a static browser runtime, not a durable sync service                                                        | Use native sync server, persistent `/data`, authentication, TLS, and restore drills |
