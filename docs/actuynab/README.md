@@ -147,6 +147,10 @@ experience](household-budget.md).
   accounts, category template, financing safeguards, overview semantics, and
   synthetic validation.
 
+- [Windows local Docker development](local-docker-development.md) —
+  localhost-only native sync server, React hot reload, synthetic Household
+  validation, and safe local backup/restore steps.
+
 ## Working agreement
 
 Use a feature branch for ActuYNAB changes and keep commits focused. Fetch and

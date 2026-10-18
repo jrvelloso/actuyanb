@@ -348,7 +348,9 @@ export default defineConfig(async ({ mode, command }) => {
       },
     },
     server: {
-      host: true,
+      // Keep the upstream network-friendly default, while allowing a local
+      // financial-development session to bind only to loopback.
+      host: env.VITE_HOST || true,
       headers: devHeaders,
       port: +env.PORT || 5173,
       open: env.BROWSER

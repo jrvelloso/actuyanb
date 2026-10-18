@@ -39,7 +39,12 @@ RUN git -c init.defaultBranch=master init -q \
     && git -c user.email=build@docker -c user.name=docker-build add -A \
     && git -c user.email=build@docker -c user.name=docker-build commit -qm build
 
-RUN yarn build:server
+# The locale directory may be present in a checkout without its separate
+# translations Git repository. Docker builds must use the same deterministic
+# browser build mode documented for private deployment rather than attempting
+# to `git pull` translations from inside the image build.
+RUN yarn build:browser --skip-translations \
+    && yarn workspace @actual-app/sync-server build
 
 # Focus the workspaces in production mode (including @actual-app/web you just built)
 RUN yarn workspaces focus @actual-app/sync-server --production

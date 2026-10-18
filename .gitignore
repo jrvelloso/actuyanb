@@ -83,6 +83,10 @@ DESIGN.json
 # Local Netlify folder
 .netlify
 
+# Local-only ActuYNAB Docker configuration. It may name a host-owned financial
+# data directory, so it must never be committed.
+deploy/actuynab-private/.env.local
+
 # Personal devcontainer config
 .devcontainer/*.local
 
