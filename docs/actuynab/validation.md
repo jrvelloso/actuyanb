@@ -38,9 +38,12 @@ $env:Path = 'C:\Program Files\Git\usr\bin;' + $env:Path
 yarn start
 ```
 
-The lint command currently reports formatting debt inherited from upstream;
-do not mass-reformat unrelated files to make that baseline green. Format only
-files changed by the branch with `yarn exec oxfmt <paths>`.
+Text checkouts are normalized to LF through `.gitattributes`, including
+Markdown, JSON, and workflow files; Android `.bat` and binary files remain
+explicit exceptions. For an existing checkout made before that policy, preserve
+local work and use a fresh worktree rather than mass-reformatting or
+renormalizing unrelated files. Format only files changed by the branch with
+`yarn exec oxfmt <paths>`.
 
 ## Synthetic dataset
 

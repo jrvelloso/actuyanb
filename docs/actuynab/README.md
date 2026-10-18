@@ -134,6 +134,9 @@ statement imports](bank-imports.md) and [Functional validation](validation.md).
 
 - [Architecture](architecture.md) — package boundaries, extension seams, and
   integrity constraints.
+- [Integration hygiene and CI readiness](integration-readiness.md) — safe
+  merge order, cross-platform validation, CI security controls, and the
+  recommended `master` protection baseline.
 - [Roadmap](roadmap.md) — ordered, evidence-based milestones and backlog.
 - [YNAB 4 migration](ynab4-migration.md) — supported data, known gaps, and the
   validation-report design.
