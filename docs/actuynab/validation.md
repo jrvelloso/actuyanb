@@ -454,3 +454,32 @@ Household, saves the seven-role setup, verifies the Financing management panel,
 and reloads the browser before checking the panel again. It validates the
 compiled browser interface and persisted setup only; ledger allocation cases
 remain in the core test so no browser fixture has to contain financial data.
+
+## Milestone 11 financial-dashboard validation
+
+M11's `actuynab-dashboard.test.ts` starts from a fresh, fictional Household
+setup. It adds two checking accounts, three cards, Home/Tesla tracking
+movements, categorized income/spending, a refund, an internal transfer, a card
+repayment, a pending M5 import review, and verified M10 mortgage/vehicle
+allocations. It then reads the selected-month dashboard and asserts that
+availability remains a budget-sheet value, income/spending excludes the
+structural movements, category trend totals net refunds, and Home/Tesla
+principal/interest/insurance remain manual metadata.
+
+Run from the repository root:
+
+```text
+yarn workspace @actual-app/core vitest --run src/server/transactions/actuynab-dashboard.test.ts src/server/transactions/actuynab-financing.test.ts src/server/transactions/actuynab-household.test.ts src/server/transactions/actuynab-review.test.ts
+yarn workspace @actual-app/core typecheck
+yarn workspace @actual-app/web typecheck
+```
+
+The test records account balances and active financing-allocation row count
+before reading the dashboard and requires both to be unchanged afterwards. It
+uses no statement, lender/account identifier, credential, API, remote server,
+or browser storage.
+
+Browser visual/functionality and two-client financing-sync checks remain
+unverified for M11 when a safely controllable browser is unavailable. They must
+be performed later with the synthetic localhost procedure documented in
+`local-docker-development.md`; do not infer their result from the unit suite.

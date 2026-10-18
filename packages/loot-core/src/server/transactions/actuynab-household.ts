@@ -513,7 +513,14 @@ function overviewAccounts(
     }));
 }
 
-export async function getHouseholdOverview(): Promise<HouseholdOverview> {
+export async function getHouseholdOverview({
+  month = monthUtils.currentMonth(),
+}: {
+  month?: string;
+} = {}): Promise<HouseholdOverview> {
+  if (!monthUtils.isValidYearMonth(month)) {
+    throw new Error('Choose a valid household overview month.');
+  }
   const profile = await loadHouseholdProfile();
   if (!profile) {
     return {
@@ -534,7 +541,6 @@ export async function getHouseholdOverview(): Promise<HouseholdOverview> {
 
   const accountIds = profile.accounts.map(account => account.id);
   const balances = await accountBalances(accountIds);
-  const month = monthUtils.currentMonth();
   const { start, end } = monthUtils.bounds(month);
   const onBudgetIds = profile.accounts
     .filter(account => account.onBudget)

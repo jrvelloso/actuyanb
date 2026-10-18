@@ -12,6 +12,7 @@ import type {
   TransactionEntity,
 } from '#types/models';
 
+import { getHouseholdDashboard } from './actuynab-dashboard';
 import {
   deleteFinancingBreakdown,
   getFinancingBreakdownCandidates,
@@ -37,6 +38,7 @@ import { mergeTransactions } from './merge';
 import { batchUpdateTransactions } from '.';
 
 export type TransactionHandlers = {
+  'actuynab-household-dashboard': typeof getHouseholdDashboard;
   'actuynab-household-configure': typeof configureHousehold;
   'actuynab-household-overview': typeof getHouseholdOverview;
   'actuynab-household-profile': typeof loadHouseholdProfile;
@@ -184,6 +186,7 @@ app.method(
   'actuynab-household-configure',
   mutator(undoable(configureHousehold)),
 );
+app.method('actuynab-household-dashboard', getHouseholdDashboard);
 app.method('actuynab-household-overview', getHouseholdOverview);
 app.method('actuynab-household-profile', loadHouseholdProfile);
 app.method('actuynab-financing-candidates', getFinancingBreakdownCandidates);
