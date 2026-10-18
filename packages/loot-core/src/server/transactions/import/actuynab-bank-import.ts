@@ -23,16 +23,26 @@ import type { ImportTransactionEntity } from '#types/models';
 export const BANK_IMPORT_PROVIDERS = ['activobank', 'revolut'] as const;
 export type BankImportProvider = (typeof BANK_IMPORT_PROVIDERS)[number];
 
-export type BankStatementFormat = 'csv' | 'ofx' | 'qfx' | 'qif' | 'camt';
+export type BankStatementFormat =
+  | 'csv'
+  | 'ofx'
+  | 'qfx'
+  | 'qif'
+  | 'camt'
+  | 'xlsx';
 
 export type StatementRow = Record<string, string | number | null | undefined>;
 
 export type StatementFieldMap = Readonly<Record<string, string>>;
 
 export type BankStatementTransactionType =
+  | 'cash-withdrawal'
   | 'card-purchase'
+  | 'credit-card-payment'
+  | 'direct-debit'
   | 'exchange'
   | 'fee'
+  | 'mb-way'
   | 'refund'
   | 'transfer'
   | 'unknown';
@@ -45,6 +55,18 @@ export const ACTIVOBANK_SYNTHETIC_CSV_FIELDS = {
   reference: 'Referência',
   transferReference: 'Referência transferência',
   valueDate: 'Data valor',
+} as const satisfies StatementFieldMap;
+
+/**
+ * Field names emitted by the validated ActivoBank XLSX parser. They are an
+ * internal adapter contract, not raw workbook header names or stored data.
+ */
+export const ACTIVOBANK_XLSX_FIELDS = {
+  amount: 'amount',
+  bookingDate: 'bookingDate',
+  description: 'description',
+  reference: 'sourceIdentity',
+  valueDate: 'valueDate',
 } as const satisfies StatementFieldMap;
 
 export const REVOLUT_SYNTHETIC_CSV_FIELDS = {
@@ -276,7 +298,7 @@ function createPreparedTransaction({
   };
 }
 
-function classifyActivoBankTransaction(
+export function classifyActivoBankTransaction(
   description: string,
 ): BankStatementTransactionType {
   const unaccented = description
@@ -288,6 +310,18 @@ function classifyActivoBankTransaction(
   }
   if (/^REEMBOLSO\b/.test(unaccented)) {
     return 'refund';
+  }
+  if (/^(DEBITO DIRETO|DEBITO DIRECTO)\b/.test(unaccented)) {
+    return 'direct-debit';
+  }
+  if (/^MB WAY\b/.test(unaccented)) {
+    return 'mb-way';
+  }
+  if (/^(LEVANTAMENTO|ATM)\b/.test(unaccented)) {
+    return 'cash-withdrawal';
+  }
+  if (/^PAGAMENTO (?:CARTAO|CC)\b/.test(unaccented)) {
+    return 'credit-card-payment';
   }
   if (/^(COMISSAO|TAXA)\b/.test(unaccented)) {
     return 'fee';
@@ -324,26 +358,34 @@ function normalizeActivoBankRow(
   | { transaction: PreparedBankTransaction; warnings: BankImportIssue[] }
   | { errors: BankImportIssue[] } {
   const description = value(row, options.fieldMap, 'description');
-  const date = parsePortugueseDate(
+  const sourceDate =
     value(row, options.fieldMap, 'bookingDate') ??
-      value(row, options.fieldMap, 'valueDate'),
-  );
+    value(row, options.fieldMap, 'valueDate');
+  const date = parsePortugueseDate(sourceDate) ?? parseIsoDate(sourceDate);
   const debit = parseDecimal(value(row, options.fieldMap, 'debit'));
   const credit = parseDecimal(value(row, options.fieldMap, 'credit'));
+  const signedAmount = parseDecimal(value(row, options.fieldMap, 'amount'));
 
   const errors: BankImportIssue[] = [];
   if (!description) {
     errors.push({ code: 'missing-description', row: sourceRow });
   }
   if (!date) errors.push({ code: 'invalid-date', row: sourceRow });
-  if ((debit == null && credit == null) || (debit != null && credit != null)) {
+  const hasSeparateDebitCredit = debit != null || credit != null;
+  if (
+    (signedAmount == null && !hasSeparateDebitCredit) ||
+    (signedAmount != null && hasSeparateDebitCredit) ||
+    (debit != null && credit != null)
+  ) {
     errors.push({ code: 'invalid-amount', row: sourceRow });
   }
   if (errors.length > 0) {
     return { errors };
   }
 
-  const amount = amountToInteger(credit ?? -Math.abs(debit ?? 0));
+  const amount = amountToInteger(
+    signedAmount ?? credit ?? -Math.abs(debit ?? 0),
+  );
   return {
     transaction: createPreparedTransaction({
       accountId: options.accountId,

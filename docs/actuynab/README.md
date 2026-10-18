@@ -118,6 +118,18 @@ upcoming schedules. It preserves Actual's transfer, card, split,
 reconciliation, and off-budget tracking semantics. See [Household budget
 experience](household-budget.md).
 
+## Milestone 8 ActivoBank XLSX import
+
+Milestone 8 adds a structurally detected, single-sheet ActivoBank Portugal
+XLSX statement adapter. It preserves booking and value dates, signed EUR minor
+units, descriptions, balance-validation warnings, and Actual's duplicate
+reconciliation semantics. The file enters the existing M3 preparation, M4
+classification, M5 review/confirmation, and M7 household-protection path; it
+does not store the workbook or create a second financial database. Synthetic
+XLSX/browser tests prove repeat imports create no transactions and an explicit
+review correction persists across a local sync-server restart. See [Bank
+statement imports](bank-imports.md) and [Functional validation](validation.md).
+
 ## Project documents
 
 - [Architecture](architecture.md) — package boundaries, extension seams, and

@@ -5,6 +5,17 @@ import * as fs from '#platform/server/fs';
 import { logger } from '#platform/server/log';
 import { looselyParseAmount } from '#shared/util';
 
+import {
+  formatActivoBankXlsxIssue,
+  parseActivoBankXlsx,
+  toActivoBankXlsxImportTransactions,
+  toActivoBankXlsxStatementRows,
+} from './actuynab-activobank-xlsx';
+import {
+  ACTIVOBANK_XLSX_FIELDS,
+  prepareBankImport,
+  requireReviewForAmbiguousMatches,
+} from './actuynab-bank-import';
 import { ofx2json } from './ofx2json';
 import { qif2json } from './qif2json';
 import { xmlCAMT2json } from './xmlcamt2json';
@@ -85,12 +96,16 @@ type CsvTransaction = Record<string, string> | string[];
 type Transaction = StructuredTransaction | CsvTransaction;
 
 type ParseError = { message: string; internal: string };
+type ParseWarning = { message: string; internal: string };
 export type ParseFileResult = {
   errors: ParseError[];
   transactions?: Transaction[];
+  warnings?: ParseWarning[];
 };
 
 export type ParseFileOptions = {
+  /** Required by the ActivoBank XLSX adapter to namespace imported IDs. */
+  accountId?: string;
   hasHeaderRow?: boolean;
   delimiter?: string;
   fallbackMissingPayeeToMemo?: boolean;
@@ -122,6 +137,8 @@ export async function parseFile(
         return parseOFX(filepath, options);
       case '.xml':
         return parseCAMT(filepath, options);
+      case '.xlsx':
+        return parseActivoBankXlsxFile(filepath, options);
       default:
     }
   }
@@ -131,6 +148,101 @@ export async function parseFile(
     internal: '',
   });
   return { errors, transactions: [] };
+}
+
+function xlsxError(message: string): ParseError {
+  return { internal: '', message };
+}
+
+function xlsxWarning(message: string): ParseWarning {
+  return { internal: '', message };
+}
+
+function formatPreparedXlsxIssue(
+  issue: { code: string; row: number },
+  excelRows: ReadonlyArray<{ excelRow: number }>,
+): string {
+  const excelRow = excelRows[issue.row - 1]?.excelRow ?? issue.row;
+  switch (issue.code) {
+    case 'ambiguous-match':
+      return `The ActivoBank XLSX movement on row ${excelRow} has multiple possible matches and was left unchecked for review.`;
+    case 'source-duplicate':
+      return `The ActivoBank XLSX movement on row ${excelRow} duplicates another source movement and was left unchecked.`;
+    default:
+      return `The ActivoBank XLSX movement on row ${excelRow} could not be prepared safely.`;
+  }
+}
+
+async function parseActivoBankXlsxFile(
+  filepath: string,
+  options: ParseFileOptions,
+): Promise<ParseFileResult> {
+  let contents: Uint8Array;
+  try {
+    contents = await fs.readFile(filepath, 'binary');
+  } catch {
+    return {
+      errors: [xlsxError('Failed reading XLSX workbook')],
+      transactions: [],
+    };
+  }
+
+  const parsed = await parseActivoBankXlsx(contents);
+  if (parsed.errors.length > 0) {
+    return {
+      errors: parsed.errors.map(issue =>
+        xlsxError(formatActivoBankXlsxIssue(issue)),
+      ),
+      transactions: [],
+      warnings: [],
+    };
+  }
+  if (!options.accountId) {
+    return {
+      errors: [
+        xlsxError('ActivoBank XLSX imports require a destination account.'),
+      ],
+      transactions: [],
+      warnings: [],
+    };
+  }
+
+  const prepared = await requireReviewForAmbiguousMatches(
+    prepareBankImport({
+      accountId: options.accountId,
+      createdAt: new Date().toISOString(),
+      fieldMap: ACTIVOBANK_XLSX_FIELDS,
+      provider: 'activobank',
+      rows: toActivoBankXlsxStatementRows(parsed.rows),
+      sourceFormat: 'xlsx',
+    }),
+  );
+  if (prepared.errors.length > 0) {
+    return {
+      errors: prepared.errors.map(issue =>
+        xlsxError(formatPreparedXlsxIssue(issue, parsed.rows)),
+      ),
+      transactions: [],
+      warnings: [],
+    };
+  }
+
+  const warnings = [
+    ...parsed.warnings.map(issue =>
+      xlsxWarning(formatActivoBankXlsxIssue(issue)),
+    ),
+    ...prepared.warnings.map(issue =>
+      xlsxWarning(formatPreparedXlsxIssue(issue, parsed.rows)),
+    ),
+  ];
+  return {
+    errors: [],
+    transactions: toActivoBankXlsxImportTransactions(
+      parsed.rows,
+      prepared.transactions,
+    ),
+    warnings,
+  };
 }
 
 async function parseCSV(

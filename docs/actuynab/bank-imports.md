@@ -168,6 +168,84 @@ transfer. The review's audit/mapping persistence, account safeguards, and
 reopen-after-refresh behavior are documented in
 [Synced import review](import-review.md).
 
+## Milestone 8: verified ActivoBank XLSX export
+
+The desktop **Import** picker now accepts `.xlsx` and recognizes the verified
+ActivoBank Portugal account-statement structure. Recognition is structural,
+not based on the filename: the workbook must contain exactly one worksheet and
+a transaction table with the five normalized headers `Data Lanc.`, `Data
+Valor`, `Descrição`, `Valor`, and `Saldo`. The known export places that table
+at row 8, but the parser locates the validated header row rather than treating
+the row number as an identity claim.
+
+The adapter reads XLSX as a bounded OOXML ZIP, does not modify the source
+workbook, and rejects unsafe archives, encrypted/unsupported layouts, missing
+headers, malformed date/amount/balance values, absent or non-EUR currency
+metadata, and multi-sheet workbooks. It does not execute formulas. A
+structurally valid empty statement is a visible warning, not an invented
+transaction.
+
+For each movement, the adapter keeps booking date and value date distinct:
+
+- the booking date is the Actual import date;
+- the value date is retained as non-financial preview metadata and, when it
+  differs, a visible `Value date: YYYY-MM-DD` note;
+- the signed EUR amount and running balance are converted directly to integer
+  minor units without floating-point arithmetic;
+- the original description is retained for Actual's import/review flow, while
+  M3 emits a normalized payee candidate and stable, account-scoped imported
+  identity; and
+- consecutive running balances are checked in either chronological direction.
+  An inconsistent balance is a visible warning that requires review; it never
+  changes an amount or silently removes a movement.
+
+The only persisted identity is an account-scoped SHA-256 fingerprint of the
+financial identity. Raw workbook bytes, source path, account metadata, and
+description text are not copied into the audit tables. Exact source duplicates
+or ambiguous M3 matches remain visible but initially unchecked in the normal
+Actual preview, so a user can decide rather than losing a legitimate movement.
+
+The path remains the established one:
+
+```text
+ActivoBank XLSX
+  -> structural parser and balance validation
+  -> M3 preparation / duplicate assessment
+  -> Actual reconciliation
+  -> M4 deterministic classification
+  -> M5 review and explicit confirmation
+  -> synced Actual transaction and audit records
+```
+
+Observed descriptions are tagged narrowly as card purchases, direct debits,
+bank transfers, MB WAY, cash withdrawals, credit-card payments, refunds, or
+fees. The tags are not a transfer-linking or merchant-identity assertion.
+Configured M7 household roles still protect internal transfers and recognised
+credit-card bill payments from becoming new household spending. Ambiguous
+descriptions stay in manual review; no principal/interest amount is inferred.
+
+### Synthetic fixture and validation
+
+`actuynab-activobank-xlsx.fixture.ts` constructs a fully synthetic one-sheet
+workbook in memory; no binary export or real account information is committed.
+It covers booking/value-date differences, card purchase, direct debit,
+transfer, MB WAY credit, cash withdrawal, card payment, refund, and running
+balances. Focused tests also cover repeat and overlapping imports, reversed
+order, same-date/same-amount legitimate movements, exact duplicate source
+rows, malformed headers/dates/amounts, non-EUR metadata, empty statements, and
+an incorrect running balance.
+
+Run the focused regression from the repository root:
+
+```text
+yarn workspace @actual-app/core vitest --run src/server/transactions/import/actuynab-activobank-xlsx.test.ts
+```
+
+This implementation intentionally supports only the validated one-sheet OOXML
+shape. A different ActivoBank export must be rejected and reviewed before a
+new adapter variant is added; it must not be forced through the CSV mapping or
+misidentified by its filename.
+
 ## Test sequence
 
 For every adapter, add synthetic fixtures for normal, duplicate, malformed,
