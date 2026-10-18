@@ -142,6 +142,17 @@ is validated against the referenced ledger values, stays idempotent on repeat
 save, and is excluded from spending/liability totals. See [Financing
 management](financing-management.md).
 
+## Milestone 11 financial dashboard
+
+Milestone 11 adds a read-only monthly dashboard within Household. It uses
+Actual's budget sheet and categorized ledger values for availability,
+income/spending, budgeted-versus-actual spending, and six-month trends; it
+shows configured account balances and M5 pending reviews without treating
+liabilities as spendable cash. Home/Tesla balances remain observed tracking
+ledger values, while principal, interest, and insurance are M10's verified
+manual metadata for the selected month and are never added to an expense or
+liability total. See [Financial dashboard](financial-dashboard.md).
+
 ## Project documents
 
 - [Architecture](architecture.md) — package boundaries, extension seams, and
@@ -180,6 +191,9 @@ management](financing-management.md).
 
 - [Financing management](financing-management.md) - verified installment
   allocations, reconciliation safeguards, dashboard semantics, and limits.
+
+- [Financial dashboard](financial-dashboard.md) - selected-month household
+  projection, sources, drill-downs, safeguards, and synthetic validation.
 
 ## Working agreement
 

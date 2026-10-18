@@ -19,11 +19,10 @@ import type {
 import { HOUSEHOLD_ACCOUNT_PRESETS } from '@actual-app/core/server/transactions/actuynab-household';
 import type {
   HouseholdAccountKey,
-  HouseholdOverview,
-  HouseholdOverviewAccount,
   HouseholdProfile,
   HouseholdSetupAccount,
 } from '@actual-app/core/server/transactions/actuynab-household';
+import * as monthUtils from '@actual-app/core/shared/months';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 
 import { Information } from '#components/alerts';
@@ -32,6 +31,8 @@ import { SectionLabel } from '#components/forms';
 import { Page } from '#components/Page';
 import { useAccounts } from '#hooks/useAccounts';
 import { useFormat } from '#hooks/useFormat';
+
+import { HouseholdDashboardPanel } from './HouseholdDashboard';
 
 type SetupDraft = Omit<HouseholdSetupAccount, 'transferDescriptionTokens'> & {
   transferDescriptionTokens: string;
@@ -82,36 +83,6 @@ function roleLabel(key: HouseholdAccountKey, t: (value: string) => string) {
   }
 }
 
-function AccountBalances({
-  accounts,
-  emptyMessage,
-}: {
-  accounts: HouseholdOverviewAccount[];
-  emptyMessage: string;
-}) {
-  const format = useFormat();
-  if (accounts.length === 0) {
-    return <Text style={{ color: theme.pageTextLight }}>{emptyMessage}</Text>;
-  }
-  return (
-    <View style={{ gap: 5 }}>
-      {accounts.map(account => (
-        <View
-          key={account.id}
-          style={{
-            flexDirection: 'row',
-            justifyContent: 'space-between',
-            gap: 12,
-          }}
-        >
-          <Text>{account.name}</Text>
-          <FinancialText>{format(account.balance, 'financial')}</FinancialText>
-        </View>
-      ))}
-    </View>
-  );
-}
-
 function OverviewCard({
   children,
   title,
@@ -134,119 +105,6 @@ function OverviewCard({
         {title}
       </Text>
       {children}
-    </View>
-  );
-}
-
-function HouseholdOverviewPanel({ overview }: { overview: HouseholdOverview }) {
-  const { t } = useTranslation();
-  const format = useFormat();
-  const availableBudgetTitle =
-    overview.availableBudgetLabel === 'available-to-budget'
-      ? t('Available to budget')
-      : t('Available savings');
-
-  return (
-    <View style={{ gap: 16 }}>
-      <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 12 }}>
-        <OverviewCard title={availableBudgetTitle}>
-          <FinancialText style={{ fontSize: 24, fontWeight: 600 }}>
-            {format(overview.availableBudget, 'financial')}
-          </FinancialText>
-          <Text style={{ color: theme.pageTextLight, fontSize: 13 }}>
-            <Trans>
-              This is budget availability, not a bank-account balance.
-            </Trans>
-          </Text>
-        </OverviewCard>
-        <OverviewCard title={t("This month's spending")}>
-          <FinancialText style={{ fontSize: 24, fontWeight: 600 }}>
-            {format(overview.monthlySpending, 'financial')}
-          </FinancialText>
-          <Text style={{ color: theme.pageTextLight, fontSize: 13 }}>
-            <Trans>
-              Categorized on-budget activity, net of refunds. Transfers and
-              credit-card payments are excluded.
-            </Trans>
-          </Text>
-        </OverviewCard>
-        <OverviewCard title={t('Pending import reviews')}>
-          <FinancialText style={{ fontSize: 24, fontWeight: 600 }}>
-            {overview.pendingImportReviews}
-          </FinancialText>
-          <Text style={{ color: theme.pageTextLight, fontSize: 13 }}>
-            <Trans>Transactions awaiting a review decision.</Trans>
-          </Text>
-        </OverviewCard>
-        <OverviewCard title={t('Total liabilities')}>
-          <FinancialText style={{ fontSize: 24, fontWeight: 600 }}>
-            {format(overview.totalLiabilities, 'financial')}
-          </FinancialText>
-          <Text style={{ color: theme.pageTextLight, fontSize: 13 }}>
-            <Trans>
-              Sum of the absolute ledger balances for configured credit cards
-              and financing accounts; it is not spendable cash.
-            </Trans>
-          </Text>
-        </OverviewCard>
-      </View>
-
-      <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 12 }}>
-        <OverviewCard title={t('Joint checking balances')}>
-          <AccountBalances
-            accounts={overview.checkingAccounts}
-            emptyMessage={t('No checking accounts are configured.')}
-          />
-        </OverviewCard>
-        <OverviewCard title={t('Credit-card liabilities')}>
-          <AccountBalances
-            accounts={overview.creditCardLiabilities}
-            emptyMessage={t('No credit cards are configured.')}
-          />
-          <FinancialText style={{ fontWeight: 600 }}>
-            {format(overview.totalCreditCardLiabilities, 'financial')}
-          </FinancialText>
-        </OverviewCard>
-        <OverviewCard title={t('Off-budget financing')}>
-          <AccountBalances
-            accounts={overview.financingAccounts}
-            emptyMessage={t('No financing accounts are configured.')}
-          />
-          <FinancialText style={{ fontWeight: 600 }}>
-            {format(overview.totalFinancingLiabilities, 'financial')}
-          </FinancialText>
-        </OverviewCard>
-        <OverviewCard title={t('Upcoming recurring bills')}>
-          {overview.upcomingBills.length === 0 ? (
-            <Text style={{ color: theme.pageTextLight }}>
-              <Trans>No upcoming scheduled transactions.</Trans>
-            </Text>
-          ) : (
-            <View style={{ gap: 5 }}>
-              {overview.upcomingBills.map(bill => (
-                <View
-                  key={bill.id}
-                  style={{
-                    flexDirection: 'row',
-                    justifyContent: 'space-between',
-                    gap: 12,
-                  }}
-                >
-                  <Text>{bill.payee || t('(No payee)')}</Text>
-                  <FinancialText>
-                    {bill.amount == null
-                      ? t('Variable')
-                      : format(bill.amount, 'financial')}
-                  </FinancialText>
-                  <Text style={{ color: theme.pageTextLight }}>
-                    {bill.date}
-                  </Text>
-                </View>
-              ))}
-            </View>
-          )}
-        </OverviewCard>
-      </View>
     </View>
   );
 }
@@ -655,7 +513,7 @@ function FinancingManagementPanel({
   }
 
   return (
-    <View style={{ gap: 12 }}>
+    <View id="financing-management" style={{ gap: 12 }}>
       <View>
         <Text style={{ fontSize: 18, fontWeight: 600 }}>
           <Trans>Financing management</Trans>
@@ -857,13 +715,17 @@ function HouseholdSetup({
 }
 
 export function HouseholdPage() {
+  const [dashboardMonth, setDashboardMonth] = useState(() =>
+    monthUtils.currentMonth(),
+  );
   const profileQuery = useQuery({
     queryKey: ['actuynab-household-profile'],
     queryFn: () => send('actuynab-household-profile'),
   });
-  const overviewQuery = useQuery({
-    queryKey: ['actuynab-household-overview'],
-    queryFn: () => send('actuynab-household-overview'),
+  const dashboardQuery = useQuery({
+    queryKey: ['actuynab-household-dashboard', dashboardMonth],
+    queryFn: () =>
+      send('actuynab-household-dashboard', { month: dashboardMonth }),
   });
   const financingQuery = useQuery({
     queryKey: ['actuynab-financing-overview'],
@@ -875,12 +737,11 @@ export function HouseholdPage() {
   });
   const [isEditing, setIsEditing] = useState(false);
   const profile = profileQuery.data ?? null;
-  const overview = overviewQuery.data;
 
   async function refresh() {
     await Promise.all([
       profileQuery.refetch(),
-      overviewQuery.refetch(),
+      dashboardQuery.refetch(),
       financingQuery.refetch(),
       financingCandidatesQuery.refetch(),
     ]);
@@ -910,12 +771,12 @@ export function HouseholdPage() {
       padding={20}
     >
       <View style={{ gap: 16, paddingBottom: 20 }}>
-        {(profileQuery.isPending || overviewQuery.isPending) && (
+        {(profileQuery.isPending || dashboardQuery.isPending) && (
           <Text>
             <Trans>Loading household overview...</Trans>
           </Text>
         )}
-        {(profileQuery.error || overviewQuery.error) && (
+        {(profileQuery.error || dashboardQuery.error) && (
           <Information style={{ color: theme.errorText }}>
             <Trans>Unable to load the household configuration.</Trans>
           </Information>
@@ -943,9 +804,13 @@ export function HouseholdPage() {
             }}
           />
         )}
-        {profile && !isEditing && overview && (
+        {profile && !isEditing && dashboardQuery.data && (
           <>
-            <HouseholdOverviewPanel overview={overview} />
+            <HouseholdDashboardPanel
+              dashboard={dashboardQuery.data}
+              month={dashboardMonth}
+              onMonthChange={setDashboardMonth}
+            />
             {financingQuery.data && financingCandidatesQuery.data && (
               <FinancingManagementPanel
                 candidates={financingCandidatesQuery.data}

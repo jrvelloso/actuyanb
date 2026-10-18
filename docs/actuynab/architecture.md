@@ -84,6 +84,14 @@ service; it is not a replacement database for budget calculations.
     from Actual's ledger. It never writes a transfer, split, account balance,
     reconciliation field, amortization schedule, or parallel financial store.
     See [Financing management](financing-management.md).
+11. **Financial dashboard projection.** M11 reads the selected month's Actual
+    budget-sheet cells and categorized on-budget ledger rows, M5 pending-review
+    count, M7 roles, schedules, and M10 verified allocation metadata. It writes
+    no financial or metadata record, adds no migration, and does not derive
+    availability from checking/cards/tracking accounts. Current account
+    balances remain observed ledger values while month-specific flows are
+    calculated from the selected month. See
+    [Financial dashboard](financial-dashboard.md).
 
 ## Financial correctness constraints
 

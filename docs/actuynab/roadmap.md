@@ -267,6 +267,22 @@ for review rather than repaired or inferred. The UI never creates or updates a
 transaction, split, category, transfer, reconciliation state, balance, or loan
 schedule. See [Financing management](financing-management.md).
 
+## M11 - financial dashboard - in progress, stacked on M10
+
+**Goal:** provide a clear selected-month household overview without changing
+Actual's financial engine or manufacturing financial values.
+
+M11 is based on M10's review branch because it needs the existing verified
+principal, interest, and insurance allocation metadata. It adds a read-only
+Household dashboard for Actual budget availability, categorized income and
+spending, budgeted-versus-actual spending, current checking/card/Home/Tesla
+ledger balances, six-month category trends, M5 review count, schedules, and
+month-filtered M10 allocations. Transfers, card repayments, and financing
+transfers remain out of spending; allocation metadata remains separate from
+liability and expense totals. The focused synthetic test asserts that a
+dashboard read leaves ledger balances and allocation rows unchanged. See
+[Financial dashboard](financial-dashboard.md).
+
 ## Deferred evaluation
 
 Open Banking/PSD2 automation, advanced forecasts, PWA capabilities, and a SaaS

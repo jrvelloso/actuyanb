@@ -113,6 +113,15 @@ Pending import reviews come from M5's synced audit records. Upcoming recurring
 bills are read from Actual schedules; the Household page does not create or
 post a schedule.
 
+## Financial dashboard
+
+M11 extends the Household page with a selected-month dashboard. It keeps three
+value kinds visibly separate: current observed ledger balances, Actual's
+calculated budget/ledger totals for the selected month, and user-verified M10
+allocation metadata. It never sums cash and liabilities to decide availability
+and never adds principal, interest, or insurance metadata to a financial
+total. See [Financial dashboard](financial-dashboard.md).
+
 ## Validation
 
 The reusable fictional setup fixture is
