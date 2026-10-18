@@ -122,6 +122,11 @@ allocation metadata. It never sums cash and liabilities to decide availability
 and never adds principal, interest, or insurance metadata to a financial
 total. See [Financial dashboard](financial-dashboard.md).
 
+M12 adds a daily category and import-review layer to that dashboard. It reads
+the native budget sheet for category budgeted, activity, remaining, and
+carryover values; highlights overspending; and reuses the M5 review modal for
+explicit user decisions. See [Daily budget experience](daily-budget-experience.md).
+
 ## Validation
 
 The reusable fictional setup fixture is

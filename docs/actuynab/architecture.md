@@ -92,6 +92,11 @@ service; it is not a replacement database for budget calculations.
     balances remain observed ledger values while month-specific flows are
     calculated from the selected month. See
     [Financial dashboard](financial-dashboard.md).
+12. **Daily budget interaction.** M12 reads the same native budget-sheet
+    category cells as Actual's Budget view and reuses the existing local
+    `budget.startMonth` preference. It opens existing category/account and M5
+    review views, but creates no confirmation route or financial mutation.
+    See [Daily budget experience](daily-budget-experience.md).
 
 ## Financial correctness constraints
 

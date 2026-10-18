@@ -1,4 +1,4 @@
-import { getSheetValue } from '#server/budget/actions';
+import { getSheetBoolean, getSheetValue } from '#server/budget/actions';
 import * as db from '#server/db';
 import * as monthUtils from '#shared/months';
 
@@ -7,6 +7,36 @@ import {
   getHouseholdOverview,
   loadHouseholdProfile,
 } from './actuynab-household';
+import { listPendingImportReviews, loadImportReview } from './actuynab-review';
+
+export type HouseholdDashboardBudgetCategory = {
+  balance: number;
+  budgeted: number;
+  carriesOver: boolean;
+  categoryId: string;
+  categoryName: string;
+  groupName: string;
+  spent: number;
+};
+
+export type HouseholdDashboardDailyBudget = {
+  categories: HouseholdDashboardBudgetCategory[];
+  hasBudgetData: boolean;
+  remaining: number;
+};
+
+export type HouseholdDashboardPendingReview = {
+  accountId: string;
+  accountName: string;
+  batchId: string;
+  creditCardPaymentCount: number;
+  createdAt: string;
+  itemCount: number;
+  manualReviewCount: number;
+  sourceBank: string;
+  sourceFormat: string;
+  transferCount: number;
+};
 
 export type HouseholdDashboardMonthlySummary = {
   actualSpending: number;
@@ -36,11 +66,13 @@ export type HouseholdDashboardFinancingAccount = {
 };
 
 export type HouseholdDashboard = {
+  dailyBudget: HouseholdDashboardDailyBudget;
   financing: HouseholdDashboardFinancingAccount[];
   isConfigured: boolean;
   month: string;
   monthly: HouseholdDashboardMonthlySummary;
   overview: Awaited<ReturnType<typeof getHouseholdOverview>>;
+  pendingReviews: HouseholdDashboardPendingReview[];
   spendingTrends: HouseholdDashboardCategoryTrend[];
 };
 
@@ -111,6 +143,100 @@ async function getBudgetedSpending(month: string) {
     // Treat that as unavailable rather than presenting an invented budget.
     return { amount: 0, hasBudgetedSpending: false };
   }
+}
+
+async function getDailyBudget(
+  month: string,
+): Promise<HouseholdDashboardDailyBudget> {
+  try {
+    const sheetName = monthUtils.sheetForMonth(month);
+    const groups = await db.getCategoriesGrouped();
+    const categories = groups.flatMap(group =>
+      (group.categories ?? [])
+        .filter(
+          category =>
+            category.is_income === 0 &&
+            category.hidden !== 1 &&
+            group.hidden !== 1,
+        )
+        .map(category => ({ category, groupName: group.name })),
+    );
+    const [remaining, values] = await Promise.all([
+      getSheetValue(sheetName, 'total-leftover'),
+      Promise.all(
+        categories.map(async ({ category, groupName }) => {
+          const [budgeted, sumAmount, balance, carriesOver] = await Promise.all(
+            [
+              getSheetValue(sheetName, `budget-${category.id}`),
+              getSheetValue(sheetName, `sum-amount-${category.id}`),
+              getSheetValue(sheetName, `leftover-${category.id}`),
+              getSheetBoolean(sheetName, `carryover-${category.id}`),
+            ],
+          );
+          return {
+            balance,
+            budgeted,
+            carriesOver,
+            categoryId: category.id,
+            categoryName: category.name,
+            groupName,
+            // Actual's budget sheet stores expense activity as a negative
+            // amount. Only its display direction changes here; the value is
+            // still the native cell, not a dashboard calculation.
+            spent: -sumAmount,
+          };
+        }),
+      ),
+    ]);
+    return { categories: values, hasBudgetData: true, remaining };
+  } catch {
+    // A fresh budget may not yet have a populated spreadsheet. Avoid showing
+    // a fabricated zero-value category summary in that case.
+    return { categories: [], hasBudgetData: false, remaining: 0 };
+  }
+}
+
+async function getPendingReviewQueue(
+  profile: NonNullable<Awaited<ReturnType<typeof loadHouseholdProfile>>>,
+): Promise<HouseholdDashboardPendingReview[]> {
+  const auditsByAccount = await Promise.all(
+    profile.accounts.map(async account => ({
+      account,
+      audits: await listPendingImportReviews({ accountId: account.id }),
+    })),
+  );
+  const audits = auditsByAccount.flatMap(({ account, audits }) =>
+    audits.map(audit => ({ account, audit })),
+  );
+  const pending = await Promise.all(
+    audits.map(async ({ account, audit }) => {
+      const review = await loadImportReview({ batchId: audit.batchId });
+      const items = review?.items ?? [];
+      return {
+        accountId: account.id,
+        accountName: account.name,
+        batchId: audit.batchId,
+        creditCardPaymentCount: items.filter(
+          item => item.classification.reason === 'credit-card-bill-payment',
+        ).length,
+        createdAt: audit.createdAt,
+        itemCount: items.length,
+        manualReviewCount: items.filter(
+          item => item.classification.requiresManualReview,
+        ).length,
+        sourceBank: audit.sourceBank,
+        sourceFormat: audit.sourceFormat,
+        transferCount: items.filter(
+          item =>
+            item.classification.reason === 'internal-transfer' ||
+            item.classification.reason === 'off-budget-financing-transfer',
+        ).length,
+      };
+    }),
+  );
+  return pending.sort((left, right) =>
+    right.createdAt.localeCompare(left.createdAt),
+  );
 }
 
 async function getMonthlyLedgerSummary({
@@ -239,6 +365,7 @@ export async function getHouseholdDashboard({
   ]);
   if (!profile) {
     return {
+      dailyBudget: { categories: [], hasBudgetData: false, remaining: 0 },
       financing: [],
       isConfigured: false,
       month,
@@ -249,17 +376,22 @@ export async function getHouseholdDashboard({
         income: 0,
       },
       overview,
+      pendingReviews: [],
       spendingTrends: [],
     };
   }
   const onBudgetIds = profile.accounts
     .filter(account => account.onBudget)
     .map(account => account.id);
-  const [monthly, spendingTrends] = await Promise.all([
-    getMonthlyLedgerSummary({ accountIds: onBudgetIds, month }),
-    getSpendingTrends({ accountIds: onBudgetIds, month }),
-  ]);
+  const [dailyBudget, monthly, pendingReviews, spendingTrends] =
+    await Promise.all([
+      getDailyBudget(month),
+      getMonthlyLedgerSummary({ accountIds: onBudgetIds, month }),
+      getPendingReviewQueue(profile),
+      getSpendingTrends({ accountIds: onBudgetIds, month }),
+    ]);
   return {
+    dailyBudget,
     financing: financing.accounts.map(account => ({
       accountId: account.accountId,
       accountName: account.accountName,
@@ -285,6 +417,7 @@ export async function getHouseholdDashboard({
     month,
     monthly,
     overview,
+    pendingReviews,
     spendingTrends,
   };
 }

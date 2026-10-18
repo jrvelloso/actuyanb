@@ -16,6 +16,8 @@ import { MonthInput } from '#components/util/MonthInput';
 import { useFormat } from '#hooks/useFormat';
 import { useNavigate } from '#hooks/useNavigate';
 
+import { DailyBudget, ImportReviewQueue } from './HouseholdDailyBudget';
+
 type DashboardCardProps = {
   children: ReactNode;
   title: ReactNode;
@@ -25,6 +27,7 @@ type HouseholdDashboardPanelProps = {
   dashboard: HouseholdDashboardData;
   month: string;
   onMonthChange: (month: string) => void;
+  onOpenBudget: () => void;
 };
 
 function DashboardCard({ children, title }: DashboardCardProps) {
@@ -213,6 +216,7 @@ export function HouseholdDashboardPanel({
   dashboard,
   month,
   onMonthChange,
+  onOpenBudget,
 }: HouseholdDashboardPanelProps) {
   const { t } = useTranslation();
   const format = useFormat();
@@ -275,6 +279,15 @@ export function HouseholdDashboardPanel({
           </Button>
         </View>
       </View>
+
+      <DailyBudget
+        dailyBudget={dashboard.dailyBudget}
+        month={month}
+        monthly={monthly}
+        onOpenBudget={onOpenBudget}
+      />
+
+      <ImportReviewQueue reviews={dashboard.pendingReviews} />
 
       <View style={{ gap: 8 }}>
         <Text

@@ -283,6 +283,19 @@ liability and expense totals. The focused synthetic test asserts that a
 dashboard read leaves ledger balances and allocation rows unchanged. See
 [Financial dashboard](financial-dashboard.md).
 
+## M12 - daily budget experience - in progress, stacked on M11
+
+**Goal:** make the existing Household budget and import-review workflow easier
+to use every day without changing Actual's accounting model.
+
+M12 reads Actual's selected-month category budget, activity, remaining, and
+carryover cells for a concise daily view. It calls attention to overspending,
+opens the native Budget page on the same locally persisted month, and opens
+the existing M5 review modal for a selected account/batch. It does not add a
+financial write path, new preference store, migration, synchronization model,
+or automatic confirmation. The work is stacked on M11; M9 remains independent.
+See [Daily budget experience](daily-budget-experience.md).
+
 ## Deferred evaluation
 
 Open Banking/PSD2 automation, advanced forecasts, PWA capabilities, and a SaaS
