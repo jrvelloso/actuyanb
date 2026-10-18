@@ -130,6 +130,18 @@ XLSX/browser tests prove repeat imports create no transactions and an explicit
 review correction persists across a local sync-server restart. See [Bank
 statement imports](bank-imports.md) and [Functional validation](validation.md).
 
+## Milestone 10 financing management
+
+Milestone 10 adds a Household financing-management view for the existing Home
+and Tesla off-budget tracking accounts. It displays actual ledger balances and
+user-verified payment metadata separately. A confirmed allocation can link a
+checking payment/refund to an existing principal movement and optional separate
+insurance charge, but it cannot create or edit a financial transaction, change
+a reconciliation state, or infer a loan schedule. The additive synced metadata
+is validated against the referenced ledger values, stays idempotent on repeat
+save, and is excluded from spending/liability totals. See [Financing
+management](financing-management.md).
+
 ## Project documents
 
 - [Architecture](architecture.md) — package boundaries, extension seams, and
@@ -165,6 +177,9 @@ statement imports](bank-imports.md) and [Functional validation](validation.md).
 - [Windows local Docker development](local-docker-development.md) —
   localhost-only native sync server, React hot reload, synthetic Household
   validation, and safe local backup/restore steps.
+
+- [Financing management](financing-management.md) - verified installment
+  allocations, reconciliation safeguards, dashboard semantics, and limits.
 
 ## Working agreement
 

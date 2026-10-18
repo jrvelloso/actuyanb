@@ -13,6 +13,12 @@ import type {
 } from '#types/models';
 
 import {
+  deleteFinancingBreakdown,
+  getFinancingBreakdownCandidates,
+  getHouseholdFinancingOverview,
+  saveFinancingBreakdown,
+} from './actuynab-financing';
+import {
   configureHousehold,
   getHouseholdOverview,
   loadHouseholdProfile,
@@ -34,6 +40,10 @@ export type TransactionHandlers = {
   'actuynab-household-configure': typeof configureHousehold;
   'actuynab-household-overview': typeof getHouseholdOverview;
   'actuynab-household-profile': typeof loadHouseholdProfile;
+  'actuynab-financing-candidates': typeof getFinancingBreakdownCandidates;
+  'actuynab-financing-delete': typeof deleteFinancingBreakdown;
+  'actuynab-financing-overview': typeof getHouseholdFinancingOverview;
+  'actuynab-financing-save': typeof saveFinancingBreakdown;
   'actuynab-review-confirm': typeof confirmImportReview;
   'actuynab-review-list-pending': typeof listPendingImportReviews;
   'actuynab-review-load': typeof loadImportReview;
@@ -176,6 +186,16 @@ app.method(
 );
 app.method('actuynab-household-overview', getHouseholdOverview);
 app.method('actuynab-household-profile', loadHouseholdProfile);
+app.method('actuynab-financing-candidates', getFinancingBreakdownCandidates);
+app.method(
+  'actuynab-financing-delete',
+  mutator(undoable(deleteFinancingBreakdown)),
+);
+app.method('actuynab-financing-overview', getHouseholdFinancingOverview);
+app.method(
+  'actuynab-financing-save',
+  mutator(undoable(saveFinancingBreakdown)),
+);
 app.method('actuynab-review-confirm', mutator(undoable(confirmImportReview)));
 app.method('actuynab-review-list-pending', listPendingImportReviews);
 app.method('actuynab-review-load', loadImportReview);

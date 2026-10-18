@@ -421,3 +421,36 @@ the balance did not change. A separate malformed-balance fixture visibly
 displayed the parser warning and was not imported. This validates local browser
 functionality and native local persistence, not a public deployment, live
 bank connection, or unknown ActivoBank export variant.
+
+## Milestone 10 financing-management validation
+
+M10's regression uses a fresh in-memory Actual budget and the existing
+synthetic Household configuration. It creates fictional Home/Tesla tracking
+movements and checking movements only; no bank export, lender identity,
+credential, or real balance is used.
+
+Run from the repository root:
+
+```text
+yarn workspace @actual-app/core vitest --run src/server/transactions/actuynab-financing.test.ts src/server/transactions/actuynab-household.test.ts src/server/transactions/actuynab-review.test.ts
+yarn workspace @actual-app/core typecheck
+yarn workspace @actual-app/web typecheck
+```
+
+The focused core test records a fictional split mortgage payment with a
+separate insurance debit, repeats the same save, then verifies one synced
+metadata record, unchanged checking/tracking balances, and unchanged reconciled
+state. It also covers a partial vehicle-financing payment, a confirmed refund,
+invalid/incomplete allocations, duplicate financial-reference rejection, and a
+supporting principal movement changed after confirmation. The changed record
+is surfaced as needing review and excluded from known-allocation totals; it is
+not silently repaired. The test asserts the native
+`actuynab_financing_installments` CRDT dataset, but does not claim a remote
+two-device sync run.
+
+The accompanying Chromium regression,
+`e2e/household-financing.test.ts`, creates the synthetic demo budget, opens
+Household, saves the seven-role setup, verifies the Financing management panel,
+and reloads the browser before checking the panel again. It validates the
+compiled browser interface and persisted setup only; ledger allocation cases
+remain in the core test so no browser fixture has to contain financial data.

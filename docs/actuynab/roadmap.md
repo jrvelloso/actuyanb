@@ -245,6 +245,28 @@ transactions with the balance unchanged. No real statement, account,
 credential, bank API, or public deployment was used. See [Bank statement
 imports](bank-imports.md) and [Functional validation](validation.md).
 
+## M9 — Millennium BCP import safeguards — under review
+
+M9 is intentionally independent from the financing work. Its reviewed branch
+adds reusable import safeguards and transfer/card-payment handling while the
+project waits for a verified Millennium BCP export structure. It must merge
+through its own PR before any bank-specific adapter is claimed supported.
+
+## M10 — financing management — implemented, pending review
+
+**Goal:** make confirmed mortgage and vehicle-financing allocations observable
+without changing Actual's off-budget tracking-account or transfer semantics.
+
+M10 adds a Financing management section to Household. It reads the Home/Tesla
+outstanding balances from existing ledgers and allows a user to persist a
+verified allocation that links existing checking, principal, and optional
+separate-insurance movements. Principal, interest, insurance, partial payment,
+and explicit refund values are integer metadata only. A deterministic record
+prevents duplicate allocation of the same movement; altered evidence is marked
+for review rather than repaired or inferred. The UI never creates or updates a
+transaction, split, category, transfer, reconciliation state, balance, or loan
+schedule. See [Financing management](financing-management.md).
+
 ## Deferred evaluation
 
 Open Banking/PSD2 automation, advanced forecasts, PWA capabilities, and a SaaS
