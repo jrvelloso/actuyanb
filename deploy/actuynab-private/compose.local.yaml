@@ -1,0 +1,13 @@
+# Local-only development override for compose.yaml.
+#
+# It retains the native Actual sync server and its host-owned /data mount, but
+# deliberately does not start Caddy. A local HTTP endpoint must never be
+# exposed beyond this machine or reused for a remote client.
+services:
+  actual-server:
+    ports:
+      - '127.0.0.1:${ACTUYNAB_LOCAL_PORT:-5006}:5006'
+
+  caddy:
+    profiles:
+      - remote-proxy

@@ -22,3 +22,11 @@ The data path is never a repository path. Backup and restore the complete
 directory only while the server is stopped, then verify the restore using a
 different directory and host name. Do not put passwords, bank credentials,
 budgets, or backups in `.env` or source control.
+
+For a Windows 11 localhost-only development server, use the additional
+`compose.local.yaml` override and the companion `.env.local.example`. It
+starts **only** the native sync server and binds it to `127.0.0.1`; it
+intentionally does not run Caddy, obtain a certificate, or publish ports
+80/443. The complete start, backup, restore, and browser validation procedure
+is in
+[`docs/actuynab/local-docker-development.md`](../../docs/actuynab/local-docker-development.md).
