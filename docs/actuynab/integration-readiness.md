@@ -134,6 +134,36 @@ Existing build and E2E artifacts are allowed only for synthetic fixtures and
 are not a channel for budgets, statements, credentials, backups, or server
 data. Do not loosen this policy to diagnose a CI failure.
 
+### GitHub-hosted runner policy
+
+ActuYNAB does not have access to Actual Budget's Depot runner tenancy. All
+workflows therefore use GitHub-hosted labels: `ubuntu-latest`,
+`ubuntu-24.04`, `ubuntu-22.04`, `windows-2022`, or `macos-latest`. The
+standard public Linux runner provides four vCPUs and 16 GB RAM; it is the
+baseline for the financial regression, build, migration, secret-scan, and
+Chromium jobs. Do not introduce a larger runner unless a failed job shows an
+actual resource limit and an owner approves its cost.
+
+The PR E2E suite intentionally uses one full Chromium shard and one VRT shard.
+This retains browser coverage while avoiding the inherited six-way shard fanout
+and its peak runner demand. A Linux Electron build remains as the PR platform
+compatibility signal; the macOS mobile build and desktop E2E are restricted to
+protected integration events rather than ordinary web PRs.
+
+Depot's OIDC grants and `depot/test-report-action` were removed from the
+ordinary CI paths. The remaining `id-token: write` permissions belong only to
+upstream npm-publishing workflows, which are guarded with
+`github.repository == 'actualbudget/actual'` and are skipped in this fork.
+The inherited Docker, Netlify, package, store, Flathub, and release-generation
+jobs use the same guard, so a push or manual dispatch in ActuYNAB cannot publish
+an upstream release or consume upstream deployment secrets.
+
+GitHub-hosted standard runners are free for this public repository. If the
+repository becomes private, track Linux, Windows, macOS, artifact, and cache
+usage in GitHub's billing view before enabling optional platform jobs. See
+[GitHub-hosted runner specifications](https://docs.github.com/en/actions/reference/runners/github-hosted-runners)
+and [GitHub Actions billing](https://docs.github.com/en/billing/concepts/product-billing/github-actions).
+
 ## Recommended `master` protection
 
 Configure these settings manually after the initial integration approval:
