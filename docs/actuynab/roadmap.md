@@ -77,7 +77,7 @@ expected model differences, not financial discrepancies. Existing supported
 financial behavior required no speculative core-engine changes. See
 [YNAB 4 migration](ynab4-migration.md).
 
-## M3 — statement import automation
+## M3 — statement import automation — complete
 
 **Goal:** make recurring Portuguese-bank statement imports safe and reviewable.
 
@@ -88,6 +88,24 @@ financial behavior required no speculative core-engine changes. See
 3. Preserve imported IDs, improve deterministic fallback matching, and surface
    ambiguous duplicates and transfer candidates for confirmation.
 4. Build an import preview/history and review queue, then repeat per bank.
+
+### M3 implementation result
+
+Milestone 3 adds a fixture-led normalization and audit layer for explicitly
+synthetic ActivoBank-style and Revolut-style CSV rows. It uses Actual's
+existing parser and `reconcileTransactions` path, with no direct database
+writes, new UI, real statement, account connection, credential, or core
+budgeting-engine change. Namespaced source IDs and non-sensitive fallback
+fingerprints make repeated and overlapping statement imports financially
+idempotent. Multi-candidate fallback matches are withheld for review, and
+cross-account transfers are suggestions only until confirmed through Actual's
+existing transfer workflow.
+
+Structured JSON and Markdown batch records make each preparation/commit result
+auditable without creating an unsynced import-history store. The remaining
+work before real bank exports can be supported is private verification of the
+actual export schemas, a reviewed column mapping, and a deliberately designed
+synced history/review UI. See [Bank statement imports](bank-imports.md).
 
 ## M4 — intelligent categorization
 

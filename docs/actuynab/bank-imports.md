@@ -67,12 +67,86 @@ Actual's integer representation.
 
 ## Import-batch audit model
 
-ActuYNAB should add an additive model for batch metadata, not raw statement
-storage by default. A batch records source type/adapter version, account,
-started/finished timestamps, a non-sensitive fingerprint, total rows, and the
-counts of imported, merged, exact duplicates, review items, errors, and user
-overrides. Item-level records reference destination transactions where one
-exists and retain a redacted explanation sufficient for the dashboard.
+Milestone 3 returns an additive audit record instead of storing raw statement
+content. The record contains source type, account, supplied timestamp, a
+non-sensitive fingerprint, total rows and amount, and counts of imported,
+updated, exact duplicates, skipped/review items, errors, warnings, and explicit
+user approvals. It is produced without manipulating SQLite tables.
+
+The audit is deliberately returned to the caller as JSON or Markdown rather
+than persisted in a new local table. Actual has no synced import-batch entity;
+adding an unsynced history store would be misleading on another device. A
+future history/review UI should introduce a proper synced model only after its
+privacy, retention, and conflict semantics are designed.
+
+## Milestone 3 implementation
+
+`packages/loot-core/src/server/transactions/import/actuynab-bank-import.ts`
+implements a narrow preparation layer for `activobank` and `revolut`. It
+accepts parsed statement rows plus an explicit field map, emits Actual's
+existing import-transaction shape, and commits only through
+`reconcileTransactions`. It adds no database tables, direct SQLite writes,
+credentials, raw-statement persistence, or UI redesign.
+
+The supplied maps are deliberately named
+`ACTIVOBANK_SYNTHETIC_CSV_FIELDS` and `REVOLUT_SYNTHETIC_CSV_FIELDS`. They
+describe the fictional fixtures in this repository; they do not claim that a
+current bank export has these headers. A real statement must first be inspected
+privately and its mapping verified before an adapter can be enabled for it.
+
+The layer provides these safeguards:
+
+- Portuguese `DD/MM/YYYY`, decimal-comma debit/credit rows, and stable
+  references normalize to Actual integer amounts for ActivoBank-style input.
+- Revolut-style rows preserve booked/pending status, model refunds as their
+  statement amount, create a separately identifiable fee debit, and use an
+  explicit settlement amount only when it agrees with the supplied target
+  account currency. An unsupported currency is rejected rather than guessed.
+- Raw descriptions remain in `imported_payee`. Narrow merchant rules can
+  propose a payee (the synthetic `COMPRA CARTAO CONTINENTE...` row becomes
+  `Continente`), but the normal reconciler retains an already-confirmed Actual
+  payee on a matched transaction.
+- Imported IDs are namespaced by provider and account. Rows without a source ID
+  use a SHA-256 fingerprint rather than raw text. A one-candidate fallback may
+  update an existing transaction; two or more candidates are skipped with a
+  review warning.
+- A cross-account transfer is only a suggestion when both rows have the same
+  explicit transfer reference, different accounts, and exactly opposite integer
+  amounts. The importer must still confirm it in Actual's existing transfer UI.
+
+Each prepared or committed call returns a deterministic
+`BankImportAuditRecord`: batch ID, account, provider, source format, supplied
+timestamp, non-sensitive source fingerprint, parsed/imported/updated/duplicate
+/skipped counts, errors, warnings, total minor-unit amount, and confirmed
+review count. `formatBankImportAuditJson` and
+`formatBankImportAuditMarkdown` let a caller store or inspect that result
+without reading or manipulating SQLite. Neither format includes raw
+descriptions, per-row amounts, credentials, or original file content.
+
+### Synthetic fixtures and repeatable validation
+
+The following fixtures contain no personal data and are intentionally labeled
+synthetic:
+
+- `packages/loot-core/src/mocks/files/actuynab-m3-activobank-synthetic.csv`
+  covers Portuguese dates, decimal commas, debit/credit direction, a merchant,
+  fee, refund, and a transfer reference.
+- `packages/loot-core/src/mocks/files/actuynab-m3-revolut-synthetic.csv`
+  covers booked and pending card rows, refund, fee, EUR settlement for a
+  foreign-currency purchase, and the counterpart transfer reference.
+
+Run the test with:
+
+```text
+yarn workspace @actual-app/core test:node src/server/transactions/import/actuynab-bank-import.test.ts
+```
+
+It proves preparation does not change source rows or a budget; checks integer
+totals; repeats the same import without duplicate financial transactions;
+imports an overlapping row without its stable ID; protects a confirmed payee;
+blocks an ambiguous date/amount fallback; reruns after a simulated lost audit
+handoff; and verifies the suggested transfer has a zero combined balance. It
+also validates JSON and Markdown audit output.
 
 ## Test sequence
 
@@ -94,10 +168,13 @@ credentialed, user-authorized check.
 | Revolut               | The sync server has a `REVOLUT_REVOLT21` GoCardless normalizer, including Revolut Bizum payee handling; Enable Banking fixtures also include Revolut. Generic file imports remain available without credentials.                                                                 | The same GoCardless new-account limitation applies. For a new direct connection, verify Revolut's current availability and account type in the Enable Banking catalog, then complete the experimental provider setup on a self-hosted Actual server. Validate transaction IDs, pending/booked behaviour, currency handling, and history window with a disposable test budget before enabling scheduled sync.                                                                                                                     |
 
 Enable Banking is documented by Actual as experimental and requires an
-`actual-server` deployment, HTTPS redirect endpoint, and provider credentials;
-its bank list is dynamic, so source-code references are not a guarantee that a
-specific personal/business product is currently linkable. Actual documents that
-GoCardless Bank Account Data no longer accepts new accounts. See the official
+`actual-server` deployment, HTTPS redirect endpoint, an application ID, and a
+credential file. It also requires first linking accounts in Enable Banking's
+interface. Its bank list is dynamic, so source-code references are not a
+guarantee that a specific personal/business product is currently linkable.
+Actual documents that GoCardless Bank Account Data no longer accepts new
+accounts. No account, credential, or provider API was used for this
+investigation. See the official
 [Enable Banking setup](https://actualbudget.org/docs/advanced/bank-sync/enable-banking/)
-and [GoCardless status](https://actualbudget.org/docs/advanced/bank-sync/gocardless/)
+and [bank-sync provider overview](https://actualbudget.org/docs/advanced/bank-sync/)
 before starting a future provider integration.

@@ -189,3 +189,58 @@ YNAB 4 schedules and payee rename rules are not imported; account type and
 account reconciliation checkpoint metadata are not stored by Actual. The
 current Node 24 Windows-1252 parser baseline issue remains unrelated to this
 archive workflow and is intentionally unchanged.
+
+## Milestone 3 bank-import validation
+
+Milestone 3 uses only two clearly labeled synthetic CSV fixtures:
+`actuynab-m3-activobank-synthetic.csv` and
+`actuynab-m3-revolut-synthetic.csv`. They are not samples copied from a bank,
+and their column maps are test contracts rather than declarations of a real
+export format.
+
+Run the focused validation from the repository root:
+
+```text
+yarn workspace @actual-app/core test:node src/server/transactions/import/actuynab-bank-import.test.ts
+```
+
+The test starts from an empty in-memory budget and validates all of the
+following through Actual's normal parser and reconciliation path:
+
+- ActivoBank-style `DD/MM/YYYY`, decimal-comma debit/credit transactions,
+  reference IDs, and a narrowly normalized `Continente` payee candidate.
+- Revolut-style booked/pending status, refund, explicit fee, and an explicit
+  EUR settlement amount for a foreign-currency card purchase.
+- Integer totals of `-10,984` for the ActivoBank fixture and `7,496` for the
+  Revolut fixture, while raw source rows and an unprepared budget remain
+  unchanged.
+- A repeated import has four exact duplicates and no changed balance; an
+  overlapping row without a stable ID updates one existing transaction rather
+  than creating another; and a confirmed existing payee remains unchanged.
+- Ambiguous same-date/same-amount matches are skipped for review; rerunning a
+  source after an interrupted caller-side audit handoff adds no transactions;
+  and a reference-matched `-10,000`/`+10,000` transfer suggestion preserves a
+  zero combined balance.
+- Deterministic audit JSON and Markdown output without raw descriptions or
+  source-file data.
+
+Do not substitute a real statement or credential. The new adapter is
+intentionally not wired to automatic bank detection or a production source
+schema. The current Node 24 Windows-1252 baseline issue is unrelated and
+unchanged.
+
+### Recorded M3 outcome
+
+On 2026-10-17 on Windows 11, the focused M3 command passed four tests. The
+combined M1/M2/M3 focused regression run passed 13 tests in four files:
+
+```text
+yarn workspace @actual-app/core test:node src/server/transactions/import/actuynab-bank-import.test.ts src/server/transactions/import/actuynab-validation.test.ts src/server/importers/ynab4.test.ts src/server/importers/ynab4-validation.test.ts
+
+Test Files  4 passed (4)
+Tests       13 passed (13)
+```
+
+The wider parser run still reports only the two existing Node 24 Windows-1252
+expectation failures described above. The new M3 module does not alter that
+parser, and no snapshot was changed to mask the corruption.

@@ -75,10 +75,10 @@ branch, run regression tests, and record any adaptation in these documents.
 
 ## Baseline risks to address
 
-| Risk                       | Evidence                                                                                       | Planned response                                                        |
-| -------------------------- | ---------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------- |
-| YNAB 4 split payees        | Existing importer/docs identify split-payee repair as a known issue                            | Add migration validation and a supported repair/report workflow         |
-| Limited import audit trail | Existing import UI prevents duplicates but does not provide an ActuYNAB import-batch dashboard | Introduce immutable import-batch summaries and review statuses          |
-| Portuguese bank variance   | Generic formats and European bank sync exist; no Portugal-specific file adapters were found    | Collect synthetic fixtures, then add adapters one bank at a time        |
-| Bank-secret exposure       | Upstream docs state provider secrets are not covered by E2E encryption                         | Self-host, restrict server access, and document backup/secret handling  |
-| Windows test cleanup       | Baseline test teardown can leave SQLite files locked                                           | Run CI on Linux; make future Windows tests close handles before cleanup |
+| Risk                       | Evidence                                                                                          | Planned response                                                        |
+| -------------------------- | ------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------- |
+| YNAB 4 split payees        | Existing importer/docs identify split-payee repair as a known issue                               | Add migration validation and a supported repair/report workflow         |
+| Limited import audit trail | M3 returns immutable JSON/Markdown batch summaries but does not create a synced history/dashboard | Design synced batch retention and review statuses before persisting it  |
+| Portuguese bank variance   | M3 has synthetic ActivoBank/Revolut adapter contracts; real export schemas remain unverified      | Verify private schemas, then add one reviewed adapter at a time         |
+| Bank-secret exposure       | Upstream docs state provider secrets are not covered by E2E encryption                            | Self-host, restrict server access, and document backup/secret handling  |
+| Windows test cleanup       | Baseline test teardown can leave SQLite files locked                                              | Run CI on Linux; make future Windows tests close handles before cleanup |
