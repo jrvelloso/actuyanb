@@ -32,12 +32,12 @@ authentication, CRDT protocol, SQLite metadata, user/server files, and
 same-origin web serving option. The supplied configuration is in
 [`deploy/actuynab-private`](../../deploy/actuynab-private).
 
-| Option | Compatibility | Operational result | Decision |
-| --- | --- | --- | --- |
-| Vercel static frontend + external Actual sync server | High; no core changes | Two origins, so CORS and remote HTTPS must be tested against the actual browser URL. Vercel has no durable sync filesystem. | Viable after the Docker server is operating. |
-| Vercel frontend + Supabase synchronization adapter | Not currently compatible | Would require a new implementation of Actual's account, file, authentication, and CRDT synchronization contracts. Supabase does not substitute for the server's SQLite/filesystem data model. | Rejected for this milestone; no adapter was written. |
-| Docker sync server + Caddy | Highest; uses the existing protocol | One durable volume, native authentication, TLS reverse proxy, and ordinary backup/restore. | Recommended private baseline. |
-| Browser-only static frontend | Supported local mode | IndexedDB/WASM is per browser and is not multi-device recovery. | Development and synthetic demonstrations only. |
+| Option                                               | Compatibility                       | Operational result                                                                                                                                                                            | Decision                                             |
+| ---------------------------------------------------- | ----------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------- |
+| Vercel static frontend + external Actual sync server | High; no core changes               | Two origins, so CORS and remote HTTPS must be tested against the actual browser URL. Vercel has no durable sync filesystem.                                                                   | Viable after the Docker server is operating.         |
+| Vercel frontend + Supabase synchronization adapter   | Not currently compatible            | Would require a new implementation of Actual's account, file, authentication, and CRDT synchronization contracts. Supabase does not substitute for the server's SQLite/filesystem data model. | Rejected for this milestone; no adapter was written. |
+| Docker sync server + Caddy                           | Highest; uses the existing protocol | One durable volume, native authentication, TLS reverse proxy, and ordinary backup/restore.                                                                                                    | Recommended private baseline.                        |
+| Browser-only static frontend                         | Supported local mode                | IndexedDB/WASM is per browser and is not multi-device recovery.                                                                                                                               | Development and synthetic demonstrations only.       |
 
 Vercel remains useful for a protected static frontend, but never stores
 budgets, passwords, server secrets, bank credentials, or backups. The browser
@@ -97,16 +97,16 @@ verify its environment before allowing the build to proceed.
 When the owner is ready to create the first protected preview from the
 Milestone 6 branch, use the Vercel dashboard and these project settings:
 
-| Setting | Value |
-| --- | --- |
-| Root Directory | repository root (`.`) |
-| Framework Preset | Other (static Vite output; not Next.js) |
-| Install Command | `yarn install --immutable` |
-| Build Command | `yarn build:browser --skip-translations` |
-| Output Directory | `packages/desktop-client/build` |
-| Preview source branch | `feature/milestone-6-deployment-readiness` until reviewed |
-| Environment variables | None required; never add `ACTUAL_*`, passwords, bank secrets, or a sync token |
-| Protection | Password protection enabled before deployment; retain team protection and do not add custom production domains |
+| Setting               | Value                                                                                                          |
+| --------------------- | -------------------------------------------------------------------------------------------------------------- |
+| Root Directory        | repository root (`.`)                                                                                          |
+| Framework Preset      | Other (static Vite output; not Next.js)                                                                        |
+| Install Command       | `yarn install --immutable`                                                                                     |
+| Build Command         | `yarn build:browser --skip-translations`                                                                       |
+| Output Directory      | `packages/desktop-client/build`                                                                                |
+| Preview source branch | `feature/milestone-6-deployment-readiness` until reviewed                                                      |
+| Environment variables | None required; never add `ACTUAL_*`, passwords, bank secrets, or a sync token                                  |
+| Protection            | Password protection enabled before deployment; retain team protection and do not add custom production domains |
 
 Confirm the dashboard identifies the new deployment as **Preview**, not
 Production, before accepting it. `vercel.json` supplies SPA fallback, `application/wasm`, cross-origin
@@ -119,18 +119,18 @@ other server endpoint.
 All evidence below used fictional accounts, merchants, amounts, credentials,
 and temporary data directories that were removed after the test.
 
-| Check | Result | Evidence |
-| --- | --- | --- |
-| Production browser build | Passed | `yarn build:browser --skip-translations` with Git for Windows `sh.exe` on `PATH`. |
-| Compose configuration | Passed | `docker compose ... config -q` resolved the private server configuration with synthetic placeholder values. |
-| Static browser initialization | Passed | Chromium loaded the built bundle, cross-origin isolation, SharedArrayBuffer, worker bridge, SQLite/WASM, and demo budget. |
-| Navigation/assets/headers | Passed | Root and client route returned 200 HTML; SQLite WASM returned `application/wasm`; default database loaded; COOP, COEP, CORP, CSP, permissions, referrer, and nosniff headers were asserted. |
-| Native sync authentication | Passed locally | A browser signed into an HTTPS test server using Actual's password workflow. |
-| Independent-client sync | Passed locally | A second Chromium profile loaded the same synthetic budget after server restart. |
-| M5 review persistence | Passed locally | A safe categorized import was approved; an independent client observed no pending review item. |
-| Household safeguards | Passed locally | Seven fictional accounts were created: Activo, Millenium, three credit cards, and off-budget Home/Tesla liabilities. A historical grocery match proposed `reliable-history`; monetary fields remained untouched. |
-| Backup and isolated restore | Passed locally | A stopped-server `/data` archive restored into a different data directory, then authenticated and loaded all seven accounts plus the confirmed review state. |
-| Reimport idempotency | Passed in regression | M3/M5 focused tests assert repeated statement/review processing creates no financial duplicate. |
+| Check                         | Result               | Evidence                                                                                                                                                                                                         |
+| ----------------------------- | -------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Production browser build      | Passed               | `yarn build:browser --skip-translations` with Git for Windows `sh.exe` on `PATH`.                                                                                                                                |
+| Compose configuration         | Passed               | `docker compose ... config -q` resolved the private server configuration with synthetic placeholder values.                                                                                                      |
+| Static browser initialization | Passed               | Chromium loaded the built bundle, cross-origin isolation, SharedArrayBuffer, worker bridge, SQLite/WASM, and demo budget.                                                                                        |
+| Navigation/assets/headers     | Passed               | Root and client route returned 200 HTML; SQLite WASM returned `application/wasm`; default database loaded; COOP, COEP, CORP, CSP, permissions, referrer, and nosniff headers were asserted.                      |
+| Native sync authentication    | Passed locally       | A browser signed into an HTTPS test server using Actual's password workflow.                                                                                                                                     |
+| Independent-client sync       | Passed locally       | A second Chromium profile loaded the same synthetic budget after server restart.                                                                                                                                 |
+| M5 review persistence         | Passed locally       | A safe categorized import was approved; an independent client observed no pending review item.                                                                                                                   |
+| Household safeguards          | Passed locally       | Seven fictional accounts were created: Activo, Millenium, three credit cards, and off-budget Home/Tesla liabilities. A historical grocery match proposed `reliable-history`; monetary fields remained untouched. |
+| Backup and isolated restore   | Passed locally       | A stopped-server `/data` archive restored into a different data directory, then authenticated and loaded all seven accounts plus the confirmed review state.                                                     |
+| Reimport idempotency          | Passed in regression | M3/M5 focused tests assert repeated statement/review processing creates no financial duplicate.                                                                                                                  |
 
 The local HTTPS test deliberately bypassed certificate validation only because
 it used a temporary self-signed certificate. That exception is not permitted

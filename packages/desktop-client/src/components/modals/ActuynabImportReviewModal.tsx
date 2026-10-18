@@ -402,7 +402,7 @@ export function ActuynabImportReviewModal({
                     <ButtonWithLoading
                       variant="primary"
                       isLoading={saving}
-                      onPress={() => confirm(state.close)}
+                      onPress={() => confirm(() => state.close())}
                     >
                       <Trans>Confirm decisions</Trans>
                     </ButtonWithLoading>

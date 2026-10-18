@@ -1,8 +1,9 @@
-# Set the default behavior, in case people don't have core.autocrlf set.
-* text=auto
+# Normalize every text checkout to LF. This keeps formatter results stable on
+# Windows while the explicit .bat and binary rules below retain their formats.
+* text=auto eol=lf
 
-# Explicitly declare text files you want to always be normalized and converted
-# to native line endings on checkout.
+# Keep these explicit rules as documentation for source and script formats
+# that must remain LF even if the default policy changes later.
 # *.c text
 # *.h text
 

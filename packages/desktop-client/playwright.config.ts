@@ -41,7 +41,7 @@ export default defineConfig({
     : {
         cwd: path.join(__dirname, '..', '..'),
         command: process.env.E2E_USE_BUILD
-          ? `PORT=${e2ePort} node packages/desktop-client/bin/serve-build.mjs`
+          ? `yarn workspace @actual-app/web exec cross-env PORT=${e2ePort} node bin/serve-build.mjs`
           : 'yarn start',
         url: `http://localhost:${e2ePort}`,
         reuseExistingServer: !process.env.CI,

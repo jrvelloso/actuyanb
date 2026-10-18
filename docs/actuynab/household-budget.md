@@ -18,15 +18,15 @@ or give a name for a new zero-balance account. The displayed names and narrow
 transfer-description phrases are editable suggestions, not matching rules
 hardwired into the importer.
 
-| Role | Suggested name | Actual account type |
-| --- | --- | --- |
-| Joint checking | Activo | On budget |
-| Joint checking | Millenium | On budget |
-| Credit card | CC-Activo-Classic | On budget |
-| Credit card | CC-Millenium-Gold | On budget |
-| Credit card | CC-Millenium-Classic | On budget |
-| Mortgage tracking | Home | Off budget |
-| Vehicle-financing tracking | Tesla | Off budget |
+| Role                       | Suggested name       | Actual account type |
+| -------------------------- | -------------------- | ------------------- |
+| Joint checking             | Activo               | On budget           |
+| Joint checking             | Millenium            | On budget           |
+| Credit card                | CC-Activo-Classic    | On budget           |
+| Credit card                | CC-Millenium-Gold    | On budget           |
+| Credit card                | CC-Millenium-Classic | On budget           |
+| Mortgage tracking          | Home                 | Off budget          |
+| Vehicle-financing tracking | Tesla                | Off budget          |
 
 The setup persists a role-to-Actual-account-ID mapping in the additive synced
 tables `actuynab_household_profiles` and
@@ -88,14 +88,14 @@ structural transfers out of automated confirmation.
 
 The page distinguishes these intentionally different values:
 
-| Value | Meaning | Not a substitute for |
-| --- | --- | --- |
-| Available to budget / Available savings | Actual's current-month budget value, according to the selected budget type | A bank-account balance |
-| Joint checking balances | Ledger totals for configured on-budget checking accounts | Budget availability |
-| Credit-card liabilities | Individual card ledger totals and their displayed liability magnitude | New spending or spendable cash |
-| Off-budget financing | Ledger totals for the configured Home and Tesla tracking accounts | A loan amortization calculation |
-| Total liabilities | Absolute ledger magnitudes for configured cards and financing accounts | Net worth or cash available to spend |
-| This month's spending | Current-month categorized on-budget activity, net of refunds | Transfers, card payments, or financing movements |
+| Value                                   | Meaning                                                                    | Not a substitute for                             |
+| --------------------------------------- | -------------------------------------------------------------------------- | ------------------------------------------------ |
+| Available to budget / Available savings | Actual's current-month budget value, according to the selected budget type | A bank-account balance                           |
+| Joint checking balances                 | Ledger totals for configured on-budget checking accounts                   | Budget availability                              |
+| Credit-card liabilities                 | Individual card ledger totals and their displayed liability magnitude      | New spending or spendable cash                   |
+| Off-budget financing                    | Ledger totals for the configured Home and Tesla tracking accounts          | A loan amortization calculation                  |
+| Total liabilities                       | Absolute ledger magnitudes for configured cards and financing accounts     | Net worth or cash available to spend             |
+| This month's spending                   | Current-month categorized on-budget activity, net of refunds               | Transfers, card payments, or financing movements |
 
 The card and financing totals deliberately use the magnitude of their ledger
 balances because Actual tracking accounts have no separate liability type. The
