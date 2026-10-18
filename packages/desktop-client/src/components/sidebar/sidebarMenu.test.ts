@@ -11,6 +11,7 @@ describe('parseSidebarMenuItems', () => {
   it('returns the defaults when nothing is saved', () => {
     expect(parseSidebarMenuItems(undefined)).toEqual([
       { id: 'budget', hidden: false },
+      { id: 'household', hidden: false },
       { id: 'reports', hidden: false },
       { id: 'schedules', hidden: false },
       { id: 'payees', hidden: true },
@@ -37,7 +38,16 @@ describe('parseSidebarMenuItems', () => {
       { id: 'bank-sync', hidden: true },
     ];
 
-    expect(parseSidebarMenuItems(JSON.stringify(saved))).toEqual(saved);
+    expect(parseSidebarMenuItems(JSON.stringify(saved))).toEqual([
+      { id: 'household', hidden: false },
+      { id: 'payees', hidden: false },
+      { id: 'budget', hidden: false },
+      { id: 'reports', hidden: false },
+      { id: 'schedules', hidden: true },
+      { id: 'tags', hidden: true },
+      { id: 'rules', hidden: false },
+      { id: 'bank-sync', hidden: true },
+    ]);
   });
 
   it('drops unknown and duplicate entries', () => {
@@ -53,7 +63,7 @@ describe('parseSidebarMenuItems', () => {
     expect(items.filter(item => item.id === 'reports')).toEqual([
       { id: 'reports', hidden: false },
     ]);
-    expect(items).toHaveLength(7);
+    expect(items).toHaveLength(8);
   });
 
   it('inserts missing pages at their default position', () => {
@@ -65,6 +75,7 @@ describe('parseSidebarMenuItems', () => {
     );
 
     expect(items.map(item => item.id)).toEqual([
+      'household',
       'reports',
       'schedules',
       'budget',
@@ -77,7 +88,7 @@ describe('parseSidebarMenuItems', () => {
     expect(items.find(item => item.id === 'payees')?.hidden).toBe(true);
   });
 
-  it('always keeps budget and reports in the sidebar', () => {
+  it('always keeps budget, household, and reports in the sidebar', () => {
     const items = parseSidebarMenuItems(
       JSON.stringify(
         getDefaultSidebarMenuItems().map(item => ({ ...item, hidden: true })),
@@ -86,6 +97,7 @@ describe('parseSidebarMenuItems', () => {
 
     expect(items.filter(item => !item.hidden)).toEqual([
       { id: 'budget', hidden: false },
+      { id: 'household', hidden: false },
       { id: 'reports', hidden: false },
     ]);
   });
@@ -106,13 +118,15 @@ describe('parseSidebarStartPage', () => {
   });
 
   it('falls back to the first page', () => {
-    expect(parseSidebarStartPage(undefined, items)).toBe('reports');
-    expect(parseSidebarStartPage('unknown', items)).toBe('reports');
+    expect(parseSidebarStartPage(undefined, items)).toBe('household');
+    expect(parseSidebarStartPage('unknown', items)).toBe('household');
   });
 });
 
 describe('moveSidebarMenuItem', () => {
-  const items = getDefaultSidebarMenuItems().slice(0, 3);
+  const items = getDefaultSidebarMenuItems().filter(item =>
+    ['budget', 'reports', 'schedules'].includes(item.id),
+  );
 
   it('moves a page before the target', () => {
     expect(

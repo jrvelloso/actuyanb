@@ -13,6 +13,11 @@ import type {
 } from '#types/models';
 
 import {
+  configureHousehold,
+  getHouseholdOverview,
+  loadHouseholdProfile,
+} from './actuynab-household';
+import {
   confirmImportReview,
   listPendingImportReviews,
   loadImportReview,
@@ -26,6 +31,9 @@ import { mergeTransactions } from './merge';
 import { batchUpdateTransactions } from '.';
 
 export type TransactionHandlers = {
+  'actuynab-household-configure': typeof configureHousehold;
+  'actuynab-household-overview': typeof getHouseholdOverview;
+  'actuynab-household-profile': typeof loadHouseholdProfile;
   'actuynab-review-confirm': typeof confirmImportReview;
   'actuynab-review-list-pending': typeof listPendingImportReviews;
   'actuynab-review-load': typeof loadImportReview;
@@ -162,6 +170,12 @@ async function getLatestTransaction() {
 
 export const app = createApp<TransactionHandlers>();
 
+app.method(
+  'actuynab-household-configure',
+  mutator(undoable(configureHousehold)),
+);
+app.method('actuynab-household-overview', getHouseholdOverview);
+app.method('actuynab-household-profile', loadHouseholdProfile);
 app.method('actuynab-review-confirm', mutator(undoable(confirmImportReview)));
 app.method('actuynab-review-list-pending', listPendingImportReviews);
 app.method('actuynab-review-load', loadImportReview);

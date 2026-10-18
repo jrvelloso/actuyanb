@@ -107,6 +107,17 @@ and a synthetic two-client sync, restart, and isolated restore drill. The
 private environment is ready for an owner-controlled remote-host exercise; it
 is not a production deployment. See [Deployment readiness](deployment-readiness.md).
 
+## Milestone 7 household budget experience
+
+Milestone 7 adds a configurable, synced shared-household setup and a focused
+Household overview. It maps account roles to Actual account IDs rather than
+hardcoding account names, optionally applies an idempotent starter category
+template, and separates budget availability, checking balances, card and
+financing liabilities, monthly categorized spending, pending reviews, and
+upcoming schedules. It preserves Actual's transfer, card, split,
+reconciliation, and off-budget tracking semantics. See [Household budget
+experience](household-budget.md).
+
 ## Project documents
 
 - [Architecture](architecture.md) — package boundaries, extension seams, and
@@ -131,6 +142,10 @@ is not a production deployment. See [Deployment readiness](deployment-readiness.
 
 - [Deployment readiness](deployment-readiness.md) — integration plan, private
   Docker baseline, Vercel preview settings, browser/sync evidence, and gates.
+
+- [Household budget experience](household-budget.md) — configurable shared
+  accounts, category template, financing safeguards, overview semantics, and
+  synthetic validation.
 
 ## Working agreement
 

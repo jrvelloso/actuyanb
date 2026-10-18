@@ -2,6 +2,7 @@ import type { ComponentType, SVGProps } from 'react';
 import { useTranslation } from 'react-i18next';
 
 import {
+  SvgHome,
   SvgLibrary,
   SvgReports,
   SvgTag,
@@ -28,6 +29,7 @@ export function useSidebarMenuItemDetails(): Record<
 
   return {
     budget: { title: t('Budget'), Icon: SvgWallet },
+    household: { title: t('Household'), Icon: SvgHome },
     reports: { title: t('Reports'), Icon: SvgReports },
     schedules: { title: t('Schedules'), Icon: SvgCalendar3 },
     payees: { title: t('Payees'), Icon: SvgUserGroup },

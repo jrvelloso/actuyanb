@@ -8,10 +8,10 @@ import { classifyHouseholdTransaction } from './actuynab-classification';
 import type {
   ClassificationConfidence,
   ClassificationReason,
-  HouseholdAccount,
   HouseholdClassificationContext,
   HouseholdClassificationResult,
 } from './actuynab-classification';
+import { loadHouseholdProfile } from './actuynab-household';
 
 import { batchUpdateTransactions } from '.';
 
@@ -170,69 +170,9 @@ function toReviewAudit(row: StoredAudit): ImportReviewAudit {
   };
 }
 
-function householdAccount(account: {
-  id: string;
-  name: string;
-  offbudget: number;
-}): HouseholdAccount | null {
-  const name = account.name.trim().toUpperCase();
-  const common = {
-    id: account.id,
-    name: account.name,
-    onBudget: account.offbudget !== 1,
-  };
-
-  switch (name) {
-    case 'ACTIVO':
-      return {
-        ...common,
-        role: 'joint-checking',
-        transferDescriptionTokens: ['TRANSFERENCIA PARA ACTIVO'],
-      };
-    case 'MILLENIUM':
-      return {
-        ...common,
-        role: 'joint-checking',
-        transferDescriptionTokens: ['TRANSFERENCIA PARA MILLENIUM'],
-      };
-    case 'CC-ACTIVO-CLASSIC':
-      return {
-        ...common,
-        role: 'credit-card',
-        transferDescriptionTokens: ['PAGAMENTO CC ACTIVO CLASSIC'],
-      };
-    case 'CC-MILLENIUM-GOLD':
-      return {
-        ...common,
-        role: 'credit-card',
-        transferDescriptionTokens: ['PAGAMENTO CC MILLENIUM GOLD'],
-      };
-    case 'CC-MILLENIUM-CLASSIC':
-      return {
-        ...common,
-        role: 'credit-card',
-        transferDescriptionTokens: ['PAGAMENTO CC MILLENIUM CLASSIC'],
-      };
-    case 'TESLA':
-      return {
-        ...common,
-        role: 'vehicle-financing',
-        transferDescriptionTokens: ['PAGAMENTO TESLA FINANCIAMENTO'],
-      };
-    case 'HOME':
-      return {
-        ...common,
-        role: 'mortgage',
-        transferDescriptionTokens: ['PRESTACAO CASA HOME'],
-      };
-    default:
-      return null;
-  }
-}
-
 async function contextForReview(): Promise<HouseholdClassificationContext> {
-  const [accounts, payees, history, decisions] = await Promise.all([
-    db.getAccounts(),
+  const [profile, payees, history, decisions] = await Promise.all([
+    loadHouseholdProfile(),
     db.getPayees(),
     db.all<{
       amount: number;
@@ -265,9 +205,7 @@ async function contextForReview(): Promise<HouseholdClassificationContext> {
   ]);
 
   return {
-    accounts: accounts
-      .map(householdAccount)
-      .filter((account): account is HouseholdAccount => Boolean(account)),
+    accounts: profile?.accounts ?? [],
     confirmedPayeeCategories: decisions.flatMap(decision =>
       decision.category_id && decision.normalized_payee
         ? [

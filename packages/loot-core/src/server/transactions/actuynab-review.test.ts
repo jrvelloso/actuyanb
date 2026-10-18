@@ -4,6 +4,10 @@ import { setSyncingMode } from '#server/sync';
 import { loadRules, resetState } from '#server/transactions/transaction-rules';
 
 import {
+  configureHousehold,
+  HOUSEHOLD_ACCOUNT_PRESETS,
+} from './actuynab-household';
+import {
   confirmImportReview,
   loadImportReview,
   prepareImportReview,
@@ -39,6 +43,13 @@ beforeEach(async () => {
       }),
     ),
   );
+  await configureHousehold({
+    accounts: HOUSEHOLD_ACCOUNT_PRESETS.map(preset => ({
+      key: preset.key,
+      name: preset.defaultName,
+      transferDescriptionTokens: [...preset.defaultTransferDescriptionTokens],
+    })),
+  });
   setSyncingMode('enabled');
 });
 
@@ -246,6 +257,9 @@ describe('ActuYNAB Milestone 5 synced import review', () => {
   });
 
   test('stores a correction without inventing a payee and rejects unknown correction targets', async () => {
+    const payeesBefore = await db.first<{ count: number }>(
+      'SELECT COUNT(*) AS count FROM payees WHERE tombstone = 0',
+    );
     await addImportedTransaction('manual-correction', {
       imported_payee: 'Unknown synthetic shop',
       payee: null,
@@ -300,6 +314,6 @@ describe('ActuYNAB Milestone 5 synced import review', () => {
       await db.first<{ count: number }>(
         'SELECT COUNT(*) AS count FROM payees WHERE tombstone = 0',
       ),
-    ).toEqual({ count: 1 });
+    ).toEqual(payeesBefore);
   });
 });

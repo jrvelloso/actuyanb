@@ -340,3 +340,38 @@ remaining gates and backup procedure.
 with fictional placeholder values. The local Docker Desktop Linux engine was
 not running, so the Caddy container was not started or runtime-validated here;
 that remains a target-host preflight rather than a passed local test.
+
+## Milestone 7 household-budget validation
+
+Milestone 7 uses the reusable
+`actuynab-household.fixture.ts` synthetic household setup. It contains only
+fictional account labels and narrow transfer phrases; no real balances, loan
+terms, statements, credentials, or bank connection are required.
+
+Run the focused regression from the repository root:
+
+```text
+yarn workspace @actual-app/core vitest --run src/server/transactions/actuynab-classification.test.ts src/server/transactions/actuynab-review.test.ts src/server/transactions/actuynab-household.test.ts
+yarn workspace @actual-app/web vitest --run src/components/sidebar/sidebarMenu.test.ts
+```
+
+The core sequence creates or adopts seven synthetic household accounts, applies
+the optional nine-group category template, applies the same setup again, and
+verifies no duplicate accounts, categories, or financial transactions appear.
+It reloads the synced role records, protects a synthetic credit-card bill
+payment from categorization, and reads an overview after a card purchase,
+refund, card payment, and off-budget Home transfer. The expected current-month
+spending is the categorized purchase net of the refund; the card payment and
+financing movement do not add a second expense. Account balances are asserted
+unchanged by the overview read.
+
+The M5 review regression now configures the persisted household roles before
+its confirmation/idempotency/reconciled/split tests, proving the new mapping
+does not rely on the old display-name guard. The sidebar regression verifies
+that **Household** is a persistent primary navigation item and does not corrupt
+existing saved sidebar preferences.
+
+These are local SQLite/CRDT tests. They prove the new metadata emits Actual
+sync messages, not that a newly deployed remote server or a real bank account
+has been exercised. The Windows Node 24 Windows-1252 parser baseline remains
+unrelated and unchanged.
