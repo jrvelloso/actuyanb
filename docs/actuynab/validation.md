@@ -244,3 +244,40 @@ Tests       13 passed (13)
 The wider parser run still reports only the two existing Node 24 Windows-1252
 expectation failures described above. The new M3 module does not alter that
 parser, and no snapshot was changed to mask the corruption.
+
+## Milestone 5 synced import-review validation
+
+Milestone 5 creates only fictional accounts, categories, payees, and imported
+transaction rows. It does not read a real statement, use credentials, connect
+to a bank, or require an external sync server.
+
+Run the focused workflow test from the repository root:
+
+```text
+yarn workspace @actual-app/core test:node src/server/transactions/actuynab-review.test.ts
+```
+
+The test covers this end-to-end local sequence:
+
+1. Create a synthetic Activo account, a credit card, grocery category, and
+   fictional categorized Continente history.
+2. Add a synthetic imported card purchase and prepare a review/audit batch.
+3. Approve the deterministic category suggestion and verify only the existing
+   payee/category fields can change; amount, date, and reconciliation state
+   remain exact.
+4. Reload the review from its synced SQLite rows and verify the decision,
+   audit status, and normalized mapping remain available.
+5. Prepare the same transaction again and verify the deterministic batch ID
+   and unchanged financial-row count.
+6. Verify a credit-card bill payment, reconciled row, and split are rejected
+   from automated edits and preserve their combined balance.
+7. Verify a correction accepts only existing category/payee IDs and creates no
+   new payee.
+8. Assert the batch, item, and decision records were emitted through Actual's
+   native CRDT `messages` datasets.
+
+This is an executed local-persistence and native-sync-protocol test, not a
+claim that a remote server synchronized two devices. The remaining private
+deployment validation is a compatible sync-server two-device round trip, plus
+the normal HTTPS/authentication/backup operational checks. The known Node 24
+Windows-1252 parser baseline remains unrelated and unchanged.

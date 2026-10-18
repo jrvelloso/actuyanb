@@ -71,13 +71,32 @@ alone is not enough to infer a personal account. Refunds retain their original
 positive amount and can use a confirmed merchant/category mapping; they are
 not converted into a new expense.
 
+## Synced confirmation in Milestone 5
+
+Milestone 5 supplies the missing confirmation boundary without changing the
+classifier's purity. The review modal invokes the preview for transaction IDs
+already returned by Actual's reconciled import. A user may approve a safe
+suggestion, correct it to an existing payee/category, or reject it. Only an
+approved/corrected selection can update the Actual transaction, and that update
+contains only `payee` and `category` fields.
+
+The confirmation service records a normalized-payee mapping in an additive,
+synced review-decision table. On later imports, those conflict-free decisions
+become the second precedence layer described above. Reconciled, split, already
+categorized, and structural-transfer rows are not eligible for an automated
+write. See [Synced import review](import-review.md) for the audit schema,
+workflow, and recovery behavior.
+
 ## Data and privacy boundaries
 
 - Original bank descriptions remain in `imported_payee`; normalization is only
   a matching and display candidate.
-- The service has no database writes and stores no source statement data.
-- Confirmed mappings are an explicit caller input until a synchronized,
-  user-visible association record and review UI are designed.
+- The preview service itself has no database writes and stores no source
+  statement data. M5 stores only file-free audit metadata, transaction IDs,
+  normalized mappings, and explicit user decisions through Actual's synced
+  persistence path.
+- Confirmed mappings are never inferred from an unreviewed suggestion; they
+  exist only after an approved or corrected confirmation.
 - No external model or AI service is part of this milestone.
 
 ## Validation
@@ -101,7 +120,6 @@ Actual rules and M1-M3 import/migration regression set also passed 60 tests
 together. The normal Vite configuration-loader deprecation warning was present
 but does not affect the results.
 
-The follow-on work is a synced, user-visible review queue that records a
-confirmed association through Actual rules or a reviewed additive model. It
-must retain this module's no-write preview boundary until the user confirms an
-action.
+The follow-on work is private sync-server validation and any later review
+history/dashboard refinement. Those changes must retain this module's no-write
+preview boundary until the user confirms an action.

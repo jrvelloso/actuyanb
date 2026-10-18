@@ -23,6 +23,7 @@ import { createSlice } from '@reduxjs/toolkit';
 import type { PayloadAction } from '@reduxjs/toolkit';
 
 import { accountQueries } from '#accounts';
+import type { ImportedTransactionsResult } from '#accounts/mutations';
 import { resetApp, setAppState } from '#app/appSlice';
 import type { SelectLinkedAccountsModalProps } from '#components/modals/SelectLinkedAccountsModal';
 import type { TransactionTableColumn } from '#components/transactions/table/columns';
@@ -47,7 +48,43 @@ export type Modal =
         accountId: string;
         filename: string;
         categories?: { list: CategoryEntity[]; grouped: CategoryGroupEntity[] };
-        onImported: (didChange: boolean) => void;
+        onImported: (
+          result: ImportedTransactionsResult & {
+            auditTransactions: Array<{
+              amount: number;
+              date: string;
+              importedId?: string | null;
+              importedPayee?: string | null;
+            }>;
+            parsed: number;
+            sourceBank: 'activobank' | 'revolut' | 'other';
+            sourceFormat: string;
+          },
+        ) => void;
+      };
+    }
+  | {
+      name: 'actuynab-import-review';
+      options: {
+        accountId: string;
+        auditCounts?: {
+          duplicate: number;
+          failed: number;
+          imported: number;
+          parsed: number;
+          updated: number;
+        };
+        batchId?: string;
+        sourceTransactions?: Array<{
+          amount: number;
+          date: string;
+          importedId?: string | null;
+          importedPayee?: string | null;
+        }>;
+        sourceBank?: 'activobank' | 'revolut' | 'other';
+        sourceFormat?: string;
+        transactionIds?: string[];
+        updatedTransactionIds?: string[];
       };
     }
   | {

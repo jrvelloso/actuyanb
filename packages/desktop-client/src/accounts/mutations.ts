@@ -272,6 +272,14 @@ type ImportTransactionsPayload = {
   reimportDeleted?: boolean;
 };
 
+export type ImportedTransactionsResult = {
+  added: string[];
+  didChange: boolean;
+  duplicate: number;
+  failed: number;
+  updated: string[];
+};
+
 export function useImportTransactionsMutation() {
   const queryClient = useQueryClient();
   const dispatch = useDispatch();
@@ -290,13 +298,23 @@ export function useImportTransactionsMutation() {
           transactions,
         });
 
-        return true;
+        // The legacy add-only endpoint deliberately returns no identifiers.
+        // Review automation therefore remains attached to the reconciled
+        // import path, whose IDs let us audit and re-open a precise batch.
+        return {
+          added: [],
+          didChange: true,
+          duplicate: 0,
+          failed: 0,
+          updated: [],
+        };
       }
 
       const {
         errors = [],
         added,
         updated,
+        updatedPreview,
       } = await send('transactions-import', {
         accountId,
         transactions,
@@ -328,7 +346,13 @@ export function useImportTransactionsMutation() {
         }),
       );
 
-      return added.length > 0 || updated.length > 0;
+      return {
+        added,
+        didChange: added.length > 0 || updated.length > 0,
+        duplicate: updatedPreview.filter(preview => preview.ignored).length,
+        failed: errors.length,
+        updated,
+      } satisfies ImportedTransactionsResult;
     },
     onSuccess: () => invalidateQueries(queryClient),
     onError: error => {

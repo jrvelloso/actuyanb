@@ -52,6 +52,11 @@ service; it is not a replacement database for budget calculations.
 5. **Automation UI.** Compose new React views from the component library and
    existing account/rule/import hooks. Reuse translation and responsive
    conventions; do not redesign the entire application.
+6. **Synced import review.** M5 adds additive review/audit tables and writes
+   them with Actual's `db.insert`/`db.update` CRDT path. The review modal
+   receives only IDs returned from Actual's reconciled importer, then applies
+   selected existing payee/category IDs through `batchUpdateTransactions`.
+   It never stores raw bank files or becomes a transaction database.
 
 ## Financial correctness constraints
 
@@ -64,8 +69,9 @@ service; it is not a replacement database for budget calculations.
 - Keep transaction mutations inside established core APIs so sync,
   reconciliation, and views remain consistent.
 - Classification previews must not modify amounts, dates, reconciliation,
-  balances, source descriptions, payees, categories, or transfers. A future
-  confirmation UI must apply a choice through an existing Actual API.
+  balances, source descriptions, payees, categories, or transfers. M5's
+  confirmation applies only explicit, user-selected existing payee/category
+  values through Actual's established transaction API.
 - Sensitive bank credentials remain server-side and are not end-to-end
   encrypted by Actual's bank-sync feature. Private self-hosting is the
   recommended deployment boundary.
@@ -80,11 +86,11 @@ branch, run regression tests, and record any adaptation in these documents.
 
 ## Baseline risks to address
 
-| Risk                       | Evidence                                                                                          | Planned response                                                        |
-| -------------------------- | ------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------- |
-| YNAB 4 split payees        | Existing importer/docs identify split-payee repair as a known issue                               | Add migration validation and a supported repair/report workflow         |
-| Limited import audit trail | M3 returns immutable JSON/Markdown batch summaries but does not create a synced history/dashboard | Design synced batch retention and review statuses before persisting it  |
-| Portuguese bank variance   | M3 has synthetic ActivoBank/Revolut adapter contracts; real export schemas remain unverified      | Verify private schemas, then add one reviewed adapter at a time         |
-| Classification persistence | M4 has a no-write preview and fixtures, but no synced confirmation/review entity                  | Design a visible synced confirmation flow before persisting associations |
-| Bank-secret exposure       | Upstream docs state provider secrets are not covered by E2E encryption                            | Self-host, restrict server access, and document backup/secret handling  |
-| Windows test cleanup       | Baseline test teardown can leave SQLite files locked                                              | Run CI on Linux; make future Windows tests close handles before cleanup |
+| Risk                       | Evidence                                                                                                                       | Planned response                                                        |
+| -------------------------- | ------------------------------------------------------------------------------------------------------------------------------ | ----------------------------------------------------------------------- |
+| YNAB 4 split payees        | Existing importer/docs identify split-payee repair as a known issue                                                            | Add migration validation and a supported repair/report workflow         |
+| Import-review retention    | M5 stores a synced, file-free audit batch, item IDs, and decisions; a full multi-device server round trip is not yet automated | Run a private two-device sync verification before production approval   |
+| Portuguese bank variance   | M3 has synthetic ActivoBank/Revolut adapter contracts; real export schemas remain unverified                                   | Verify private schemas, then add one reviewed adapter at a time         |
+| Classification persistence | M5 persists confirmed mappings and reviewed transaction updates through Actual's CRDT sync path                                | Keep the model additive and validate sync-server behavior privately     |
+| Bank-secret exposure       | Upstream docs state provider secrets are not covered by E2E encryption                                                         | Self-host, restrict server access, and document backup/secret handling  |
+| Windows test cleanup       | Baseline test teardown can leave SQLite files locked                                                                           | Run CI on Linux; make future Windows tests close handles before cleanup |

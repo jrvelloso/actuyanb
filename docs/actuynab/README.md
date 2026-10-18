@@ -87,6 +87,17 @@ Transfers, credit-card bill payments, mortgage and vehicle-financing payments,
 manual corrections, refunds, and provided splits have explicit safe handling.
 See [Categorization](categorization.md).
 
+## Milestone 5 synced import review
+
+Milestone 5 provides the first user-visible automation loop. Actual's existing
+import preview and reconciler select financial transactions; the new review
+modal then shows deterministic payee/category suggestions, reasons,
+qualitative confidence, potential duplicates, transfer safeguards, and manual
+attention. Only explicit approval or correction applies existing payee/category
+IDs. Additive synced audit, queue, and decision records survive reloads and
+participate in Actual's normal CRDT synchronization; raw bank files are never
+stored. See [Synced import review](import-review.md).
+
 ## Project documents
 
 - [Architecture](architecture.md) — package boundaries, extension seams, and
@@ -103,6 +114,9 @@ See [Categorization](categorization.md).
 
 - [Functional validation](validation.md) â€” Windows setup, synthetic data,
   repeatable import/backup procedures, and results.
+
+- [Synced import review](import-review.md) — confirmation workflow, synced
+  audit data, safeguards, validation, and current limitations.
 
 ## Working agreement
 
