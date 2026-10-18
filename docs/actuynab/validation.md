@@ -421,3 +421,36 @@ the balance did not change. A separate malformed-balance fixture visibly
 displayed the parser warning and was not imported. This validates local browser
 functionality and native local persistence, not a public deployment, live
 bank connection, or unknown ActivoBank export variant.
+
+## Milestone 9 Millennium BCP discovery safeguards
+
+There is no Millennium BCP parser test yet because no authentic or authoritative
+format contract has been verified. This is intentional: a generic XLSX file is
+not treated as Millennium BCP merely because of its extension. The missing
+structural facts and the safe handoff requirements are listed in [Bank
+statement imports](bank-imports.md).
+
+The shared-safeguard regression is synthetic and requires no bank file:
+
+```text
+yarn workspace @actual-app/core vitest --run src/server/transactions/import/actuynab-bank-import.test.ts src/server/transactions/actuynab-classification.test.ts src/server/transactions/actuynab-household.test.ts
+```
+
+Executed locally on 2026-10-18: 3 files and 17 tests passed. The test suite
+proves that a configured Activo-to-Millenium transfer candidate has exactly one
+same-day, opposite-amount counterpart and remains a manual-review suggestion;
+an equal-amount collision is not paired. It reloads the M7 persisted role
+mapping before making that suggestion, and confirms that an ambiguous generic
+card-payment debit across multiple configured cards has no expense category
+and requires manual review. The tests assert zero balance changes while only a
+suggestion is prepared.
+
+Also executed on the same branch: core strict typecheck, repository
+constraints, tsconfig-reference check, full format/type-aware lint, and the
+additive migration check. All passed; the migration check found 62 migrations
+on `origin/master`, the merge base, and the branch head. With the Git for
+Windows `sh` directory on `PATH`, `yarn build:browser` passed. Chromium then
+passed the production-runtime smoke test and all five functional upstream
+Import Transactions tests (CSV/QIF import, duplicate reimport, and an
+unchecked same-amount match). These browser tests validate existing generic
+import behavior, not unverified Millennium BCP parsing.

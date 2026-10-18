@@ -72,6 +72,14 @@ transfer protection merely because an account happens to have one of those
 names; configure its role and narrow description phrases in **Household**.
 See [Household budget experience](household-budget.md).
 
+If a debit from a configured joint checking account has the narrow generic
+bank-payment form `PAGAMENTO CARTÃO` or `PAGAMENTO CC` but does not identify a
+configured card, the persisted roles decide how far automation may go. One
+configured card is an unambiguous `credit-card-bill-payment`; two or more cards
+produce `possible-credit-card-bill-payment`, no proposed expense category, and
+manual review. This guard never creates a transfer and does not broaden into a
+merchant inference.
+
 An incoming contribution from a personal account is only classified as income
 when the adapter or caller explicitly marks it `externalContribution`. Text
 alone is not enough to infer a personal account. Refunds retain their original
@@ -122,10 +130,10 @@ Run the focused validation from the repository root:
 yarn workspace @actual-app/core test:node src/server/transactions/actuynab-classification.test.ts
 ```
 
-On 2026-10-17, the focused classifier suite passed all six tests. The broader
-Actual rules and M1-M3 import/migration regression set also passed 60 tests
-together. The normal Vite configuration-loader deprecation warning was present
-but does not affect the results.
+On 2026-10-18, the focused classifier suite passed all seven tests, including
+the single-card and multi-card generic-payment safeguards. The normal Vite
+configuration-loader deprecation warning was present but does not affect the
+results.
 
 The follow-on work is private sync-server validation and any later review
 history/dashboard refinement. Those changes must retain this module's no-write

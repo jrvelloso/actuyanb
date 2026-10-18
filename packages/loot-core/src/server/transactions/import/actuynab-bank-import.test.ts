@@ -12,6 +12,7 @@ import {
   prepareBankImport,
   requireReviewForAmbiguousMatches,
   REVOLUT_SYNTHETIC_CSV_FIELDS,
+  suggestHouseholdTransferPairs,
   suggestTransferPairs,
 } from './actuynab-bank-import';
 import type { StatementRow } from './actuynab-bank-import';
@@ -368,5 +369,88 @@ describe('ActuYNAB Milestone 3 bank import automation', () => {
       (await accountBalance('m3-activobank')) +
         (await accountBalance('m3-revolut')),
     ).toBe(0);
+  });
+
+  test('suggests a configured Activo-to-Millenium transfer only when the counterpart is unique', () => {
+    const fieldMap = {
+      amount: 'Amount',
+      bookingDate: 'Booking date',
+      description: 'Description',
+    };
+    const source = prepareBankImport({
+      accountId: 'm9-activo',
+      createdAt,
+      fieldMap,
+      provider: 'activobank',
+      rows: [
+        {
+          Amount: '-250.00',
+          'Booking date': '10/04/2026',
+          Description: 'TRANSFERÊNCIA PARA MILLENIUM',
+        },
+      ],
+      sourceFormat: 'csv',
+    });
+    const destination = prepareBankImport({
+      accountId: 'm9-millenium',
+      createdAt,
+      fieldMap,
+      provider: 'activobank',
+      rows: [
+        {
+          Amount: '250.00',
+          'Booking date': '10/04/2026',
+          Description: 'TRANSFERÊNCIA RECEBIDA',
+        },
+      ],
+      sourceFormat: 'csv',
+    });
+    const accounts = [
+      {
+        id: 'm9-activo',
+        role: 'joint-checking',
+        transferDescriptionTokens: ['TRANSFERENCIA PARA ACTIVO'],
+      },
+      {
+        id: 'm9-millenium',
+        role: 'joint-checking',
+        transferDescriptionTokens: ['TRANSFERENCIA PARA MILLENIUM'],
+      },
+    ];
+
+    expect(
+      suggestHouseholdTransferPairs(source, destination, accounts),
+    ).toEqual([
+      {
+        destinationAccountId: 'm9-millenium',
+        reason: 'configured-household-token',
+        requiresManualReview: true,
+        sourceAccountId: 'm9-activo',
+        sourceRows: [1, 1],
+      },
+    ]);
+
+    const ambiguousSource = prepareBankImport({
+      accountId: 'm9-activo',
+      createdAt,
+      fieldMap,
+      provider: 'activobank',
+      rows: [
+        {
+          Amount: '-250.00',
+          'Booking date': '10/04/2026',
+          Description: 'TRANSFERÊNCIA PARA MILLENIUM REFERÊNCIA A',
+        },
+        {
+          Amount: '-250.00',
+          'Booking date': '10/04/2026',
+          Description: 'TRANSFERÊNCIA PARA MILLENIUM REFERÊNCIA B',
+        },
+      ],
+      sourceFormat: 'csv',
+    });
+    expect(
+      suggestHouseholdTransferPairs(ambiguousSource, destination, accounts),
+    ).toEqual([]);
   });
 });

@@ -8,6 +8,11 @@ import type {
   HouseholdAccount,
   HouseholdAccountRole,
 } from './actuynab-classification';
+import { suggestHouseholdTransferPairs } from './import/actuynab-bank-import';
+import type {
+  HouseholdTransferSuggestion,
+  PreparedBankImport,
+} from './import/actuynab-bank-import';
 
 export type HouseholdAccountKey =
   | 'activo'
@@ -241,6 +246,21 @@ export async function loadHouseholdProfile(): Promise<HouseholdProfile | null> {
       transferDescriptionTokens: parseTokens(role.transfer_description_tokens),
     })),
   };
+}
+
+/**
+ * Matches two imported shared-account batches using the synced household-role
+ * mapping. It only returns a review suggestion; it never creates, changes, or
+ * confirms an Actual transfer.
+ */
+export async function suggestPersistedHouseholdTransferPairs(
+  source: PreparedBankImport,
+  destination: PreparedBankImport,
+): Promise<HouseholdTransferSuggestion[]> {
+  const profile = await loadHouseholdProfile();
+  return profile
+    ? suggestHouseholdTransferPairs(source, destination, profile.accounts)
+    : [];
 }
 
 async function applyCategoryTemplate(): Promise<{

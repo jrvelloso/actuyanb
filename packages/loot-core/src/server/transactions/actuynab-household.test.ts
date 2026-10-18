@@ -7,9 +7,11 @@ import {
   configureHousehold,
   getHouseholdOverview,
   loadHouseholdProfile,
+  suggestPersistedHouseholdTransferPairs,
 } from './actuynab-household';
 import { syntheticHouseholdSetupFixture } from './actuynab-household.fixture';
 import { prepareImportReview } from './actuynab-review';
+import { prepareBankImport } from './import/actuynab-bank-import';
 
 async function configuredAccounts() {
   const profile = await loadHouseholdProfile();
@@ -139,6 +141,83 @@ describe('ActuYNAB Milestone 7 household budget experience', () => {
       proposedCategoryId: null,
       transferTargetAccountId: creditCard.id,
     });
+
+    await db.insertTransaction({
+      account: checking.id,
+      amount: -2000,
+      date: '2017-01-11',
+      id: 'synthetic-ambiguous-card-payment',
+      imported_payee: 'PAGAMENTO CARTÃO FATURA',
+    });
+    const ambiguousCardReview = await prepareImportReview({
+      accountId: checking.id,
+      sourceBank: 'other',
+      sourceFormat: 'csv',
+      transactionIds: ['synthetic-ambiguous-card-payment'],
+    });
+    expect(ambiguousCardReview.items[0].classification).toMatchObject({
+      confidence: 'review',
+      proposedCategoryId: null,
+      reason: 'possible-credit-card-bill-payment',
+      requiresManualReview: true,
+    });
+  });
+
+  test('uses persisted joint-account roles for a review-only transfer suggestion', async () => {
+    await configureHousehold(syntheticHouseholdSetupFixture());
+    const profile = await loadHouseholdProfile();
+    const activo = profile?.accounts.find(account => account.key === 'activo');
+    const millenium = profile?.accounts.find(
+      account => account.key === 'millenium',
+    );
+    if (!activo || !millenium) throw new Error('Synthetic accounts missing');
+
+    const fieldMap = {
+      amount: 'Amount',
+      bookingDate: 'Booking date',
+      description: 'Description',
+    };
+    const source = prepareBankImport({
+      accountId: activo.id,
+      createdAt: '2026-10-18T00:00:00.000Z',
+      fieldMap,
+      provider: 'activobank',
+      rows: [
+        {
+          Amount: '-75.00',
+          'Booking date': '18/10/2026',
+          Description: 'TRANSFERÊNCIA PARA MILLENIUM',
+        },
+      ],
+      sourceFormat: 'csv',
+    });
+    const destination = prepareBankImport({
+      accountId: millenium.id,
+      createdAt: '2026-10-18T00:00:00.000Z',
+      fieldMap,
+      provider: 'activobank',
+      rows: [
+        {
+          Amount: '75.00',
+          'Booking date': '18/10/2026',
+          Description: 'TRANSFERÊNCIA RECEBIDA',
+        },
+      ],
+      sourceFormat: 'csv',
+    });
+
+    await expect(
+      suggestPersistedHouseholdTransferPairs(source, destination),
+    ).resolves.toEqual([
+      expect.objectContaining({
+        destinationAccountId: millenium.id,
+        reason: 'configured-household-token',
+        requiresManualReview: true,
+        sourceAccountId: activo.id,
+      }),
+    ]);
+    expect(await balance(activo.id)).toBe(0);
+    expect(await balance(millenium.id)).toBe(0);
   });
 
   test('reports household amounts without treating transfers or financing as spending', async () => {

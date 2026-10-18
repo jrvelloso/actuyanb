@@ -77,6 +77,11 @@ service; it is not a replacement database for budget calculations.
    database. M4/M5 derive account roles from this mapping, while the Household
    page reads existing ledgers, budget sheets, schedules, and import-audit
    rows. See [Household budget experience](household-budget.md).
+10. **Bank-format discovery.** A dedicated bank adapter is enabled only after
+    a fixture-safe structural contract is verified. M9's reusable household
+    transfer helper accepts the existing synced account roles and returns
+    review-only suggestions; it does not create transfers or introduce a new
+    importer persistence path. See [Bank statement imports](bank-imports.md).
 
 ## Financial correctness constraints
 
@@ -114,7 +119,7 @@ branch, run regression tests, and record any adaptation in these documents.
 | -------------------------- | ------------------------------------------------------------------------------------------------------------------------------ | ----------------------------------------------------------------------------------- |
 | YNAB 4 split payees        | Existing importer/docs identify split-payee repair as a known issue                                                            | Add migration validation and a supported repair/report workflow                     |
 | Import-review retention    | M5 stores a synced, file-free audit batch, item IDs, and decisions; a full multi-device server round trip is not yet automated | Run a private two-device sync verification before production approval               |
-| Portuguese bank variance   | M3 has synthetic ActivoBank/Revolut adapter contracts; real export schemas remain unverified                                   | Verify private schemas, then add one reviewed adapter at a time                     |
+| Portuguese bank variance   | M8 verifies one ActivoBank XLSX shape; Millennium BCP's export structure is still unverified                                   | Obtain a sanitized structural contract, then add one reviewed adapter at a time     |
 | Classification persistence | M5 persists confirmed mappings and reviewed transaction updates through Actual's CRDT sync path                                | Keep the model additive and validate sync-server behavior privately                 |
 | Bank-secret exposure       | Upstream docs state provider secrets are not covered by E2E encryption                                                         | Self-host, restrict server access, and document backup/secret handling              |
 | Windows test cleanup       | Baseline test teardown can leave SQLite files locked                                                                           | Run CI on Linux; make future Windows tests close handles before cleanup             |
