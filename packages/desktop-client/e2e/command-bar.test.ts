@@ -63,10 +63,16 @@ test.describe('Command bar', () => {
       timeout: 10000, // Wait for 10 seconds max for reports to load
     }); // wait for screen to load
 
-    // Navigate to schedule page
+    // Navigate to the schedules page by its command name. Arrow-key offsets
+    // are not stable as command-bar items evolve.
     await page.keyboard.press('ControlOrMeta+k');
-    await page.keyboard.press('ArrowDown');
-    await page.keyboard.press('ArrowDown'); // Select second suggestion - Schedules
+    const schedulesCommand = page.getByRole('combobox', {
+      name: 'Command Bar',
+    });
+    await schedulesCommand.fill('schedules');
+    await expect(
+      page.getByRole('option', { name: 'Schedules', exact: true }),
+    ).toBeVisible();
     await expect(page).toMatchThemeScreenshots();
 
     await page.keyboard.press('Enter');

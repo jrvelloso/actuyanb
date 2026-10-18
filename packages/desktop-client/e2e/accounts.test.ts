@@ -300,9 +300,21 @@ test.describe('Accounts', () => {
       await accountPage.waitFor();
     });
 
+    async function closeImportReview() {
+      const review = page.getByTestId('actuynab-import-review-modal');
+      await expect(review).toBeVisible();
+      await review
+        .getByRole('button', { name: 'Close', exact: true })
+        .last()
+        .click();
+      await expect(review).not.toBeVisible();
+    }
+
     async function importCsv(screenshot = false) {
       const fileChooserPromise = page.waitForEvent('filechooser');
-      await accountPage.page.getByRole('button', { name: 'Import' }).click();
+      await accountPage.page
+        .getByRole('button', { name: 'Import', exact: true })
+        .click();
 
       const fileChooser = await fileChooserPromise;
       await fileChooser.setFiles(join(__dirname, 'data/test.csv'));
@@ -318,6 +330,7 @@ test.describe('Accounts', () => {
       await importButton.click();
 
       await expect(importButton).not.toBeVisible();
+      await closeImportReview();
     }
 
     test('imports transactions from a CSV file', async () => {
@@ -326,7 +339,9 @@ test.describe('Accounts', () => {
 
     test('preserves QIF categories in preview and imported transactions', async () => {
       const fileChooserPromise = page.waitForEvent('filechooser');
-      await accountPage.page.getByRole('button', { name: 'Import' }).click();
+      await accountPage.page
+        .getByRole('button', { name: 'Import', exact: true })
+        .click();
 
       const fileChooser = await fileChooserPromise;
       await fileChooser.setFiles(join(__dirname, 'data/qif-categories.qif'));
@@ -338,6 +353,7 @@ test.describe('Accounts', () => {
       await dialog
         .getByRole('button', { name: 'Import 2 transactions' })
         .click();
+      await closeImportReview();
 
       const expense = accountPage.transactionTableRow.filter({
         hasText: 'QIF Cafe',
@@ -353,7 +369,9 @@ test.describe('Accounts', () => {
       await importCsv(false);
 
       const fileChooserPromise = page.waitForEvent('filechooser');
-      await accountPage.page.getByRole('button', { name: 'Import' }).click();
+      await accountPage.page
+        .getByRole('button', { name: 'Import', exact: true })
+        .click();
 
       const fileChooser = await fileChooserPromise;
       await fileChooser.setFiles(join(__dirname, 'data/test.csv'));
@@ -377,7 +395,9 @@ test.describe('Accounts', () => {
     test('imports a new transaction when an unchecked match has the same amount', async () => {
       async function openCsv(content: string) {
         const fileChooserPromise = page.waitForEvent('filechooser');
-        await accountPage.page.getByRole('button', { name: 'Import' }).click();
+        await accountPage.page
+          .getByRole('button', { name: 'Import', exact: true })
+          .click();
         const fileChooser = await fileChooserPromise;
         await fileChooser.setFiles({
           name: 'same-amount.csv',
@@ -393,7 +413,7 @@ test.describe('Accounts', () => {
       await dialog
         .getByRole('button', { name: 'Import 1 transactions' })
         .click();
-      await expect(dialog).not.toBeVisible();
+      await closeImportReview();
 
       // Netflix matches the existing transaction; Corner Coffee is new.
       dialog = await openCsv(
@@ -413,7 +433,7 @@ test.describe('Accounts', () => {
       await dialog
         .getByRole('button', { name: 'Import 1 transactions' })
         .click();
-      await expect(dialog).not.toBeVisible();
+      await closeImportReview();
 
       await expect(
         accountPage.transactionTableRow.filter({ hasText: 'Corner Coffee' }),
@@ -425,7 +445,9 @@ test.describe('Accounts', () => {
 
     test('import notes checkbox is not shown for CSV files', async () => {
       const fileChooserPromise = page.waitForEvent('filechooser');
-      await accountPage.page.getByRole('button', { name: 'Import' }).click();
+      await accountPage.page
+        .getByRole('button', { name: 'Import', exact: true })
+        .click();
 
       const fileChooser = await fileChooserPromise;
       await fileChooser.setFiles(join(__dirname, 'data/test.csv'));
@@ -444,6 +466,7 @@ test.describe('Accounts', () => {
 
       // Verify the transactions were imported
       await expect(importButton).not.toBeVisible();
+      await closeImportReview();
     });
   });
 });

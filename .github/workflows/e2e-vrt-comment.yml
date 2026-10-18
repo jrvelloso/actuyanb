@@ -6,7 +6,7 @@ on:
   # This job only downloads a metadata artifact and posts a comment;
   # it never checks out or executes PR-supplied code.
   workflow_run: # zizmor: ignore[dangerous-triggers]
-    workflows: ['E2E Tests']
+    workflows: ['Visual Regression (Advisory)']
     types:
       - completed
 

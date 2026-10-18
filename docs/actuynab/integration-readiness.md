@@ -111,16 +111,30 @@ the original Windows checkout problem.
 
 ## CI validation and data handling
 
-The existing Linux workflows already cover the core integration surface:
+The mandatory ActuYNAB web-application checks are:
 
-| Workflow           | Required coverage                                                                                    |
-| ------------------ | ---------------------------------------------------------------------------------------------------- |
-| `Test`             | constraints, project references, lint/format, typecheck, unit and integration tests, migration check |
-| `Build`            | API, CRDT, browser, CLI, and sync-server builds                                                      |
-| `E2E Tests`        | Chromium functional and visual-regression shards; desktop E2E                                        |
-| `API Browser Test` | API browser integration when relevant packages change                                                |
-| `CodeQL`           | JavaScript security analysis                                                                         |
-| `Secret Scan`      | pinned Gitleaks scan of pull requests and `master` pushes                                            |
+| Workflow/job                        | Required coverage                                                                                                  |
+| ----------------------------------- | ------------------------------------------------------------------------------------------------------------------ |
+| `Test`                              | constraints, project references, lint/format, typecheck, financial unit and integration tests, and migration check |
+| `Build`                             | API, CRDT, browser, CLI, and sync-server builds                                                                    |
+| `E2E Tests / Functional (Chromium)` | browser behaviour, including import, duplicate prevention, transfers, and review UI interactions                   |
+| `CodeQL / Analyze`                  | JavaScript security analysis                                                                                       |
+| `Secret Scan / Gitleaks`            | pinned secret scan of pull requests and `master` pushes                                                            |
+
+`Visual Regression (Advisory)` is deliberately separate from `E2E Tests`.
+It runs the same Chromium interaction scenarios with `VRT=true`, publishes a
+Playwright HTML report, and may be red while the screenshot baseline is being
+reviewed. It must not be added as a required `master` check until an approved
+ActuYNAB baseline exists. The workflow never passes `--update-snapshots` and
+does not alter screenshots; the existing explicitly requested, gated
+`/update-vrt` process remains the only way to propose PNG updates.
+
+`API Browser Test` and the Linux `Electron` build are useful path-scoped
+compatibility signals but are not required for ordinary web PRs. Mobile builds
+and desktop-app E2E remain scoped to protected integration events. Upstream
+release notes, publishing, store, Docker, Netlify, and release-generation jobs
+are skipped in this fork; in particular, `Release notes` is not a required
+ActuYNAB check.
 
 `Secret Scan` deliberately has only `contents: read`, disables pull-request
 comments, and does not upload a SARIF or scan artifact. A failed job supplies
@@ -144,11 +158,13 @@ baseline for the financial regression, build, migration, secret-scan, and
 Chromium jobs. Do not introduce a larger runner unless a failed job shows an
 actual resource limit and an owner approves its cost.
 
-The PR E2E suite intentionally uses one full Chromium shard and one VRT shard.
-This retains browser coverage while avoiding the inherited six-way shard fanout
-and its peak runner demand. A Linux Electron build remains as the PR platform
-compatibility signal; the macOS mobile build and desktop E2E are restricted to
-protected integration events rather than ordinary web PRs.
+The mandatory PR E2E suite intentionally uses one full Chromium shard. The
+advisory VRT workflow uses one separate shard and report, retaining visual
+evidence without making screenshot drift a financial-integrity gate. This
+avoids the inherited six-way shard fanout and its peak runner demand. A Linux
+Electron build remains as a path-scoped platform compatibility signal; the
+macOS mobile build and desktop E2E are restricted to protected integration
+events rather than ordinary web PRs.
 
 Depot's OIDC grants and `depot/test-report-action` were removed from the
 ordinary CI paths. The remaining `id-token: write` permissions belong only to
@@ -171,15 +187,16 @@ Configure these settings manually after the initial integration approval:
 - Require a pull request before merging, at least one approving review, all
   review conversations resolved, and branches up to date before merging.
 - Require the Test jobs for constraints, lint, typecheck, unit/integration
-  tests, migrations, and GitHub-Action validation; Build jobs that cover API,
-  browser, and sync-server builds; `CodeQL / Analyze`; and
-  `Secret Scan / Gitleaks`. Select the exact job labels emitted on the first
-  green PR when creating the rule, because runner and matrix labels can differ
-  from the workflow names.
-- Leave path-filtered checks such as dependency review, API browser E2E, and
-  E2E/VRT shards optional at the branch-rule level; require their successful
-  run whenever their paths apply. Otherwise documentation-only PRs can be
-  blocked by a check that is intentionally absent.
+  tests, migrations, and GitHub-Action validation; all regular Build jobs
+  (API, CRDT, browser, CLI, and sync-server); `E2E Tests / Functional
+  (Chromium)`; `CodeQL / Analyze`; and `Secret Scan / Gitleaks`. Select the
+  exact job labels emitted on the first green PR when creating the rule,
+  because runner and matrix labels can differ from workflow names.
+- Leave path-filtered or advisory checks such as dependency review, API browser
+  E2E, `Electron`, `Visual Regression (Advisory)`, and desktop/mobile E2E out
+  of branch protection. Review any that run for affected paths, but do not let
+  their intentional absence block documentation-only PRs or their screenshot
+  differences block a financial-integrity change.
 - Block force pushes and branch deletion. Apply the rule to administrators
   too, with narrowly reviewed emergency bypasses only.
 - Allow merge commits and leave “require linear history” off while integrating
