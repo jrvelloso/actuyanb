@@ -57,6 +57,10 @@ precise auditable queue cannot be safely reconstructed. Use the default
 - Internal transfers, credit-card bill payments, Home mortgage payments, and
   Tesla financing payments are held out of automated category writes. The
   existing transfer UI remains the only way to create or confirm a transfer.
+- A generic `PAGAMENTO CARTÃO`/`PAGAMENTO CC` debit from a configured joint
+  account with several configured cards is visible as a manual-review item with
+  no proposed expense category. It remains editable by a person; it is not a
+  silent transfer or an automatic spending classification.
 - A correction can select only an existing Actual payee/category. The review
   layer never creates a duplicate payee. A rejected proposal leaves the
   financial transaction untouched.

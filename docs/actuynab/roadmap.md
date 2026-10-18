@@ -245,6 +245,33 @@ transactions with the balance unchanged. No real statement, account,
 credential, bank API, or public deployment was used. See [Bank statement
 imports](bank-imports.md) and [Functional validation](validation.md).
 
+## M9 - Millennium BCP import - format discovery in progress
+
+**Goal:** add a narrow Millennium BCP file adapter only after its export layout
+has been verified without retaining a real statement.
+
+### Current result
+
+No authentic or authoritative Millennium BCP export specification is available
+in the repository. M9 therefore does not claim a file format, add a synthetic
+fixture that could misrepresent one, or route generic XLSX files to the bank.
+The required structural facts are documented in [Bank statement
+imports](bank-imports.md): extension, worksheet/table markers, exact headers,
+booking/value dates, signed amounts, currency, transaction identity, balances,
+and known variants.
+
+The reusable work completed while discovery is pending reads the M7 synced
+roles for the two joint checking accounts. It supplies a review-only transfer
+candidate when a configured destination phrase and exactly one same-day,
+opposite-amount counterpart agree. It also ensures that a generic card-payment
+debit with several configured cards is held for manual review with no inferred
+expense category. Neither path creates a transfer or financial row, and both
+retain M3 duplicate handling and M5's audit/confirmation flow.
+
+The next M9 increment needs only a sanitized layout description, not a real
+statement in Git. It can then add a structural parser, synthetic fixture, UI
+recognition label, and browser validation on this branch's shared safeguards.
+
 ## Deferred evaluation
 
 Open Banking/PSD2 automation, advanced forecasts, PWA capabilities, and a SaaS

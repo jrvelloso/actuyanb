@@ -130,6 +130,16 @@ XLSX/browser tests prove repeat imports create no transactions and an explicit
 review correction persists across a local sync-server restart. See [Bank
 statement imports](bank-imports.md) and [Functional validation](validation.md).
 
+## Milestone 9 Millennium BCP discovery
+
+Millennium BCP does not yet have a claimed file-format adapter: no authentic or
+authoritative export structure has been verified. M9 documents the exact
+non-sensitive structural facts needed before one can be added and introduces
+only reusable safeguards for the existing pipeline. Persisted household roles
+can produce a manual-review Activo-to-Millenium transfer candidate when both
+ledger movements agree uniquely, and a generic ambiguous card-payment debit is
+held out of inferred spending. See [Bank statement imports](bank-imports.md).
+
 ## Project documents
 
 - [Architecture](architecture.md) — package boundaries, extension seams, and

@@ -224,6 +224,56 @@ Configured M7 household roles still protect internal transfers and recognised
 credit-card bill payments from becoming new household spending. Ambiguous
 descriptions stay in manual review; no principal/interest amount is inferred.
 
+## Milestone 9: Millennium BCP format discovery and shared safeguards
+
+No authentic Millennium BCP export, sanitized authoritative layout
+specification, or bank-published import contract has been supplied to this
+repository. Consequently, ActuYNAB does **not** claim that `.xlsx`, `.csv`, or
+any other filename is a Millennium BCP statement, does not label an import as
+Millennium BCP, and does not include a speculative bank adapter or fixture.
+Unknown workbooks remain rejected by the narrow ActivoBank recognizer; they can
+still use Actual's existing generic CSV/OFX/QFX/QIF/CAMT paths where the user
+explicitly maps and reviews them.
+
+Before a dedicated adapter can be added, obtain a private, sanitized format
+description that records only structural facts:
+
+- supported extension(s) and, for spreadsheets, worksheet name/count;
+- the exact transaction header text and the table's location or reliable
+  structural marker;
+- separate booking and value-date fields (or confirmation that one is absent),
+  including their date representation;
+- description/counterparty, debit/credit or signed-amount, currency, stable
+  transaction-reference, and running-balance columns where present; and
+- known variants, ordering, pending/reversal conventions, and a statement that
+  the described samples contain no personal account or transaction data.
+
+The resulting adapter must have a synthetic fixture based only on those facts,
+recognize its own structure rather than its filename, preserve the original
+file, and reject unknown variants safely. It must not use a real bank export
+as a test artifact.
+
+While that evidence is pending, M9 adds two reusable protections without
+changing Actual's persistence or reconciliation logic:
+
+- `suggestHouseholdTransferPairs` receives the synced M7 household account
+  roles and emits only a **manual-review** suggestion between the two configured
+  joint checking accounts. In addition to M3's existing exact shared-reference
+  match, a configured destination phrase can identify an Activo-to-Millenium
+  outflow only if there is exactly one same-day, opposite-minor-unit inflow in
+  the configured counterpart account. Repeated equal movements are deliberately
+  not paired. The helper creates no transfers.
+- In M4/M5 review, a generic Portuguese `PAGAMENTO CARTÃO`/`PAGAMENTO CC`
+  debit from a configured joint account is not inferred as spending. When the
+  persisted role mapping identifies exactly one credit card it is protected as
+  that card's payment; where several configured cards could match, it has no
+  proposed category and remains a visible manual-review item. A configured
+  card-specific phrase remains the stronger, unambiguous signal.
+
+These are household safeguards, not Millennium BCP parsing support. The
+existing M3 account-scoped imported IDs, duplicate reconciliation, M5 audit,
+and explicit confirmation remain unchanged.
+
 ### Synthetic fixture and validation
 
 `actuynab-activobank-xlsx.fixture.ts` constructs a fully synthetic one-sheet

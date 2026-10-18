@@ -218,6 +218,40 @@ describe('ActuYNAB Milestone 4 household classification', () => {
     });
   });
 
+  test('holds an unspecified card payment for review when several persisted card roles could match', async () => {
+    await expect(
+      classifyHouseholdTransaction(
+        imported('PAGAMENTO CARTÃO FATURA 2026-04'),
+        fixture,
+      ),
+    ).resolves.toMatchObject({
+      confidence: 'review',
+      proposedCategoryId: null,
+      reason: 'possible-credit-card-bill-payment',
+      requiresManualReview: true,
+    });
+
+    const oneCardContext = {
+      ...fixture,
+      accounts: fixture.accounts.filter(
+        account =>
+          account.role !== 'credit-card' || account.id === 'cc-activo-classic',
+      ),
+    };
+    await expect(
+      classifyHouseholdTransaction(
+        imported('PAGAMENTO CARTÃO FATURA 2026-04'),
+        oneCardContext,
+      ),
+    ).resolves.toMatchObject({
+      confidence: 'high',
+      proposedCategoryId: null,
+      reason: 'credit-card-bill-payment',
+      requiresManualReview: false,
+      transferTargetAccountId: 'cc-activo-classic',
+    });
+  });
+
   test('handles refunds, provided splits, and explicitly identified household contributions', async () => {
     await expect(
       classifyHouseholdTransaction(

@@ -102,6 +102,28 @@ export type TransferSuggestion = {
   transferReference: string;
 };
 
+/**
+ * The minimal part of a persisted household role needed for a transfer
+ * suggestion. This remains a read-only input: the actual transfer must still
+ * be created and confirmed through Actual's normal transfer UI.
+ */
+export type HouseholdTransferAccount = {
+  id: string;
+  role: string;
+  transferDescriptionTokens?: readonly string[];
+};
+
+export type HouseholdTransferSuggestion = Omit<
+  TransferSuggestion,
+  'transferReference'
+> & {
+  /** Why the pair is safe enough to display, but not to create automatically. */
+  reason: 'configured-household-token' | 'shared-transfer-reference';
+  requiresManualReview: true;
+  /** Present only when both banks supplied the same explicit reference. */
+  transferReference?: string;
+};
+
 export type PreparedBankTransaction = ImportTransactionEntity & {
   sourceFingerprint: string;
   sourceRow: number;
@@ -743,6 +765,139 @@ export function suggestTransferPairs(
       });
     }
   }
+  return suggestions;
+}
+
+function normalizedTransferText(value: string): string {
+  return value
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .replace(/\s+/g, ' ')
+    .trim()
+    .toUpperCase();
+}
+
+function describesConfiguredDestination(
+  transaction: PreparedBankTransaction,
+  destination: HouseholdTransferAccount,
+): boolean {
+  const description = transaction.imported_payee ?? transaction.payee_name;
+  if (!description || transaction.statementType !== 'transfer') {
+    return false;
+  }
+  const normalizedDescription = normalizedTransferText(description);
+  return Boolean(
+    destination.transferDescriptionTokens?.some(token => {
+      const normalizedToken = normalizedTransferText(token);
+      return (
+        normalizedToken !== '' &&
+        normalizedDescription.includes(normalizedToken)
+      );
+    }),
+  );
+}
+
+function sameBookingDayAndOppositeAmount(
+  source: PreparedBankTransaction,
+  destination: PreparedBankTransaction,
+): boolean {
+  return (
+    source.date === destination.date &&
+    source.amount != null &&
+    destination.amount === -source.amount
+  );
+}
+
+/**
+ * Adds a narrowly scoped household suggestion to the explicit-reference
+ * matcher. A configured target phrase may identify a transfer from one shared
+ * checking account to the other when, and only when, it has exactly one
+ * same-day, opposite-amount counterpart. Repeated equal movements are kept
+ * out of the suggestions because they cannot be paired safely.
+ *
+ * This function is intentionally pure and returns suggestions only. Its
+ * caller supplies the synced household-role mapping; no source statement is
+ * persisted or modified here.
+ */
+export function suggestHouseholdTransferPairs(
+  source: PreparedBankImport,
+  destination: PreparedBankImport,
+  accounts: readonly HouseholdTransferAccount[],
+): HouseholdTransferSuggestion[] {
+  const sourceAccount = accounts.find(
+    account => account.id === source.audit.accountId,
+  );
+  const destinationAccount = accounts.find(
+    account => account.id === destination.audit.accountId,
+  );
+  if (
+    source.audit.accountId === destination.audit.accountId ||
+    sourceAccount?.role !== 'joint-checking' ||
+    destinationAccount?.role !== 'joint-checking'
+  ) {
+    return [];
+  }
+
+  const suggestions: HouseholdTransferSuggestion[] = suggestTransferPairs(
+    source,
+    destination,
+  ).map(suggestion => ({
+    ...suggestion,
+    reason: 'shared-transfer-reference' as const,
+    requiresManualReview: true as const,
+  }));
+  const suggestedRows = new Set(
+    suggestions.map(suggestion => suggestion.sourceRows.join(':')),
+  );
+
+  for (const transaction of source.transactions) {
+    if (
+      transaction.skipTransaction ||
+      transaction.amount == null ||
+      transaction.amount >= 0 ||
+      !describesConfiguredDestination(transaction, destinationAccount)
+    ) {
+      continue;
+    }
+
+    const counterpartRows = destination.transactions.filter(
+      candidate =>
+        !candidate.skipTransaction &&
+        sameBookingDayAndOppositeAmount(transaction, candidate),
+    );
+    const sourceRows = source.transactions.filter(
+      candidate =>
+        !candidate.skipTransaction &&
+        candidate.amount != null &&
+        candidate.amount < 0 &&
+        describesConfiguredDestination(candidate, destinationAccount) &&
+        candidate.date === transaction.date &&
+        candidate.amount === transaction.amount,
+    );
+    if (counterpartRows.length !== 1 || sourceRows.length !== 1) {
+      continue;
+    }
+
+    const pair = [transaction.sourceRow, counterpartRows[0].sourceRow] as [
+      number,
+      number,
+    ];
+    if (suggestedRows.has(pair.join(':'))) {
+      continue;
+    }
+    suggestions.push({
+      destinationAccountId: destination.audit.accountId,
+      sourceAccountId: source.audit.accountId,
+      sourceRows: pair,
+      reason: 'configured-household-token',
+      requiresManualReview: true,
+      ...(transaction.transferReference
+        ? { transferReference: transaction.transferReference }
+        : {}),
+    });
+    suggestedRows.add(pair.join(':'));
+  }
+
   return suggestions;
 }
 

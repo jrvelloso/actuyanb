@@ -80,6 +80,7 @@ export type ClassificationReason =
   | 'explicit-actual-rule'
   | 'internal-transfer'
   | 'credit-card-bill-payment'
+  | 'possible-credit-card-bill-payment'
   | 'off-budget-financing-transfer'
   | 'provided-loan-split-preserved'
   | 'provided-split-preserved'
@@ -206,6 +207,22 @@ function transferTarget(
   return matchingAccounts.length === 1 ? matchingAccounts[0] : null;
 }
 
+function isPossibleCreditCardBillPayment(
+  input: HouseholdClassificationInput,
+  context: HouseholdClassificationContext,
+  normalizedPayee: string | null,
+): boolean {
+  const sourceAccount = context.accounts.find(
+    account => account.id === input.account,
+  );
+  return Boolean(
+    input.amount < 0 &&
+    sourceAccount?.role === 'joint-checking' &&
+    normalizedPayee &&
+    /^PAGAMENTO (?:CARTAO|CC)\b/.test(normalizedPayee),
+  );
+}
+
 function hasConsistentCategory(
   transactions: readonly HistoricalCategorization[],
 ): string | null {
@@ -320,6 +337,35 @@ export async function classifyHouseholdTransaction(
       requiresManualReview: false,
       transferTargetAccountId: target?.id,
     });
+  }
+
+  // A generic card-payment description from a configured joint account is
+  // never inferred as new household spending. A single configured card makes
+  // the destination unambiguous; multiple cards deliberately remain for a
+  // person to review and select.
+  if (isPossibleCreditCardBillPayment(input, context, normalizedPayee)) {
+    const creditCards = context.accounts.filter(
+      account => account.role === 'credit-card',
+    );
+    if (creditCards.length === 1) {
+      return result({
+        confidence: 'high',
+        normalizedPayee,
+        proposedPayee: { name: creditCards[0].name },
+        reason: 'credit-card-bill-payment',
+        requiresManualReview: false,
+        transferTargetAccountId: creditCards[0].id,
+      });
+    }
+    if (creditCards.length > 1) {
+      return result({
+        confidence: 'review',
+        normalizedPayee,
+        proposedPayee: currentPayee,
+        reason: 'possible-credit-card-bill-payment',
+        requiresManualReview: true,
+      });
+    }
   }
 
   if (input.subtransactions?.length) {
