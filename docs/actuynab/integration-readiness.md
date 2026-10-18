@@ -140,10 +140,12 @@ Configure these settings manually after the initial integration approval:
 
 - Require a pull request before merging, at least one approving review, all
   review conversations resolved, and branches up to date before merging.
-- Require the always-present checks: `Test / constraints`, `Test / lint`,
-  `Test / typecheck`, `Test / test`, `Test / migrations`, `Test / check-gh-actions`,
-  `Build / api`, `Build / web`, `Build / server`, `CodeQL / Analyze`, and
-  `Secret Scan / Gitleaks`.
+- Require the Test jobs for constraints, lint, typecheck, unit/integration
+  tests, migrations, and GitHub-Action validation; Build jobs that cover API,
+  browser, and sync-server builds; `CodeQL / Analyze`; and
+  `Secret Scan / Gitleaks`. Select the exact job labels emitted on the first
+  green PR when creating the rule, because runner and matrix labels can differ
+  from the workflow names.
 - Leave path-filtered checks such as dependency review, API browser E2E, and
   E2E/VRT shards optional at the branch-rule level; require their successful
   run whenever their paths apply. Otherwise documentation-only PRs can be
