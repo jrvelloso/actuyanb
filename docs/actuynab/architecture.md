@@ -41,9 +41,11 @@ service; it is not a replacement database for budget calculations.
 2. **Duplicate and transfer review.** Preserve the existing imported-ID and
    date/amount/payee matching. Add an explicit result model and UI review queue
    for uncertain matches instead of silently changing the matching threshold.
-3. **Categorization.** Extend `transaction-rules.ts`, payee data, and the
-   existing Rules UI. Provenance and confidence should be additive metadata,
-   not new calculation rules.
+3. **Categorization.** M4's
+   `server/transactions/actuynab-classification.ts` invokes the existing
+   `transaction-rules.ts` runner, then returns a side-effect-free,
+   explainable household preview. Keep provenance and confidence additive; do
+   not create a parallel transaction writer or calculation rule.
 4. **Migration.** Build validation around `server/importers/ynab4.ts` and its
    tests. Keep source archives read-only and write only into a newly-created
    Actual budget.
@@ -61,6 +63,9 @@ service; it is not a replacement database for budget calculations.
   review item, not a discarded row or a guessed transfer.
 - Keep transaction mutations inside established core APIs so sync,
   reconciliation, and views remain consistent.
+- Classification previews must not modify amounts, dates, reconciliation,
+  balances, source descriptions, payees, categories, or transfers. A future
+  confirmation UI must apply a choice through an existing Actual API.
 - Sensitive bank credentials remain server-side and are not end-to-end
   encrypted by Actual's bank-sync feature. Private self-hosting is the
   recommended deployment boundary.
@@ -80,5 +85,6 @@ branch, run regression tests, and record any adaptation in these documents.
 | YNAB 4 split payees        | Existing importer/docs identify split-payee repair as a known issue                               | Add migration validation and a supported repair/report workflow         |
 | Limited import audit trail | M3 returns immutable JSON/Markdown batch summaries but does not create a synced history/dashboard | Design synced batch retention and review statuses before persisting it  |
 | Portuguese bank variance   | M3 has synthetic ActivoBank/Revolut adapter contracts; real export schemas remain unverified      | Verify private schemas, then add one reviewed adapter at a time         |
+| Classification persistence | M4 has a no-write preview and fixtures, but no synced confirmation/review entity                  | Design a visible synced confirmation flow before persisting associations |
 | Bank-secret exposure       | Upstream docs state provider secrets are not covered by E2E encryption                            | Self-host, restrict server access, and document backup/secret handling  |
 | Windows test cleanup       | Baseline test teardown can leave SQLite files locked                                              | Run CI on Linux; make future Windows tests close handles before cleanup |
