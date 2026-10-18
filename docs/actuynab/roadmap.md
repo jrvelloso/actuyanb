@@ -48,7 +48,7 @@ its directory and removes a stale interrupted-test fixture before setup,
 resolving the observed core-test `EBUSY`/follow-on `EEXIST` failure. See
 [Functional validation](validation.md).
 
-## M2 — YNAB 4 migration assurance
+## M2 — YNAB 4 migration assurance — complete
 
 **Goal:** make existing migration observable and safe before adding behaviour.
 
@@ -59,6 +59,23 @@ resolving the observed core-test `EBUSY`/follow-on `EEXIST` failure. See
 3. Improve the split-payee repair path and evaluate import of YNAB 4 payee
    rules and scheduled transactions.
 4. Add regression tests for repeatability and failures without source mutation.
+
+### M2 implementation result
+
+Milestone 2 adds a complete fictional YNAB 4 archive and runs it through the
+existing importer into a fresh, isolated Actual budget twice. The report is
+reproducible in Markdown and JSON and validates per-account balances,
+transaction counts and aggregate amounts, transfer relationships, split totals,
+category/payee mappings, budget allocations and carryover, and reconciliation
+states. The source object and ZIP buffer are asserted unchanged, while the
+temporary destination budget is removed after each test.
+
+The investigation confirms that schedules and payee rename rules are parsed
+but not imported. YNAB account type and account-level reconciliation checkpoint
+metadata have no equivalent in Actual’s account model. These are documented
+expected model differences, not financial discrepancies. Existing supported
+financial behavior required no speculative core-engine changes. See
+[YNAB 4 migration](ynab4-migration.md).
 
 ## M3 — statement import automation
 
