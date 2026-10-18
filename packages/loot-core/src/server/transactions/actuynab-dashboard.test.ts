@@ -102,7 +102,7 @@ describe('ActuYNAB Milestone 11 financial dashboard', () => {
         '2017-01-05',
         groceries,
       ],
-      ['synthetic-dining', ccActivo.id, -50_000, '2017-01-06', dining],
+      ['synthetic-dining', ccActivo.id, -70_000, '2017-01-06', dining],
       ['synthetic-fuel', ccGold.id, -30_000, '2017-01-07', fuel],
       [
         'synthetic-entertainment',
@@ -164,6 +164,11 @@ describe('ActuYNAB Milestone 11 financial dashboard', () => {
         month: '2017-01',
       }),
     ]);
+    await budgetActions.setCategoryCarryover({
+      category: groceries,
+      flag: true,
+      startMonth: '2017-01',
+    });
     await sheet.waitOnSpreadsheet();
     await saveFinancingBreakdown({
       financingAccountId: home.id,
@@ -205,14 +210,14 @@ describe('ActuYNAB Milestone 11 financial dashboard', () => {
       isConfigured: true,
       month: '2017-01',
       monthly: {
-        actualSpending: 190_000,
+        actualSpending: 210_000,
         budgetedSpending: 250_000,
         hasBudgetedSpending: true,
         income: 600_000,
       },
       overview: {
         pendingImportReviews: 1,
-        totalCreditCardLiabilities: 70_000,
+        totalCreditCardLiabilities: 90_000,
         totalFinancingLiabilities: 115_000,
       },
     });
@@ -228,7 +233,40 @@ describe('ActuYNAB Milestone 11 financial dashboard', () => {
         }),
         expect.objectContaining({
           categoryId: dining,
-          total: 70_000,
+          total: 90_000,
+        }),
+      ]),
+    );
+    expect(dashboard.dailyBudget).toMatchObject({
+      hasBudgetData: true,
+      remaining: 40_000,
+    });
+    expect(dashboard.dailyBudget.categories).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          balance: 30_000,
+          budgeted: 120_000,
+          carriesOver: true,
+          categoryId: groceries,
+          spent: 90_000,
+        }),
+        expect.objectContaining({
+          balance: -10_000,
+          budgeted: 60_000,
+          carriesOver: false,
+          categoryId: dining,
+          spent: 70_000,
+        }),
+      ]),
+    );
+    expect(dashboard.pendingReviews).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          accountId: activo.id,
+          batchId: 'synthetic-dashboard-pending-review',
+          itemCount: 0,
+          sourceBank: 'other',
+          sourceFormat: 'csv',
         }),
       ]),
     );

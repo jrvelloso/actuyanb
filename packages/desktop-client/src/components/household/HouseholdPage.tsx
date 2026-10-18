@@ -31,6 +31,8 @@ import { SectionLabel } from '#components/forms';
 import { Page } from '#components/Page';
 import { useAccounts } from '#hooks/useAccounts';
 import { useFormat } from '#hooks/useFormat';
+import { useLocalPref } from '#hooks/useLocalPref';
+import { useNavigate } from '#hooks/useNavigate';
 
 import { HouseholdDashboardPanel } from './HouseholdDashboard';
 
@@ -715,9 +717,10 @@ function HouseholdSetup({
 }
 
 export function HouseholdPage() {
-  const [dashboardMonth, setDashboardMonth] = useState(() =>
-    monthUtils.currentMonth(),
-  );
+  const navigate = useNavigate();
+  const [dashboardMonthPreference, setDashboardMonthPreference] =
+    useLocalPref('budget.startMonth');
+  const dashboardMonth = dashboardMonthPreference || monthUtils.currentMonth();
   const profileQuery = useQuery({
     queryKey: ['actuynab-household-profile'],
     queryFn: () => send('actuynab-household-profile'),
@@ -745,6 +748,13 @@ export function HouseholdPage() {
       financingQuery.refetch(),
       financingCandidatesQuery.refetch(),
     ]);
+  }
+
+  function openBudget() {
+    // Reuse Actual's existing local budget-month preference so the native
+    // budget view opens on the month the household dashboard is showing.
+    setDashboardMonthPreference(dashboardMonth);
+    void navigate('/budget');
   }
 
   return (
@@ -809,7 +819,8 @@ export function HouseholdPage() {
             <HouseholdDashboardPanel
               dashboard={dashboardQuery.data}
               month={dashboardMonth}
-              onMonthChange={setDashboardMonth}
+              onMonthChange={setDashboardMonthPreference}
+              onOpenBudget={openBudget}
             />
             {financingQuery.data && financingCandidatesQuery.data && (
               <FinancingManagementPanel

@@ -153,6 +153,15 @@ ledger values, while principal, interest, and insurance are M10's verified
 manual metadata for the selected month and are never added to an expense or
 liability total. See [Financial dashboard](financial-dashboard.md).
 
+## Milestone 12 daily budget experience
+
+Milestone 12 extends the M11 Household dashboard with native category budget
+cells, overspending and carryover visibility, category-month drill-downs, and
+direct access to the existing M5 import-review modal. It reuses Actual's local
+budget-month preference and formatting settings, and remains read-only until a
+user explicitly confirms work in the established review interface. See [Daily
+budget experience](daily-budget-experience.md).
+
 ## Project documents
 
 - [Architecture](architecture.md) — package boundaries, extension seams, and
@@ -194,6 +203,9 @@ liability total. See [Financial dashboard](financial-dashboard.md).
 
 - [Financial dashboard](financial-dashboard.md) - selected-month household
   projection, sources, drill-downs, safeguards, and synthetic validation.
+
+- [Daily budget experience](daily-budget-experience.md) - native category
+  balances, daily review navigation, preferences, safeguards, and validation.
 
 ## Working agreement
 

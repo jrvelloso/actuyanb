@@ -483,3 +483,25 @@ Browser visual/functionality and two-client financing-sync checks remain
 unverified for M11 when a safely controllable browser is unavailable. They must
 be performed later with the synthetic localhost procedure documented in
 `local-docker-development.md`; do not infer their result from the unit suite.
+
+## Milestone 12 daily-budget validation
+
+M12 extends the same fictional M11 setup and does not introduce a financial
+write. `actuynab-dashboard.test.ts` now asserts native category budgeted,
+spent, remaining/overspent, and carryover values, together with the M5
+pending-review queue. It retains the before/after assertion that a dashboard
+read changes neither ledger balances nor financing-allocation rows.
+
+The accompanying component test exercises the desktop daily view with
+synthetic values. It verifies the overspending signal, native carryover label,
+category/month transaction drill-down, and that opening a pending batch
+dispatches the existing M5 import-review modal rather than approving it.
+
+```text
+yarn workspace @actual-app/core vitest --run src/server/transactions/actuynab-dashboard.test.ts
+yarn workspace @actual-app/web vitest --run src/components/household/HouseholdDailyBudget.test.tsx
+```
+
+Chromium validation remains an operational acceptance check when a safely
+controllable browser is available. It is not claimed by these tests; use a
+fresh synthetic budget and the local Docker procedure only.

@@ -47,6 +47,11 @@ Selecting a category trend opens the existing transaction list filtered to the
 selected category and month. Scheduled rows open Actual's schedule view, and
 the financing cards link to the established **Financing management** section.
 
+M12 extends this navigation with native category-budget drill-downs and an
+M5 batch-level review queue. The same selected month is stored through
+Actual's existing local `budget.startMonth` preference and can be opened in the
+native Budget page. See [Daily budget experience](daily-budget-experience.md).
+
 ## Safety guarantees
 
 - The dashboard handler is read-only. It does not call a transaction mutator,
