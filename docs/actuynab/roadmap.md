@@ -17,8 +17,8 @@ is a structured backlog, not a promise of dates.
 
 ## M1 — functional baseline
 
-**Goal:** establish a reproducible local and private test deployment before
-changing financial behaviour.
+**Goal:** establish a reproducible local validation baseline before changing
+financial behaviour.
 
 1. Launch a synthetic demo budget in browser and test accounts, transfers,
    splits, scheduled transactions, reconciliation, budgeting, and reports.
@@ -28,8 +28,25 @@ changing financial behaviour.
    choices, persistent-volume paths, smoke checks, and backup/restore drills.
 4. Resolve or isolate the Windows test-cleanup baseline so CI is reliable.
 
-**Exit criteria:** a new contributor can run a synthetic demo, import fixtures
-idempotently, and recover a private test deployment from a backup.
+**Validated outcome:** a new contributor can run the synthetic financial tests,
+repeat fixture imports idempotently, and recover synthetic records from an
+export without using real financial data.
+
+### M1 implementation result
+
+Milestone 1 is complete. Windows 11 setup is documented, including the Git for
+Windows `sh` PATH requirement used by local startup scripts. Focused tests
+create a synthetic checking, savings, and credit-card budget with historical
+income/expenses, categories, a recurring schedule, a split, and a matched
+internal transfer.
+
+CSV, OFX, QIF, and CAMT fixtures are parsed and reconciled twice; the second
+pass has no additions or updates, while balances remain exact. Archive
+export/import restores synthetic account and transaction records without
+changing balances. The Windows test fixture now closes SQLite before deleting
+its directory and removes a stale interrupted-test fixture before setup,
+resolving the observed core-test `EBUSY`/follow-on `EEXIST` failure. See
+[Functional validation](validation.md).
 
 ## M2 — YNAB 4 migration assurance
 

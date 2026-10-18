@@ -81,3 +81,23 @@ different-encoding, decimal-comma, pending/booked, transfer-like, and
 ambiguous rows. Assert parser output, preview decisions, a repeated import,
 and preservation of balances/reconciliation. Add UI tests only after the core
 path is deterministic.
+
+## ActivoBank and Revolut status (2026-10-17)
+
+No bank account was connected during this milestone. The facts below separate
+what this repository already contains from a connection that still needs a
+credentialed, user-authorized check.
+
+| Bank                  | Available now                                                                                                                                                                                                                                                                    | Remaining requirement before a real connection                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   |
+| --------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| ActivoBank (Portugal) | The upstream release history records `Banco ActivoBank` as a GoCardless institution with limited history. Actual also has the experimental European Enable Banking provider. Generic CSV, OFX/QFX, QIF, and CAMT file import is already available without a provider connection. | GoCardless Bank Account Data stopped accepting new accounts in July 2025, so it is only a path for an existing GoCardless user. For a new connection, first confirm that ActivoBank appears in the Enable Banking provider catalog for the desired account type, then configure an Actual server with HTTPS, an Enable Banking production application, redirect URL, application ID, and credential file. Confirm available history and consent duration with a synthetic/no-op provider check before importing real statements. |
+| Revolut               | The sync server has a `REVOLUT_REVOLT21` GoCardless normalizer, including Revolut Bizum payee handling; Enable Banking fixtures also include Revolut. Generic file imports remain available without credentials.                                                                 | The same GoCardless new-account limitation applies. For a new direct connection, verify Revolut's current availability and account type in the Enable Banking catalog, then complete the experimental provider setup on a self-hosted Actual server. Validate transaction IDs, pending/booked behaviour, currency handling, and history window with a disposable test budget before enabling scheduled sync.                                                                                                                     |
+
+Enable Banking is documented by Actual as experimental and requires an
+`actual-server` deployment, HTTPS redirect endpoint, and provider credentials;
+its bank list is dynamic, so source-code references are not a guarantee that a
+specific personal/business product is currently linkable. Actual documents that
+GoCardless Bank Account Data no longer accepts new accounts. See the official
+[Enable Banking setup](https://actualbudget.org/docs/advanced/bank-sync/enable-banking/)
+and [GoCardless status](https://actualbudget.org/docs/advanced/bank-sync/gocardless/)
+before starting a future provider integration.

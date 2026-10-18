@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Document>
+  <BkToCstmrStmt>
+    <Stmt>
+      <Ntry>
+        <AcctSvcrRef>m1-camt-001</AcctSvcrRef>
+        <Amt Ccy="EUR">78.90</Amt>
+        <CdtDbtInd>DBIT</CdtDbtInd>
+        <BookgDt><Dt>2024-03-08</Dt></BookgDt>
+        <NtryDtls>
+          <TxDtls>
+            <RltdPties><Cdtr><Nm>Example Rail</Nm></Cdtr></RltdPties>
+            <RmtInf><Ustrd>Return journey</Ustrd></RmtInf>
+          </TxDtls>
+        </NtryDtls>
+      </Ntry>
+    </Stmt>
+  </BkToCstmrStmt>
+</Document>

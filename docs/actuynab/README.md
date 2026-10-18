@@ -40,6 +40,19 @@ Actual already supplies the essential foundations:
 The remaining work is therefore targeted extension and validation, not a
 rewrite. See the linked documents for the technical plan.
 
+## Milestone 1 functional baseline
+
+Milestone 1 adds a repeatable, entirely synthetic validation path for the
+existing financial core. It exercises multi-account historical data,
+categories, a recurring schedule, split transactions, an internal transfer,
+CSV/OFX/QIF/CAMT statement imports, repeated-import idempotency, and
+backup/restore. The tests do not require network access, bank credentials, or
+real financial data.
+
+The Windows 11 setup and evidence from the validation run are recorded in
+[Functional validation](validation.md). The provider-specific status for
+ActivoBank and Revolut is in [Bank statement imports](bank-imports.md).
+
 ## Project documents
 
 - [Architecture](architecture.md) — package boundaries, extension seams, and
@@ -53,6 +66,9 @@ rewrite. See the linked documents for the technical plan.
   opt-in AI boundary.
 - [Operations](operations.md) — private Docker deployment, HTTPS, backups, and
   recovery verification.
+
+- [Functional validation](validation.md) â€” Windows setup, synthetic data,
+  repeatable import/backup procedures, and results.
 
 ## Working agreement
 

@@ -1,5 +1,6 @@
 import fs from 'node:fs/promises';
 
+import { closeAccountDb } from '../src/account-db';
 import { config } from '../src/load-config';
 
 async function ensureExists(path: string): Promise<void | null> {
@@ -20,6 +21,9 @@ export const up = async function (): Promise<void> {
 };
 
 export const down = async function (): Promise<void> {
+  // This is the last rollback migration. Close the shared SQLite connection
+  // before Windows removes the directory that contains account.sqlite.
+  closeAccountDb();
   await fs.rm(config.get('serverFiles'), { recursive: true, force: true });
   await fs.rm(config.get('userFiles'), { recursive: true, force: true });
 };
