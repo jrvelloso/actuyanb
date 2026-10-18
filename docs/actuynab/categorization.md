@@ -65,6 +65,13 @@ invented principal or interest category. When a loan payment already contains
 a principal/interest split, the result is `provided-loan-split-preserved` and
 the subtransactions are left untouched.
 
+Since Milestone 7, these roles are persisted through the configurable
+Household setup as a synced mapping to Actual account IDs. The names above are
+only initial suggestions. Review classification no longer enables structural
+transfer protection merely because an account happens to have one of those
+names; configure its role and narrow description phrases in **Household**.
+See [Household budget experience](household-budget.md).
+
 An incoming contribution from a personal account is only classified as income
 when the adapter or caller explicitly marks it `externalContribution`. Text
 alone is not enough to infer a personal account. Refunds retain their original

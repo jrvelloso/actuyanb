@@ -87,12 +87,13 @@ there is no core schema replacement or external service.
 
 ## Household setup
 
-The runtime household guard recognizes these exact account names: `Activo`,
-`Millenium`, `CC-Activo-Classic`, `CC-Millenium-Gold`,
-`CC-Millenium-Classic`, `Tesla`, and `Home`. It uses the intentionally narrow
-transfer phrases documented in [Categorization](categorization.md). Rename an
-account only after updating this guarded configuration in a future reviewed
-change; the review does not infer broad transfer patterns from text.
+Milestone 7 replaces the former exact-name runtime guard with a synced,
+configurable mapping from a household role to an Actual account ID. Configure
+Activo, Millenium, the three credit cards, Home, and Tesla from **Household**;
+the initial names and narrow transfer phrases are editable suggestions. The
+review reads this mapping, so a renamed or adopted account retains its safety
+classification without broad text inference. See [Household budget
+experience](household-budget.md).
 
 Personal-account contributions require explicit importer/caller metadata and
 are not inferred from a free-text description. Loan principal/interest remains

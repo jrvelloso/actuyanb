@@ -70,6 +70,14 @@ service; it is not a replacement database for budget calculations.
    add an adapter without a separately approved compatibility design. See
    [Deployment readiness](deployment-readiness.md).
 
+9. **Household setup and overview.** M7 stores only a synced role-to-Actual
+   account mapping and optional template state in additive tables. The setup
+   creates or adopts ordinary Actual accounts and transfer payees; it does not
+   own balances, transactions, schedules, loan calculations, or a parallel
+   database. M4/M5 derive account roles from this mapping, while the Household
+   page reads existing ledgers, budget sheets, schedules, and import-audit
+   rows. See [Household budget experience](household-budget.md).
+
 ## Financial correctness constraints
 
 - Use Actual's integer monetary values throughout; never introduce floating
@@ -84,6 +92,10 @@ service; it is not a replacement database for budget calculations.
   balances, source descriptions, payees, categories, or transfers. M5's
   confirmation applies only explicit, user-selected existing payee/category
   values through Actual's established transaction API.
+- Household account roles must be configured and synced by account ID. Do not
+  restore display-name matching as a hidden classifier rule. Off-budget Home
+  and Tesla accounts are tracking accounts only; no code may infer loan terms
+  or principal/interest amounts.
 - Sensitive bank credentials remain server-side and are not end-to-end
   encrypted by Actual's bank-sync feature. Private self-hosting is the
   recommended deployment boundary.

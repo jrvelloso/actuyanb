@@ -194,9 +194,33 @@ another. Supabase was evaluated and deliberately not used: replacing Actual's
 server protocol with a Supabase adapter would be a material, unapproved sync
 server rewrite. See [Deployment readiness](deployment-readiness.md).
 
+## M7 â€” household budget experience â€” complete
+
+**Goal:** make the shared household model configurable and observable while
+keeping Actual's financial engine as the sole source of truth.
+
+### M7 implementation result
+
+The new **Household** page creates or adopts the five on-budget shared
+accounts and the Home/Tesla off-budget tracking accounts through Actual's
+ordinary account API. It stores a synced account-role mapping, rather than
+assuming display names, so import review and categorization can protect
+transfers and credit-card payments without a parallel financial model.
+
+An optional, repeatable starter category template adds Housing, Monthly Bills,
+Food, Transport, Health & Personal Care, Lifestyle, Sports, Irregular
+Expenses, and Savings Goals without duplicating normalized names. The overview
+keeps available budget, checking cash, card/financing liabilities, monthly
+categorized spending, pending reviews, and upcoming recurring bills visibly
+separate. It does not add bank connections, an amortization engine, or inferred
+loan splits. Focused synthetic tests validate setup repeatability, persisted
+role reload, structural-payment protection, ledger/balance preservation, and
+the existing M4/M5 safeguards. See [Household budget
+experience](household-budget.md).
+
 ## Deferred evaluation
 
-Open Banking/PSD2 automation, shared-household budgeting, advanced forecasts,
-PWA capabilities, and a SaaS offering remain discovery items. Each requires a
+Open Banking/PSD2 automation, advanced forecasts, PWA capabilities, and a SaaS
+offering remain discovery items. Each requires a
 separate decision covering consent, provider cost, regulation, privacy,
 security, and support burden before implementation.
