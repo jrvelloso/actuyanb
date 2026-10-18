@@ -73,9 +73,15 @@ the household's existing category taxonomy.
 `Home` and `Tesla` are standard **off-budget Actual tracking accounts**. The
 Household page does not create an amortization schedule, infer loan terms, or
 invent principal/interest values. A loan-payment split remains intact only
-when the imported transaction already supplies it. Record any documented
-principal/interest allocation through Actual's normal split editor; leave it
-unsplit when the breakdown is unavailable.
+when the imported transaction already supplies it. Use Actual's normal
+transaction editor for any required ledger correction, then use **Financing
+management** to record a documented allocation against those existing
+movements. The saved allocation is synced metadata only; it does not alter a
+transaction, transfer, split, category, reconciliation state, or account
+balance. Leave the allocation absent when the breakdown is unavailable.
+
+See [Financing management](financing-management.md) for the exact validation
+rules, insurance handling, refund treatment, and limits.
 
 Credit-card purchases remain categorized spending. A card-payment transfer is
 not another expense, and a refund remains a positive categorized transaction
@@ -94,6 +100,7 @@ The page distinguishes these intentionally different values:
 | Joint checking balances                 | Ledger totals for configured on-budget checking accounts                   | Budget availability                              |
 | Credit-card liabilities                 | Individual card ledger totals and their displayed liability magnitude      | New spending or spendable cash                   |
 | Off-budget financing                    | Ledger totals for the configured Home and Tesla tracking accounts          | A loan amortization calculation                  |
+| Financing management allocations        | User-verified reference metadata for existing payment movements            | Amounts to add to ledger liabilities or spending |
 | Total liabilities                       | Absolute ledger magnitudes for configured cards and financing accounts     | Net worth or cash available to spend             |
 | This month's spending                   | Current-month categorized on-budget activity, net of refunds               | Transfers, card payments, or financing movements |
 

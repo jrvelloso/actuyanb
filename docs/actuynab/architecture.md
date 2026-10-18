@@ -77,6 +77,13 @@ service; it is not a replacement database for budget calculations.
    database. M4/M5 derive account roles from this mapping, while the Household
    page reads existing ledgers, budget sheets, schedules, and import-audit
    rows. See [Household budget experience](household-budget.md).
+10. **Financing allocation metadata.** M10 adds a synced, additive link from
+    an explicitly verified checking movement to an existing Home/Tesla
+    tracking-account movement. It stores only transaction IDs, integer amounts,
+    date, and payment/refund direction; the view reads outstanding balances
+    from Actual's ledger. It never writes a transfer, split, account balance,
+    reconciliation field, amortization schedule, or parallel financial store.
+    See [Financing management](financing-management.md).
 
 ## Financial correctness constraints
 
@@ -94,8 +101,10 @@ service; it is not a replacement database for budget calculations.
   values through Actual's established transaction API.
 - Household account roles must be configured and synced by account ID. Do not
   restore display-name matching as a hidden classifier rule. Off-budget Home
-  and Tesla accounts are tracking accounts only; no code may infer loan terms
-  or principal/interest amounts.
+  and Tesla accounts are tracking accounts only; no code may infer loan terms,
+  principal/interest amounts, or a payment schedule. Verified M10 allocation
+  metadata must stay separate from financial ledger totals and must reference
+  existing Actual movements.
 - Sensitive bank credentials remain server-side and are not end-to-end
   encrypted by Actual's bank-sync feature. Private self-hosting is the
   recommended deployment boundary.
