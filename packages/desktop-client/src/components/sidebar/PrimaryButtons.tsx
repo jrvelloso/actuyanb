@@ -7,7 +7,10 @@ import { View } from '@actual-app/components/view';
 import { useSidebarMenu } from '#hooks/useSidebarMenu';
 
 import { Item } from './Item';
-import { getSidebarMenuItemPath } from './sidebarMenu';
+import {
+  getSidebarMenuItemPath,
+  isPrimaryBudgetNavigationItem,
+} from './sidebarMenu';
 import { useSidebarMenuItemDetails } from './useSidebarMenuItemDetails';
 
 export function PrimaryButtons() {
@@ -17,14 +20,16 @@ export function PrimaryButtons() {
 
   return (
     <View data-testid="sidebar-primary-buttons" style={{ flexShrink: 0 }}>
-      {sidebarItems.map(item => (
-        <Item
-          key={item.id}
-          title={itemDetails[item.id].title}
-          Icon={itemDetails[item.id].Icon}
-          to={getSidebarMenuItemPath(item.id, true)}
-        />
-      ))}
+      {sidebarItems
+        .filter(item => isPrimaryBudgetNavigationItem(item.id))
+        .map(item => (
+          <Item
+            key={item.id}
+            title={itemDetails[item.id].title}
+            Icon={itemDetails[item.id].Icon}
+            to={getSidebarMenuItemPath(item.id, true)}
+          />
+        ))}
       <Item title={t('Settings')} Icon={SvgCog} to="/settings" />
     </View>
   );

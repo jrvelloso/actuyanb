@@ -19,8 +19,10 @@ import type {
 import { HOUSEHOLD_ACCOUNT_PRESETS } from '@actual-app/core/server/transactions/actuynab-household';
 import type {
   HouseholdAccountKey,
+  HouseholdCategoryTemplateKind,
   HouseholdProfile,
   HouseholdSetupAccount,
+  HouseholdSetupPreview,
 } from '@actual-app/core/server/transactions/actuynab-household';
 import * as monthUtils from '@actual-app/core/shared/months';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
@@ -40,18 +42,22 @@ type SetupDraft = Omit<HouseholdSetupAccount, 'transferDescriptionTokens'> & {
   transferDescriptionTokens: string;
 };
 
-function defaultSetupDraft(): SetupDraft[] {
+function defaultSetupDraft(usePersonalAccountTemplate = false): SetupDraft[] {
   return HOUSEHOLD_ACCOUNT_PRESETS.map(preset => ({
     key: preset.key,
-    name: preset.defaultName,
+    name: usePersonalAccountTemplate ? preset.defaultName : '',
     accountId: null,
-    transferDescriptionTokens:
-      preset.defaultTransferDescriptionTokens.join(', '),
+    transferDescriptionTokens: usePersonalAccountTemplate
+      ? preset.defaultTransferDescriptionTokens.join(', ')
+      : '',
   }));
 }
 
-function draftFromProfile(profile: HouseholdProfile | null): SetupDraft[] {
-  if (!profile) return defaultSetupDraft();
+function draftFromProfile(
+  profile: HouseholdProfile | null,
+  usePersonalAccountTemplate = false,
+): SetupDraft[] {
+  if (!profile) return defaultSetupDraft(usePersonalAccountTemplate);
   return HOUSEHOLD_ACCOUNT_PRESETS.map(preset => {
     const configured = profile.accounts.find(
       account => account.key === preset.key,
@@ -562,11 +568,32 @@ function HouseholdSetup({
   const [drafts, setDrafts] = useState<SetupDraft[]>(() =>
     draftFromProfile(profile),
   );
-  const [applyCategoryTemplate, setApplyCategoryTemplate] = useState(
-    profile?.categoryTemplateApplied ?? false,
-  );
+  const [categoryTemplate, setCategoryTemplate] = useState<
+    HouseholdCategoryTemplateKind | ''
+  >('');
   const [error, setError] = useState<string | null>(null);
+  const [isPreviewing, setIsPreviewing] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
+  const [preview, setPreview] = useState<HouseholdSetupPreview | null>(null);
+  const [usePersonalAccountTemplate, setUsePersonalAccountTemplate] =
+    useState(false);
+
+  function setupInput() {
+    const selectedTemplate: HouseholdCategoryTemplateKind | null =
+      categoryTemplate || null;
+    return {
+      accounts: drafts.map(draft => ({
+        accountId: draft.accountId || null,
+        key: draft.key,
+        name: draft.name,
+        transferDescriptionTokens: draft.transferDescriptionTokens
+          .split(',')
+          .map(token => token.trim())
+          .filter(Boolean),
+      })),
+      categoryTemplate: selectedTemplate,
+    };
+  }
 
   function updateDraft(key: HouseholdAccountKey, update: Partial<SetupDraft>) {
     setDrafts(current =>
@@ -574,26 +601,57 @@ function HouseholdSetup({
         draft.key === key ? { ...draft, ...update } : draft,
       ),
     );
+    setPreview(null);
+  }
+
+  function setPersonalAccountTemplate(enabled: boolean) {
+    setUsePersonalAccountTemplate(enabled);
+    if (enabled) {
+      setDrafts(current =>
+        current.map(draft => {
+          const preset = HOUSEHOLD_ACCOUNT_PRESETS.find(
+            item => item.key === draft.key,
+          );
+          if (!preset) return draft;
+          return {
+            ...draft,
+            name: draft.name.trim() === '' ? preset.defaultName : draft.name,
+            transferDescriptionTokens:
+              draft.transferDescriptionTokens.trim() === ''
+                ? preset.defaultTransferDescriptionTokens.join(', ')
+                : draft.transferDescriptionTokens,
+          };
+        }),
+      );
+    }
+    setPreview(null);
+  }
+
+  async function previewSetup() {
+    setError(null);
+    try {
+      setIsPreviewing(true);
+      setPreview(await send('actuynab-household-preview', setupInput()));
+    } catch (previewError) {
+      setError(
+        previewError instanceof Error
+          ? previewError.message
+          : t('Unable to prepare the household setup preview.'),
+      );
+    } finally {
+      setIsPreviewing(false);
+    }
   }
 
   async function applySetup() {
+    if (!preview || preview.conflicts.length > 0) return;
     setError(null);
     try {
       setIsSaving(true);
-      await send('actuynab-household-configure', {
-        accounts: drafts.map(draft => ({
-          accountId: draft.accountId || null,
-          key: draft.key,
-          name: draft.name,
-          transferDescriptionTokens: draft.transferDescriptionTokens
-            .split(',')
-            .map(token => token.trim())
-            .filter(Boolean),
-        })),
-        applyCategoryTemplate,
-      });
+      await send('actuynab-household-configure', setupInput());
       await queryClient.invalidateQueries();
       await onConfigured();
+      setPreview(null);
     } catch (setupError) {
       setError(
         setupError instanceof Error
@@ -610,8 +668,8 @@ function HouseholdSetup({
       <Information>
         <Trans>
           Choose an existing Actual account or enter a name for a new
-          zero-balance account. Reapplying this setup adopts the saved role
-          mapping and does not change transactions, balances, or account types.
+          zero-balance account. This preview never changes transactions,
+          balances, account types, or existing categories.
         </Trans>
       </Information>
       <Information>
@@ -622,6 +680,19 @@ function HouseholdSetup({
       </Information>
       {error && (
         <Information style={{ color: theme.errorText }}>{error}</Information>
+      )}
+      {!profile && (
+        <label>
+          <input
+            checked={usePersonalAccountTemplate}
+            type="checkbox"
+            onChange={event => setPersonalAccountTemplate(event.target.checked)}
+          />{' '}
+          <Trans>
+            Use the optional personal household account template (Activo,
+            Millenium, three credit cards, Home, and Tesla).
+          </Trans>
+        </label>
       )}
       <View style={{ gap: 12 }}>
         {drafts.map(draft => {
@@ -692,26 +763,105 @@ function HouseholdSetup({
           );
         })}
       </View>
-      <label>
-        <input
-          checked={applyCategoryTemplate}
-          type="checkbox"
-          onChange={event => setApplyCategoryTemplate(event.target.checked)}
-        />{' '}
+      <View style={{ maxWidth: 420 }}>
+        <SectionLabel title={t('Optional category template')} />
+        <Select
+          defaultLabel={t('Do not add a category template')}
+          options={[
+            ['starter', t('Starter household categories')],
+            ['personal', t('Personal YNAB 4-inspired categories')],
+          ]}
+          value={categoryTemplate}
+          onChange={value => {
+            setCategoryTemplate(value as HouseholdCategoryTemplateKind | '');
+            setPreview(null);
+          }}
+        />
+      </View>
+      <Text style={{ color: theme.pageTextLight, fontSize: 13 }}>
         <Trans>
-          Add the optional household category template without duplicating
-          existing same-named groups or categories.
+          The personal template is optional. It keeps the separate Tech
+          categories under Fun and Savings Goals, and never reorders existing
+          categories.
         </Trans>
-      </label>
+      </Text>
       <View style={{ alignItems: 'flex-start' }}>
-        <ButtonWithLoading
-          isLoading={isSaving}
-          variant="primary"
-          onPress={applySetup}
-        >
-          <Trans>Save household setup</Trans>
+        <ButtonWithLoading isLoading={isPreviewing} onPress={previewSetup}>
+          <Trans>Preview household setup</Trans>
         </ButtonWithLoading>
       </View>
+      {preview && (
+        <View
+          style={{
+            border: `1px solid ${theme.tableBorder}`,
+            borderRadius: 6,
+            gap: 12,
+            padding: 14,
+          }}
+        >
+          <Text style={{ fontSize: 16, fontWeight: 600 }}>
+            <Trans>Setup preview</Trans>
+          </Text>
+          <View style={{ gap: 4 }}>
+            <Text style={{ fontWeight: 600 }}>
+              <Trans>Accounts</Trans>
+            </Text>
+            {preview.accounts.map(account => (
+              <Text key={account.key} style={{ fontSize: 13 }}>
+                {account.name} —{' '}
+                {account.status === 'create'
+                  ? t('will be created')
+                  : account.status === 'reuse'
+                    ? t('will be reused')
+                    : account.message}
+              </Text>
+            ))}
+          </View>
+          {preview.categoryGroups.length > 0 && (
+            <View style={{ gap: 4 }}>
+              <Text style={{ fontWeight: 600 }}>
+                <Trans>Categories</Trans>
+              </Text>
+              {preview.categoryGroups.map(group => (
+                <View key={group.name} style={{ gap: 2 }}>
+                  <Text style={{ fontSize: 13, fontWeight: 600 }}>
+                    {group.name} —{' '}
+                    {group.status === 'create'
+                      ? t('will be created')
+                      : group.status === 'reuse'
+                        ? t('will be reused')
+                        : group.message}
+                  </Text>
+                  <Text style={{ color: theme.pageTextLight, fontSize: 13 }}>
+                    {group.categories
+                      .map(category =>
+                        category.status === 'conflict'
+                          ? `${category.name} (${category.message})`
+                          : `${category.name} (${category.status === 'create' ? t('create') : t('reuse')})`,
+                      )
+                      .join(', ')}
+                  </Text>
+                </View>
+              ))}
+            </View>
+          )}
+          {preview.conflicts.length > 0 ? (
+            <Information style={{ color: theme.errorText }}>
+              {preview.conflicts.join(' ')}
+            </Information>
+          ) : (
+            <View style={{ alignItems: 'flex-start' }}>
+              <ButtonWithLoading
+                isLoading={isSaving}
+                variant="primary"
+                onPress={applySetup}
+              >
+                <Trans>Confirm and apply household setup</Trans>
+              </ButtonWithLoading>
+            </View>
+          )}
+        </View>
+      )}
     </View>
   );
 }
@@ -738,7 +888,6 @@ export function HouseholdPage() {
     queryKey: ['actuynab-financing-candidates'],
     queryFn: () => send('actuynab-financing-candidates'),
   });
-  const [isEditing, setIsEditing] = useState(false);
   const profile = profileQuery.data ?? null;
 
   async function refresh() {
@@ -771,9 +920,9 @@ export function HouseholdPage() {
           <Text style={{ fontSize: 25, fontWeight: 500 }}>
             <Trans>Household</Trans>
           </Text>
-          {profile && !isEditing && (
-            <Button onPress={() => setIsEditing(true)}>
-              <Trans>Edit setup</Trans>
+          {profile && (
+            <Button onPress={() => navigate('/household/settings')}>
+              <Trans>Household settings</Trans>
             </Button>
           )}
         </View>
@@ -792,29 +941,28 @@ export function HouseholdPage() {
           </Information>
         )}
         {!profileQuery.isPending && !profile && (
-          <>
+          <View style={{ gap: 10, maxWidth: 600 }}>
             <Text style={{ fontSize: 18, fontWeight: 600 }}>
               <Trans>Set up your shared household budget</Trans>
             </Text>
-            <HouseholdSetup
-              profile={null}
-              onConfigured={async () => {
-                await refresh();
-                setIsEditing(false);
-              }}
-            />
-          </>
+            <Text style={{ color: theme.pageTextLight }}>
+              <Trans>
+                Configure account roles and optional templates before using the
+                household overview. Nothing is created until you review and
+                confirm a preview.
+              </Trans>
+            </Text>
+            <View style={{ alignItems: 'flex-start' }}>
+              <Button
+                variant="primary"
+                onPress={() => navigate('/household/settings')}
+              >
+                <Trans>Open Household Settings</Trans>
+              </Button>
+            </View>
+          </View>
         )}
-        {profile && isEditing && (
-          <HouseholdSetup
-            profile={profile}
-            onConfigured={async () => {
-              await refresh();
-              setIsEditing(false);
-            }}
-          />
-        )}
-        {profile && !isEditing && dashboardQuery.data && (
+        {profile && dashboardQuery.data && (
           <>
             <HouseholdDashboardPanel
               dashboard={dashboardQuery.data}
@@ -830,6 +978,58 @@ export function HouseholdPage() {
               />
             )}
           </>
+        )}
+      </View>
+    </Page>
+  );
+}
+
+export function HouseholdSettingsPage() {
+  const navigate = useNavigate();
+  const profileQuery = useQuery({
+    queryKey: ['actuynab-household-profile'],
+    queryFn: () => send('actuynab-household-profile'),
+  });
+  const profile = profileQuery.data ?? null;
+
+  async function refresh() {
+    await profileQuery.refetch();
+  }
+
+  return (
+    <Page
+      header={
+        <View
+          style={{
+            alignItems: 'center',
+            flexDirection: 'row',
+            justifyContent: 'space-between',
+            margin: '0 20px',
+          }}
+        >
+          <Text style={{ fontSize: 25, fontWeight: 500 }}>
+            <Trans>Household Settings</Trans>
+          </Text>
+          <Button onPress={() => navigate('/household')}>
+            <Trans>Back to Household</Trans>
+          </Button>
+        </View>
+      }
+      padding={20}
+    >
+      <View style={{ gap: 16, paddingBottom: 20 }}>
+        {profileQuery.isPending && (
+          <Text>
+            <Trans>Loading household settings...</Trans>
+          </Text>
+        )}
+        {profileQuery.error && (
+          <Information style={{ color: theme.errorText }}>
+            <Trans>Unable to load the household configuration.</Trans>
+          </Information>
+        )}
+        {!profileQuery.isPending && !profileQuery.error && (
+          <HouseholdSetup profile={profile} onConfigured={refresh} />
         )}
       </View>
     </Page>

@@ -505,3 +505,27 @@ yarn workspace @actual-app/web vitest --run src/components/household/HouseholdDa
 Chromium validation remains an operational acceptance check when a safely
 controllable browser is available. It is not claimed by these tests; use a
 fresh synthetic budget and the local Docker procedure only.
+
+## Milestone 13 YNAB 4-inspired experience validation
+
+M13 extends the synthetic Household fixture without adding a financial write
+path. Its core test verifies an empty preview leaves account/category state
+unchanged, that the explicit personal template creates the expected
+group-qualified categories once, and that applying it again creates nothing.
+It also verifies existing category reuse, deterministic insertion order, and
+safe rejection of an incompatible same-name account. The sidebar and daily
+view component suites retain their M12 preference and review-navigation
+coverage.
+
+Run from the repository root:
+
+```text
+yarn workspace @actual-app/core vitest --run src/server/transactions/actuynab-household.test.ts src/server/transactions/actuynab-dashboard.test.ts src/server/transactions/actuynab-financing.test.ts src/server/transactions/actuynab-review.test.ts
+yarn workspace @actual-app/web vitest --run src/components/sidebar/sidebarMenu.test.ts src/components/household/HouseholdDailyBudget.test.tsx
+```
+
+No statement, credential, or real budget is involved. A real-browser exercise
+is still required when a safely controllable Chromium instance is available:
+create a fresh synthetic Household budget, review setup without confirming,
+apply the selected template, navigate each account group and the native Budget
+screen, reload, and confirm that no unintended financial records were made.

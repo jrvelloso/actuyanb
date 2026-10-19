@@ -1,12 +1,20 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
+import type { ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
 
+import { Button } from '@actual-app/components/button';
+import {
+  SvgCheveronDown,
+  SvgCheveronRight,
+} from '@actual-app/components/icons/v1';
+import { Text } from '@actual-app/components/text';
 import { theme } from '@actual-app/components/theme';
 import { View } from '@actual-app/components/view';
 import type { AccountEntity } from '@actual-app/core/types/models';
 
 import { useMoveAccountMutation } from '#accounts';
 import { isAccountFailedSync } from '#accounts/syncStatus';
+import { CellValue } from '#components/spreadsheet/CellValue';
 import { useAccounts } from '#hooks/useAccounts';
 import { useClosedAccounts } from '#hooks/useClosedAccounts';
 import { useLocalPref } from '#hooks/useLocalPref';
@@ -14,6 +22,7 @@ import { useOffBudgetAccounts } from '#hooks/useOffBudgetAccounts';
 import { useOnBudgetAccounts } from '#hooks/useOnBudgetAccounts';
 import { useUpdatedAccounts } from '#hooks/useUpdatedAccounts';
 import { useSelector } from '#redux';
+import type { Binding } from '#spreadsheet';
 import * as bindings from '#spreadsheet/bindings';
 
 import { Account } from './Account';
@@ -21,9 +30,69 @@ import { SecondaryItem } from './SecondaryItem';
 
 const fontWeight = 600;
 
+type AccountGroupProps = {
+  balanceTestId: string;
+  children: ReactNode;
+  isOpen: boolean;
+  label: string;
+  onToggle: () => void;
+  query: Binding<
+    'account',
+    'offbudget-accounts-balance' | 'onbudget-accounts-balance'
+  >;
+};
+
+function AccountGroup({
+  balanceTestId,
+  children,
+  isOpen,
+  label,
+  onToggle,
+  query,
+}: AccountGroupProps) {
+  const { t } = useTranslation();
+  const Chevron = isOpen ? SvgCheveronDown : SvgCheveronRight;
+
+  return (
+    <View style={{ marginTop: 13 }}>
+      <View
+        style={{
+          alignItems: 'center',
+          flexDirection: 'row',
+          minHeight: 26,
+          paddingRight: 10,
+        }}
+      >
+        <Button
+          aria-expanded={isOpen}
+          aria-label={
+            isOpen
+              ? t('Collapse {{ section }}', { section: label })
+              : t('Expand {{ section }}', { section: label })
+          }
+          variant="bare"
+          onPress={onToggle}
+          style={{ flex: 1, justifyContent: 'flex-start', padding: '4px 10px' }}
+        >
+          <View style={{ alignItems: 'center', flexDirection: 'row', gap: 5 }}>
+            <Chevron width={12} height={12} />
+            <Text style={{ fontSize: 13, fontWeight }}>{label}</Text>
+          </View>
+        </Button>
+        <View data-testid={balanceTestId}>
+          <CellValue binding={query} type="financial" />
+        </View>
+      </View>
+      {isOpen && children}
+    </View>
+  );
+}
+
 export function Accounts() {
   const { t } = useTranslation();
   const [isDragging, setIsDragging] = useState(false);
+  const [isBudgetAccountsOpen, setBudgetAccountsOpen] = useState(true);
+  const [isOffBudgetAccountsOpen, setOffBudgetAccountsOpen] = useState(true);
   const { data: accounts = [] } = useAccounts();
   const updatedAccounts = useUpdatedAccounts();
   const { data: offbudgetAccounts = [] } = useOffBudgetAccounts();
@@ -91,7 +160,7 @@ export function Accounts() {
 
       <View style={{ overflow: 'auto' }}>
         <Account
-          name={t('All accounts')}
+          name={t('All Accounts')}
           to="/accounts"
           query={bindings.allAccountBalance()}
           style={{ fontWeight, marginTop: 15 }}
@@ -100,68 +169,58 @@ export function Accounts() {
         />
 
         {onBudgetAccounts.length > 0 && (
-          <Account
-            name={t('On budget')}
-            to="/accounts/onbudget"
-            query={bindings.onBudgetAccountBalance()}
-            style={{
-              fontWeight,
-              marginTop: 13,
-              marginBottom: 5,
-            }}
-            titleAccount
+          <AccountGroup
             balanceTestId="sidebar-on-budget-balance"
-          />
+            isOpen={isBudgetAccountsOpen}
+            label={t('Budget Accounts')}
+            onToggle={() => setBudgetAccountsOpen(isOpen => !isOpen)}
+            query={bindings.onBudgetAccountBalance()}
+          >
+            {onBudgetAccounts.map((account, i) => (
+              <Account
+                key={account.id}
+                name={account.name}
+                account={account}
+                connected={!!account.bank}
+                pending={syncingAccountIds.includes(account.id)}
+                failed={isAccountFailedSync(account)}
+                updated={updatedAccounts.includes(account.id)}
+                to={getAccountPath(account)}
+                query={bindings.accountBalance(account.id)}
+                onDragChange={onDragChange}
+                onDrop={onReorder}
+                outerStyle={makeDropPadding(i)}
+              />
+            ))}
+          </AccountGroup>
         )}
-
-        {onBudgetAccounts.map((account, i) => (
-          <Account
-            key={account.id}
-            name={account.name}
-            account={account}
-            connected={!!account.bank}
-            pending={syncingAccountIds.includes(account.id)}
-            failed={isAccountFailedSync(account)}
-            updated={updatedAccounts.includes(account.id)}
-            to={getAccountPath(account)}
-            query={bindings.accountBalance(account.id)}
-            onDragChange={onDragChange}
-            onDrop={onReorder}
-            outerStyle={makeDropPadding(i)}
-          />
-        ))}
 
         {offbudgetAccounts.length > 0 && (
-          <Account
-            name={t('Off budget')}
-            to="/accounts/offbudget"
-            query={bindings.offBudgetAccountBalance()}
-            style={{
-              fontWeight,
-              marginTop: 13,
-              marginBottom: 5,
-            }}
-            titleAccount
+          <AccountGroup
             balanceTestId="sidebar-off-budget-balance"
-          />
+            isOpen={isOffBudgetAccountsOpen}
+            label={t('Off-Budget Accounts')}
+            onToggle={() => setOffBudgetAccountsOpen(isOpen => !isOpen)}
+            query={bindings.offBudgetAccountBalance()}
+          >
+            {offbudgetAccounts.map((account, i) => (
+              <Account
+                key={account.id}
+                name={account.name}
+                account={account}
+                connected={!!account.bank}
+                pending={syncingAccountIds.includes(account.id)}
+                failed={isAccountFailedSync(account)}
+                updated={updatedAccounts.includes(account.id)}
+                to={getAccountPath(account)}
+                query={bindings.accountBalance(account.id)}
+                onDragChange={onDragChange}
+                onDrop={onReorder}
+                outerStyle={makeDropPadding(i)}
+              />
+            ))}
+          </AccountGroup>
         )}
-
-        {offbudgetAccounts.map((account, i) => (
-          <Account
-            key={account.id}
-            name={account.name}
-            account={account}
-            connected={!!account.bank}
-            pending={syncingAccountIds.includes(account.id)}
-            failed={isAccountFailedSync(account)}
-            updated={updatedAccounts.includes(account.id)}
-            to={getAccountPath(account)}
-            query={bindings.accountBalance(account.id)}
-            onDragChange={onDragChange}
-            onDrop={onReorder}
-            outerStyle={makeDropPadding(i)}
-          />
-        ))}
 
         {closedAccounts.length > 0 && (
           <SecondaryItem

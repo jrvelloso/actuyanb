@@ -64,7 +64,7 @@ export function AccountsSection() {
         )}
         {tree.onBudget.buckets.length > 0 && (
           <SideGroup
-            label={t('On budget')}
+            label={t('Budget Accounts')}
             side="on"
             isDragDisabled={isSearching}
             showSyncDot={showSyncDot}
@@ -79,7 +79,7 @@ export function AccountsSection() {
         )}
         {tree.offBudget.buckets.length > 0 && (
           <SideGroup
-            label={t('Off budget')}
+            label={t('Off-Budget Accounts')}
             side="off"
             isDragDisabled={isSearching}
             showSyncDot={showSyncDot}
