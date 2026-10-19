@@ -76,7 +76,7 @@ export function BuiltInProviders({
         <Paragraph style={{ fontSize: 15, color: theme.pageTextSubdued }}>
           <Trans>
             Set up a bank sync provider, then link new accounts or connect an
-            existing Actual account.
+            existing ActuYNAB account.
           </Trans>
         </Paragraph>
       </View>
@@ -95,7 +95,7 @@ export function BuiltInProviders({
           </Button>
           <Paragraph style={{ fontSize: 15, marginTop: 10 }}>
             <Trans>
-              Connect to an Actual server to set up{' '}
+              Connect to an ActuYNAB sync server to set up{' '}
               <Link
                 variant="external"
                 to="https://actualbudget.org/docs/advanced/bank-sync"

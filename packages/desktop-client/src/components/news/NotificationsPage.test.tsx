@@ -151,10 +151,10 @@ describe('NotificationsPage', () => {
 
     expect(
       screen.getByRole('link', { name: 'All release notes' }),
-    ).toHaveAttribute('href', 'https://actualbudget.org/docs/releases');
+    ).toHaveAttribute('href', 'https://github.com/jrvelloso/actuyanb/releases');
     expect(
-      screen.getByRole('link', { name: 'Community (Discord)' }),
-    ).toHaveAttribute('href', 'https://discord.gg/pRYNYr4W5A');
+      screen.getByRole('link', { name: 'ActuYNAB project' }),
+    ).toHaveAttribute('href', 'https://github.com/jrvelloso/actuyanb');
   });
 
   it('asks the user to update when the feed format is not understood', () => {
@@ -162,7 +162,7 @@ describe('NotificationsPage', () => {
     renderPage();
 
     expect(
-      screen.getByText('Update Actual to see the latest notifications.'),
+      screen.getByText('Update ActuYNAB to see the latest notifications.'),
     ).toBeInTheDocument();
     expect(
       screen.queryByRole('button', { name: 'Try again' }),

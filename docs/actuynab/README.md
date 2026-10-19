@@ -134,6 +134,8 @@ statement imports](bank-imports.md) and [Functional validation](validation.md).
 
 - [Architecture](architecture.md) — package boundaries, extension seams, and
   integrity constraints.
+- [Branding and compatibility](branding.md) — ActuYNAB product naming and the
+  upstream technical identifiers intentionally retained for compatibility.
 - [Integration hygiene and CI readiness](integration-readiness.md) — safe
   merge order, cross-platform validation, CI security controls, and the
   recommended `master` protection baseline.

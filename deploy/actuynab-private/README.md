@@ -8,7 +8,7 @@ does not make Vercel responsible for financial persistence.
 Follow the full safety and recovery procedure in
 [`docs/actuynab/deployment-readiness.md`](../../docs/actuynab/deployment-readiness.md)
 before using this outside a synthetic test environment. In particular, create
-the first Actual password from a private network before exposing the service.
+the first ActuYNAB password from a private network before exposing the service.
 
 ```text
 Copy-Item .env.example .env

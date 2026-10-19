@@ -304,7 +304,7 @@ function HouseholdSetup({
     <View style={{ gap: 16, maxWidth: 1000 }}>
       <Information>
         <Trans>
-          Choose an existing Actual account or enter a name for a new
+          Choose an existing ActuYNAB account or enter a name for a new
           zero-balance account. Reapplying this setup adopts the saved role
           mapping and does not change transactions, balances, or account types.
         </Trans>

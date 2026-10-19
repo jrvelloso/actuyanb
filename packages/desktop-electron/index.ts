@@ -49,6 +49,13 @@ const BUILD_ROOT = `${__dirname}/..`;
 const isPlaywrightTest = process.env.EXECUTION_CONTEXT === 'playwright';
 const isDev = !isPlaywrightTest && !app.isPackaged; // dev mode if not packaged and not playwright
 
+// `productName` is ActuYNAB, but Electron derives `userData` from that name.
+// Keep the established directory so a branded desktop upgrade retains the
+// global preferences, server settings, and locally stored encryption metadata.
+if (!isPlaywrightTest) {
+  app.setPath('userData', path.join(app.getPath('appData'), 'Actual'));
+}
+
 process.env.lootCoreScript = isDev
   ? '@actual-app/core/lib-dist/electron/bundle.desktop.js' // serve from local output in development (provides hot-reloading)
   : path.resolve(BUILD_ROOT, 'loot-core/lib-dist/electron/bundle.desktop.js'); // serve from build in production
@@ -472,7 +479,10 @@ async function startSyncServer() {
       syncServerProcess.on('message', msg => {
         switch (msg.type) {
           case 'server-started':
-            logMessage('info', 'Sync-Server: Actual Sync Server has started!');
+            logMessage(
+              'info',
+              'Sync-Server: ActuYNAB sync server has started!',
+            );
             syncServerStarted = true;
             resolve();
             break;
@@ -521,7 +531,7 @@ async function createWindow() {
     y: windowState.y,
     width: windowState.width,
     height: windowState.height,
-    title: 'Actual',
+    title: 'ActuYNAB',
     webPreferences: {
       nodeIntegration: false,
       nodeIntegrationInWorker: false,
@@ -773,7 +783,7 @@ ipcMain.handle('set-document-dir', async (_event, directory: string) => {
     probeDirectory = await mkdtemp(probePrefix);
   } catch (error) {
     throw new Error(
-      `Actual is not allowed to create files in ${directory}: ${String(error)}`,
+      `ActuYNAB is not allowed to create files in ${directory}: ${String(error)}`,
     );
   }
   await rm(probeDirectory, { recursive: true, force: true }).catch(

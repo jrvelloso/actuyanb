@@ -103,7 +103,7 @@ export function SidebarSettings() {
       </SettingsRow>
       <SettingsRow
         title={t('Start page')}
-        description={t("Actual's home page.")}
+        description={t("ActuYNAB's home page.")}
         htmlFor="settings-sidebarStartPage"
         control={
           <Select

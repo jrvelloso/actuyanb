@@ -10,7 +10,7 @@ const BACKEND_IMPORT_MAX_RETRIES = 30;
  */
 export type AppInitFailurePayload = {
   type: 'app-init-failure';
-  /** The folder Actual stores budgets in could not be created or accessed. */
+  /** The folder ActuYNAB stores budgets in could not be created or accessed. */
   DocumentDirFailure?: true;
   /** The folder that could not be created (set with DocumentDirFailure). */
   path?: string;

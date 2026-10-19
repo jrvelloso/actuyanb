@@ -2,7 +2,7 @@
   "name": "desktop-electron",
   "version": "26.10.0",
   "description": "A simple and powerful personal finance system",
-  "author": "Actual",
+  "author": "ActuYNAB contributors",
   "main": "build/desktop-electron/index.js",
   "scripts": {
     "clean": "rm -rf dist",
@@ -117,10 +117,10 @@
     "appx": {
       "identityName": "actualbudget.org.ActualBudget",
       "publisherDisplayName": "actualbudget.org",
-      "displayName": "Actual Budget",
+      "displayName": "ActuYNAB",
       "publisher": "CN=19454997-90E1-4473-879D-96D6A77A6056"
     },
     "npmRebuild": false
   },
-  "productName": "Actual"
+  "productName": "ActuYNAB"
 }

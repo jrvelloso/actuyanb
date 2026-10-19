@@ -4,7 +4,7 @@
 const { themes } = require('prism-react-renderer');
 
 const defaultOptions = {
-  editUrl: 'https://github.com/actualbudget/actual/tree/master/packages/docs',
+  editUrl: 'https://github.com/jrvelloso/actuyanb/tree/master/packages/docs',
   beforeDefaultRemarkPlugins: [
     require('./src/remark/mentions'),
     require('./src/remark/enforce-doc-links'),
@@ -13,16 +13,16 @@ const defaultOptions = {
 
 /** @type {import('@docusaurus/types').Config} */
 module.exports = {
-  title: 'Actual Budget',
+  title: 'ActuYNAB',
   tagline: 'Your finances - made simple',
-  url: 'https://actualbudget.org/',
-  baseUrl: '/',
+  url: process.env.ACTUYNAB_DOCS_URL ?? 'https://jrvelloso.github.io',
+  baseUrl: process.env.ACTUYNAB_DOCS_BASE_URL ?? '/actuyanb/',
   onBrokenLinks: 'throw',
   onBrokenAnchors: 'throw',
   favicon: 'img/favicon.ico',
 
-  projectName: 'actualbudget.github.io',
-  organizationName: 'actualbudget',
+  projectName: 'actuyanb',
+  organizationName: 'jrvelloso',
   deploymentBranch: 'main',
 
   // Even if you don't use internalization, you can use this field to set useful
@@ -58,10 +58,10 @@ module.exports = {
           blogSidebarCount: 'ALL',
           feedOptions: {
             type: 'rss',
-            title: 'Actual Budget Blog',
+            title: 'Actual Budget upstream news',
             description:
-              'Stay updated with the latest blog posts from Actual Budget',
-            copyright: `Copyright © ${new Date().getFullYear()} Actual Budget. All rights reserved.`,
+              'Read news retained from the Actual Budget upstream project',
+            copyright: `Copyright © ${new Date().getFullYear()} ActuYNAB. All rights reserved.`,
           },
           onUntruncatedBlogPosts: 'ignore',
         },
@@ -76,9 +76,9 @@ module.exports = {
     ({
       image: 'img/og.webp',
       navbar: {
-        title: 'Actual Budget',
+        title: 'ActuYNAB',
         logo: {
-          alt: 'Actual Open Source',
+          alt: 'ActuYNAB',
           src: 'img/logo.webp',
         },
         items: [
@@ -103,13 +103,13 @@ module.exports = {
           },
           {
             to: 'blog',
-            label: 'Blog',
+            label: 'Upstream news',
             position: 'left',
           },
           {
             type: 'docSidebar',
             sidebarId: 'communitySidebar',
-            label: 'Community',
+            label: 'Upstream community',
             position: 'left',
           },
           {
@@ -118,17 +118,12 @@ module.exports = {
             position: 'left',
           },
           {
-            href: 'https://opencollective.com/actual',
-            label: 'Donate',
-            position: 'left',
-          },
-          {
             href: 'https://discord.gg/8JfAXSgfRf',
-            label: 'Discord',
+            label: 'Actual Budget Discord',
             position: 'right',
           },
           {
-            href: 'https://github.com/actualbudget/actual',
+            href: 'https://github.com/jrvelloso/actuyanb',
             label: 'GitHub',
             position: 'right',
           },
@@ -138,20 +133,16 @@ module.exports = {
         style: 'dark',
         links: [
           {
-            label: 'Discord',
+            label: 'Actual Budget Discord',
             href: 'https://discord.gg/8JfAXSgfRf',
           },
           {
             label: 'GitHub',
-            href: 'https://github.com/actualbudget/actual',
-          },
-          {
-            href: 'https://opencollective.com/actual',
-            label: 'Donate',
+            href: 'https://github.com/jrvelloso/actuyanb',
           },
           {
             label: 'Website Source',
-            href: 'https://github.com/actualbudget/actual/tree/master/packages/docs',
+            href: 'https://github.com/jrvelloso/actuyanb/tree/master/packages/docs',
           },
           {
             label: 'Privacy Policy',
@@ -162,7 +153,7 @@ module.exports = {
             href: 'https://actualbudget.org/blog/rss.xml',
           },
         ],
-        copyright: `Copyright © ${new Date().getFullYear()} Actual Budget. Built with Docusaurus.`,
+        copyright: `Copyright © ${new Date().getFullYear()} ActuYNAB. Built with Docusaurus.`,
       },
       prism: {
         theme: themes.github,

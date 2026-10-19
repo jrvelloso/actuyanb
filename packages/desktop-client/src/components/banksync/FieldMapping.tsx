@@ -115,7 +115,9 @@ export function FieldMapping({
                 size="medium"
                 style={{ whiteSpace: 'nowrap', fontWeight: 500 }}
               >
-                {calculatedActualFieldWidth > 70 ? t('Actual field') : 'Actual'}
+                {calculatedActualFieldWidth > 70
+                  ? t('ActuYNAB field')
+                  : 'ActuYNAB'}
               </Text>
             </Cell>
             <Cell value="" width={arrowCellWidth} style={{ padding: 0 }} />

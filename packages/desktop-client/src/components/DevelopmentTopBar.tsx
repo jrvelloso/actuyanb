@@ -18,12 +18,12 @@ export function DevelopmentTopBar() {
         flexShrink: 0,
       }}
     >
-      <View>This is a demo build of Actual.</View>
+      <View>This is a demo build of ActuYNAB.</View>
       <View>
         <Link
           variant="external"
           linkColor="purple"
-          to={`https://github.com/actualbudget/actual/pull/${import.meta.env.REACT_APP_REVIEW_ID}`}
+          to={`https://github.com/jrvelloso/actuyanb/pull/${import.meta.env.REACT_APP_REVIEW_ID}`}
         >
           Open the PR: #{import.meta.env.REACT_APP_REVIEW_ID}
         </Link>
