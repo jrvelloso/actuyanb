@@ -289,4 +289,314 @@
   --color-chartQual7: var(--palette-chartQual7);
   --color-chartQual8: var(--palette-chartQual8);
   --color-chartQual9: var(--palette-chartQual9);
+
+  /* ActuYNAB semantic foundation. Dark controls use bright accents with a
+     dark foreground so their contrast remains readable. */
+  --color-surfaceBase: var(--palette-actuynab-backgroundDark);
+  --color-surfaceRaised: var(--palette-actuynab-surfaceDark);
+  --color-surfaceElevated: var(--palette-actuynab-surfaceDarkElevated);
+  --color-surfaceSunken: #08101e;
+  --color-surfaceNavigation: #08101e;
+  --color-textPrimary: #f8fafc;
+  --color-textSecondary: #cbd5e1;
+  --color-textMuted: #94a3b8;
+  --color-textOnAccent: #082f2a;
+  --color-borderSubtle: #233149;
+  --color-borderStrong: #334155;
+  --color-accentPrimary: var(--palette-actuynab-teal400);
+  --color-accentPrimaryHover: var(--palette-actuynab-teal300);
+  --color-accentPrimarySubtle: color-mix(
+    in srgb,
+    var(--palette-actuynab-teal400) 18%,
+    var(--color-surfaceRaised)
+  );
+  --color-focusRing: var(--palette-actuynab-teal300);
+  --color-statusSuccess: var(--palette-actuynab-success400);
+  --color-statusSuccessSubtle: color-mix(
+    in srgb,
+    var(--palette-actuynab-success400) 18%,
+    var(--color-surfaceRaised)
+  );
+  --color-statusWarning: var(--palette-actuynab-warning400);
+  --color-statusWarningSubtle: color-mix(
+    in srgb,
+    var(--palette-actuynab-warning400) 18%,
+    var(--color-surfaceRaised)
+  );
+  --color-statusDanger: var(--palette-actuynab-danger400);
+  --color-statusDangerSubtle: color-mix(
+    in srgb,
+    var(--palette-actuynab-danger400) 18%,
+    var(--color-surfaceRaised)
+  );
+  --color-statusInformation: var(--palette-actuynab-info400);
+  --color-statusInformationSubtle: color-mix(
+    in srgb,
+    var(--palette-actuynab-info400) 18%,
+    var(--color-surfaceRaised)
+  );
+  --color-scrollbarTrack: var(--color-surfaceRaised);
+  --color-scrollbarThumb: #64748b;
+  --color-shadowCard: 0 1px 2px rgb(0 0 0 / 0.24), 0 3px 10px rgb(0 0 0 / 0.2);
+  --color-shadowAmbient: 0 3px 8px rgb(0 0 0 / 0.3);
+  --color-shadowLarge:
+    0 18px 36px rgb(0 0 0 / 0.42), 0 8px 16px rgb(0 0 0 / 0.24);
+
+  /* Preserve upstream aliases while moving their primary/status hue to the
+     ActuYNAB palette. */
+  --palette-purple50: var(--palette-actuynab-teal50);
+  --palette-purple100: var(--palette-actuynab-teal100);
+  --palette-purple125: var(--palette-actuynab-teal100);
+  --palette-purple150: var(--palette-actuynab-teal200);
+  --palette-purple200: var(--palette-actuynab-teal200);
+  --palette-purple300: var(--palette-actuynab-teal300);
+  --palette-purple400: var(--palette-actuynab-teal400);
+  --palette-purple500: var(--palette-actuynab-teal500);
+  --palette-purple600: var(--palette-actuynab-teal600);
+  --palette-purple700: var(--palette-actuynab-teal700);
+  --palette-purple800: var(--palette-actuynab-teal800);
+  --palette-purple900: var(--palette-actuynab-teal900);
+
+  --color-pageBackground: var(--color-surfaceBase);
+  --color-pageBackgroundModalActive: var(--color-surfaceElevated);
+  --color-pageBackgroundTopLeft: var(--color-surfaceBase);
+  --color-pageBackgroundBottomRight: var(--color-surfaceElevated);
+  --color-pageBackgroundLineTop: var(--color-accentPrimary);
+  --color-pageBackgroundLineMid: var(--color-surfaceNavigation);
+  --color-pageBackgroundLineBottom: var(--color-borderStrong);
+  --color-pageText: var(--color-textPrimary);
+  --color-pageTextLight: var(--color-textSecondary);
+  --color-pageTextSubdued: var(--color-textMuted);
+  --color-pageTextDark: var(--color-textPrimary);
+  --color-pageTextPositive: var(--color-statusSuccess);
+  --color-pageTextLink: var(--color-statusInformation);
+  --color-pageTextLinkLight: var(--palette-actuynab-info300);
+
+  --color-cardBackground: var(--color-surfaceRaised);
+  --color-cardBorder: var(--color-borderSubtle);
+  --color-cardShadow: var(--color-shadowCard);
+  --color-tableBackground: var(--color-surfaceRaised);
+  --color-tableRowBackgroundAlternate: var(--color-tableBackground);
+  --color-tableRowBackgroundHover: var(--color-surfaceElevated);
+  --color-tableText: var(--color-textPrimary);
+  --color-tableTextItemAdded: var(--color-textPrimary);
+  --color-tableTextLight: var(--color-textSecondary);
+  --color-tableTextSubdued: var(--color-textMuted);
+  --color-tableTextSelected: var(--color-textPrimary);
+  --color-tableTextHover: var(--color-textPrimary);
+  --color-tableTextInactive: var(--color-textMuted);
+  --color-tableHeaderText: var(--color-textSecondary);
+  --color-tableHeaderBackground: var(--color-surfaceElevated);
+  --color-tableBorder: var(--color-borderSubtle);
+  --color-tableBorderSelected: var(--color-accentPrimary);
+  --color-tableBorderHover: var(--color-accentPrimaryHover);
+  --color-tableBorderSeparator: var(--color-borderStrong);
+  --color-tableRowBackgroundHighlight: var(--color-accentPrimarySubtle);
+  --color-tableRowBackgroundHighlightText: var(--color-textPrimary);
+  --color-tableRowHeaderBackground: var(--color-surfaceElevated);
+  --color-tableRowHeaderText: var(--color-textPrimary);
+
+  --color-numberPositive: var(--color-statusSuccess);
+  --color-numberNegative: var(--color-statusDanger);
+  --color-numberNeutral: var(--color-textSecondary);
+  --color-budgetNumberNegative: var(--color-statusDanger);
+  --color-budgetNumberZero: var(--color-textMuted);
+  --color-budgetNumberNeutral: var(--color-tableText);
+  --color-budgetNumberPositive: var(--color-tableText);
+  --color-templateNumberFunded: var(--color-statusSuccess);
+  --color-templateNumberUnderFunded: var(--color-statusWarning);
+  --color-toBudgetPositive: var(--color-statusSuccess);
+  --color-toBudgetZero: var(--color-statusSuccess);
+  --color-toBudgetNegative: var(--color-statusDanger);
+
+  --color-sidebarBackground: var(--color-surfaceNavigation);
+  --color-sidebarItemBackgroundPending: var(--color-statusWarning);
+  --color-sidebarItemBackgroundPositive: var(--color-statusSuccess);
+  --color-sidebarItemBackgroundFailed: var(--color-statusDanger);
+  --color-sidebarItemBackgroundHover: color-mix(
+    in srgb,
+    var(--color-accentPrimary) 14%,
+    var(--color-surfaceNavigation)
+  );
+  --color-sidebarItemAccentSelected: var(--palette-actuynab-teal300);
+  --color-sidebarItemBackgroundSelected: color-mix(
+    in srgb,
+    var(--color-sidebarItemAccentSelected) 18%,
+    var(--color-surfaceNavigation)
+  );
+  --color-sidebarItemText: var(--color-textSecondary);
+  --color-sidebarItemTextUpdated: var(--color-sidebarItemText);
+  --color-sidebarItemTextSelected: var(--palette-actuynab-teal200);
+  --color-sidebarBudgetName: var(--color-textSecondary);
+  --color-sidebarHeaderText: var(--color-textPrimary);
+  --color-sidebarTextSubdued: var(--color-textMuted);
+  --color-sidebarTextMuted: #64748b;
+  --color-sidebarTextPositive: var(--color-statusSuccess);
+  --color-sidebarTextFailed: var(--color-statusDanger);
+  --color-sidebarBackgroundFailedSubtle: color-mix(
+    in srgb,
+    var(--color-statusDanger) 18%,
+    transparent
+  );
+  --color-sidebarBorder: var(--color-borderSubtle);
+  --color-sidebarControlBackground: var(--color-surfaceElevated);
+  --color-sidebarBrand: var(--color-sidebarItemAccentSelected);
+
+  --color-settingsCardBackground: var(--color-surfaceRaised);
+  --color-settingsCardBorder: var(--color-borderSubtle);
+  --color-settingsCardText: var(--color-textPrimary);
+  --color-settingsCardTextSubdued: var(--color-textSecondary);
+  --color-settingsNavItemText: var(--color-textPrimary);
+  --color-settingsNavItemBackgroundHover: var(--color-surfaceElevated);
+  --color-settingsNavItemAccentSelected: var(--color-accentPrimary);
+  --color-settingsNavItemTextSelected: var(--color-accentPrimary);
+  --color-settingsNavItemBackgroundSelected: var(--color-accentPrimarySubtle);
+
+  --color-menuBackground: var(--color-surfaceElevated);
+  --color-menuItemBackground: var(--color-surfaceElevated);
+  --color-menuItemBackgroundHover: #233149;
+  --color-menuItemText: var(--color-textPrimary);
+  --color-menuItemTextHover: var(--color-textPrimary);
+  --color-menuItemTextSelected: var(--color-accentPrimary);
+  --color-menuItemTextHeader: var(--color-textMuted);
+  --color-menuBorder: var(--color-borderSubtle);
+  --color-menuBorderHover: var(--color-accentPrimarySubtle);
+  --color-menuKeybindingText: var(--color-textMuted);
+  --color-menuAutoCompleteBackground: var(--color-surfaceNavigation);
+  --color-menuAutoCompleteBackgroundHover: var(--color-surfaceElevated);
+  --color-menuAutoCompleteText: var(--color-textPrimary);
+  --color-menuAutoCompleteTextHover: var(--palette-actuynab-teal200);
+  --color-menuAutoCompleteTextHeader: var(--palette-actuynab-warning300);
+  --color-menuAutoCompleteItemTextHover: var(--color-menuAutoCompleteText);
+  --color-menuAutoCompleteItemText: var(--color-menuAutoCompleteText);
+  --color-modalBackground: var(--color-surfaceElevated);
+  --color-modalBorder: var(--color-borderStrong);
+
+  --color-mobileHeaderBackground: var(--color-accentPrimary);
+  --color-mobileHeaderText: var(--color-textOnAccent);
+  --color-mobileHeaderTextSubdued: var(--palette-actuynab-teal900);
+  --color-mobileHeaderTextHover: color-mix(
+    in srgb,
+    var(--color-textOnAccent) 16%,
+    transparent
+  );
+  --color-mobilePageBackground: var(--color-surfaceBase);
+  --color-mobileNavBackground: var(--color-surfaceRaised);
+  --color-mobileNavItem: var(--color-textMuted);
+  --color-mobileNavItemSelected: var(--color-accentPrimary);
+  --color-mobileAccountShadow: var(--color-borderStrong);
+  --color-mobileAccountText: var(--color-statusInformation);
+  --color-mobileTransactionSelected: var(--color-accentPrimary);
+  --color-mobileViewTheme: var(--color-mobileHeaderBackground);
+  --color-mobileConfigServerViewTheme: var(--color-accentPrimary);
+
+  --color-buttonPrimaryText: var(--color-textOnAccent);
+  --color-buttonPrimaryTextHover: var(--color-textOnAccent);
+  --color-buttonPrimaryBackground: var(--color-accentPrimary);
+  --color-buttonPrimaryBackgroundHover: var(--color-accentPrimaryHover);
+  --color-buttonPrimaryBorder: var(--color-accentPrimary);
+  --color-buttonPrimaryShadow: var(--color-shadowAmbient);
+  --color-buttonPrimaryDisabledText: var(--color-textMuted);
+  --color-buttonPrimaryDisabledBackground: var(--color-surfaceElevated);
+  --color-buttonPrimaryDisabledBorder: var(--color-borderSubtle);
+  --color-buttonNormalText: var(--color-textPrimary);
+  --color-buttonNormalTextHover: var(--color-textPrimary);
+  --color-buttonNormalBackground: var(--color-surfaceRaised);
+  --color-buttonNormalBackgroundHover: var(--color-surfaceElevated);
+  --color-buttonNormalBorder: var(--color-borderStrong);
+  --color-buttonNormalShadow: var(--color-shadowAmbient);
+  --color-buttonNormalSelectedText: var(--color-textOnAccent);
+  --color-buttonNormalSelectedBackground: var(--color-statusInformation);
+  --color-buttonNormalDisabledText: var(--color-textMuted);
+  --color-buttonNormalDisabledBackground: var(--color-surfaceElevated);
+  --color-buttonNormalDisabledBorder: var(--color-borderSubtle);
+  --color-buttonBareText: var(--color-textPrimary);
+  --color-buttonBareTextHover: var(--color-textPrimary);
+  --color-buttonBareDisabledText: var(--color-textMuted);
+  --color-buttonBareBackground: transparent;
+  --color-buttonBareDisabledBackground: transparent;
+  --color-buttonBareBackgroundHover: var(--color-surfaceElevated);
+  --color-buttonBareBackgroundActive: #233149;
+
+  --color-noticeBackground: var(--color-statusSuccessSubtle);
+  --color-noticeBackgroundLight: var(--color-statusSuccessSubtle);
+  --color-noticeBackgroundDark: var(--color-statusSuccess);
+  --color-noticeText: var(--color-statusSuccess);
+  --color-noticeTextLight: var(--color-statusSuccess);
+  --color-noticeTextDark: var(--palette-actuynab-success300);
+  --color-noticeTextMenu: var(--palette-actuynab-success300);
+  --color-noticeBorder: var(--color-statusSuccess);
+  --color-warningBackground: var(--color-statusWarningSubtle);
+  --color-warningText: var(--color-statusWarning);
+  --color-warningTextLight: var(--color-statusWarning);
+  --color-warningTextDark: var(--palette-actuynab-warning300);
+  --color-warningBorder: var(--color-statusWarning);
+  --color-errorBackground: var(--color-statusDangerSubtle);
+  --color-errorText: var(--color-statusDanger);
+  --color-errorTextDark: var(--color-statusDanger);
+  --color-errorTextDarker: var(--palette-actuynab-danger300);
+  --color-errorTextMenu: var(--palette-actuynab-danger300);
+  --color-errorBorder: var(--color-statusDanger);
+  --color-upcomingBackground: var(--color-statusInformationSubtle);
+  --color-upcomingText: var(--color-statusInformation);
+  --color-upcomingBorder: var(--color-statusInformation);
+
+  --color-formLabelText: var(--color-accentPrimary);
+  --color-formLabelBackground: var(--color-statusInformationSubtle);
+  --color-formInputBackground: var(--color-surfaceRaised);
+  --color-formInputBackgroundSelected: var(--color-surfaceElevated);
+  --color-formInputBackgroundSelection: var(--color-accentPrimary);
+  --color-formInputBorder: var(--color-borderStrong);
+  --color-formInputTextReadOnlySelection: var(--color-surfaceRaised);
+  --color-formInputBorderSelected: var(--color-accentPrimary);
+  --color-formInputText: var(--color-textPrimary);
+  --color-formInputTextSelected: var(--color-textOnAccent);
+  --color-formInputTextPlaceholder: var(--color-textMuted);
+  --color-formInputTextPlaceholderSelected: var(--color-accentPrimarySubtle);
+  --color-formInputTextSelection: var(--color-textPrimary);
+  --color-formInputShadowSelected: var(--color-focusRing);
+  --color-formInputTextHighlight: var(--color-accentPrimarySubtle);
+  --color-checkboxText: var(--color-surfaceNavigation);
+  --color-checkboxBackgroundSelected: var(--color-accentPrimary);
+  --color-checkboxBorderSelected: var(--color-accentPrimary);
+  --color-checkboxShadowSelected: var(--color-focusRing);
+  --color-checkboxToggleBackground: var(--color-borderStrong);
+  --color-checkboxToggleBackgroundSelected: var(--color-accentPrimary);
+  --color-checkboxToggleDisabled: var(--color-surfaceElevated);
+
+  --color-pillBackground: var(--color-surfaceElevated);
+  --color-pillBackgroundLight: var(--color-surfaceRaised);
+  --color-pillText: var(--color-textPrimary);
+  --color-pillTextHighlighted: var(--color-accentPrimary);
+  --color-pillBorder: var(--color-borderSubtle);
+  --color-pillBorderDark: var(--color-borderStrong);
+  --color-pillBackgroundSelected: var(--color-accentPrimarySubtle);
+  --color-pillTextSelected: var(--palette-actuynab-teal200);
+  --color-pillBorderSelected: var(--color-accentPrimary);
+  --color-pillTextSubdued: var(--color-textMuted);
+  --color-reportsRed: var(--color-statusDanger);
+  --color-reportsBlue: var(--color-statusInformation);
+  --color-reportsGreen: var(--color-statusSuccess);
+  --color-reportsGray: var(--color-textMuted);
+  --color-reportsLabel: var(--color-textPrimary);
+  --color-reportsInnerLabel: var(--color-textSecondary);
+  --color-noteTagBackground: var(--color-accentPrimarySubtle);
+  --color-noteTagBackgroundHover: color-mix(
+    in srgb,
+    var(--color-accentPrimary) 30%,
+    var(--color-surfaceRaised)
+  );
+  --color-noteTagDefault: var(--color-accentPrimarySubtle);
+  --color-noteTagText: var(--color-textPrimary);
+  --color-budgetOtherMonth: var(--color-surfaceSunken);
+  --color-budgetCurrentMonth: var(--color-tableBackground);
+  --color-budgetHeaderOtherMonth: var(--color-surfaceNavigation);
+  --color-budgetHeaderCurrentMonth: var(--color-tableHeaderBackground);
+  --color-floatingActionBarBackground: var(--color-accentPrimary);
+  --color-floatingActionBarBorder: var(--color-accentPrimaryHover);
+  --color-floatingActionBarText: var(--color-textOnAccent);
+  --color-tooltipText: var(--color-textPrimary);
+  --color-tooltipBackground: var(--color-surfaceElevated);
+  --color-tooltipBorder: var(--color-borderStrong);
+  --color-calendarCellBackground: var(--color-surfaceSunken);
 }

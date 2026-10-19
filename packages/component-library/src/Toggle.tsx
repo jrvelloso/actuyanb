@@ -78,10 +78,10 @@ export const Toggle = ({
               height: '12px',
               borderRadius: '100px',
               transition: '0.2s',
-              boxShadow: '0 0 2px 0 rgba(10, 10, 10, 0.29)',
+              boxShadow: theme.shadowCard,
               backgroundColor: isDisabled
                 ? theme.checkboxToggleDisabled
-                : '#fff',
+                : theme.checkboxText,
             },
             isOn && {
               left: 'calc(100% - 2px)',

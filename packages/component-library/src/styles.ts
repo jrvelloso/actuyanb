@@ -9,12 +9,12 @@ export type CSSProperties = Record<string, any>;
 const MOBILE_MIN_HEIGHT = 40;
 
 const shadowLarge = {
-  boxShadow: '0 15px 30px 0 rgba(0,0,0,0.11), 0 5px 15px 0 rgba(0,0,0,0.08)',
+  boxShadow: theme.shadowLarge,
 };
 
 export const styles: CSSProperties = {
   incomeHeaderHeight: 70,
-  cardShadow: '0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.24)',
+  cardShadow: theme.shadowCard,
   monthRightPadding: 5,
   menuBorderRadius: 4,
   mobileMinHeight: MOBILE_MIN_HEIGHT,
@@ -86,7 +86,7 @@ export const styles: CSSProperties = {
     userSelect: 'none',
   },
   shadow: {
-    boxShadow: '0 2px 4px 0 rgba(0,0,0,0.1)',
+    boxShadow: theme.shadowAmbient,
   },
   shadowLarge,
   tnum: {

@@ -81,7 +81,7 @@ const buildInputClassName = (
     flexShrink: 0,
     '&[data-focused]': {
       border: '1px solid ' + theme.formInputBorderSelected,
-      boxShadow: '0 1px 1px ' + theme.formInputShadowSelected,
+      boxShadow: '0 0 0 2px ' + theme.focusRing,
     },
     '&[data-disabled]': {
       color: theme.formInputTextPlaceholder,

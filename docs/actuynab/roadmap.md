@@ -324,6 +324,20 @@ category column remains sticky; the standard Actual view remains available.
 The work has no migration, accounting model, or new financial storage. See
 [Multi-month budget grid](multi-month-budget.md).
 
+## M15 - visual identity foundation - in progress, stacked on M14
+
+**Goal:** give ActuYNAB a calm, accessible visual language while preserving
+Actual's native financial interactions and the M14 multi-month layout.
+
+M15 centralizes light/dark semantic surface, text, border, accent, status,
+focus, scrollbar, and shadow roles in the existing component-library theme
+layer. It applies the roles to shared controls and compact sidebar selection,
+leaves `FinancialText`, native budget-cell editing, calculation, sync, and
+persistence paths intact, and reserves a semantic `sidebarBrand` integration
+point for an approved leaf logo. Three months remain side by side with the
+sticky category column; no permanent detail panel is added. See [Visual
+identity foundation](visual-identity.md).
+
 ## Deferred evaluation
 
 Open Banking/PSD2 automation, advanced forecasts, PWA capabilities, and a SaaS
