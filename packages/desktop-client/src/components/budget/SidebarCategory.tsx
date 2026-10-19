@@ -124,6 +124,7 @@ export function SidebarCategory({
   return (
     <View
       innerRef={innerRef}
+      className="actuynab-budget-grid-sidebar actuynab-budget-grid-sidebar-category"
       style={{
         width: 200 + 100 * categoryExpandedState,
         overflow: 'hidden',

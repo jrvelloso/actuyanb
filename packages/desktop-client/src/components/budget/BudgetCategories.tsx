@@ -43,6 +43,7 @@ type LocalDragState =
 type BudgetCategoriesProps = {
   categoryGroups: CategoryGroupEntity[];
   editingCell: { id: string; cell: string } | null;
+  isMultiMonthGrid?: boolean;
   onBudgetAction: (month: string, action: string, arg: unknown) => void;
   onShowActivity: (id: CategoryEntity['id'], month?: string) => void;
   onEditName: (id: CategoryEntity['id']) => void;
@@ -64,6 +65,7 @@ export const BudgetCategories = memo<BudgetCategoriesProps>(
   ({
     categoryGroups,
     editingCell,
+    isMultiMonthGrid = false,
     onBudgetAction,
     onShowActivity,
     onEditName,
@@ -239,7 +241,7 @@ export const BudgetCategories = memo<BudgetCategoriesProps>(
         style={{
           marginBottom: 10,
           backgroundColor: theme.budgetCurrentMonth, // match budget colors, not generic table colors.
-          overflow: 'hidden',
+          overflow: isMultiMonthGrid ? 'visible' : 'hidden',
           boxShadow: styles.cardShadow,
           borderRadius: '0 0 4px 4px',
           flex: 1,

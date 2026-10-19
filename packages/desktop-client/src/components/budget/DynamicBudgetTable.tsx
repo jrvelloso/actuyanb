@@ -16,7 +16,9 @@ import { useBudgetMonthCount } from './BudgetMonthCountContext';
 import { BudgetPageHeader } from './BudgetPageHeader';
 import { BudgetTable } from './BudgetTable';
 
-function getNumPossibleMonths(width: number, categoryWidth: number) {
+export const YNAB4_GRID_MONTHS = 3;
+
+export function getNumPossibleMonths(width: number, categoryWidth: number) {
   const estimatedTableWidth = width - categoryWidth;
 
   if (estimatedTableWidth < 500) {
@@ -34,6 +36,31 @@ function getNumPossibleMonths(width: number, categoryWidth: number) {
   return 6;
 }
 
+export function getBudgetMonthLayout({
+  width,
+  categoryWidth,
+  maxMonths,
+  isMultiMonthGrid,
+}: {
+  width: number;
+  categoryWidth: number;
+  maxMonths: number;
+  isMultiMonthGrid: boolean;
+}) {
+  const numPossible = getNumPossibleMonths(width, categoryWidth);
+  const numMonths = isMultiMonthGrid
+    ? YNAB4_GRID_MONTHS
+    : Math.min(numPossible, maxMonths);
+  const minWidth = categoryWidth + 500 * numMonths;
+
+  return {
+    minWidth,
+    numMonths,
+    numPossible,
+    requiresHorizontalScroll: isMultiMonthGrid && width < minWidth,
+  };
+}
+
 type DynamicBudgetTableProps = {
   width: number;
   height: number;
@@ -46,6 +73,7 @@ const DynamicBudgetTable = ({
   prewarmStartMonth,
   startMonth,
   maxMonths = 3,
+  isMultiMonthGrid = false,
   monthBounds,
   onMonthSelect,
   onBudgetAction,
@@ -56,12 +84,13 @@ const DynamicBudgetTable = ({
   const isGoalTemplatesEnabled = useFeatureFlag('goalTemplatesEnabled');
   const categoryExpandedState = categoryExpandedStatePref ?? 0;
 
-  const numPossible = getNumPossibleMonths(
+  const categoryWidth = 200 + 100 * categoryExpandedState;
+  const { minWidth, numMonths, numPossible } = getBudgetMonthLayout({
     width,
-    200 + 100 * categoryExpandedState,
-  );
-  const numMonths = Math.min(numPossible, maxMonths);
-  const maxWidth = 200 + 100 * categoryExpandedState + 500 * numMonths;
+    categoryWidth,
+    maxMonths,
+    isMultiMonthGrid,
+  });
 
   useEffect(() => {
     setDisplayMax(numPossible);
@@ -147,7 +176,13 @@ const DynamicBudgetTable = ({
         opacity: width <= 0 || height <= 0 ? 0 : 1,
       }}
     >
-      <View style={{ width: '100%', maxWidth }}>
+      <View
+        style={{
+          width: '100%',
+          maxWidth: minWidth,
+          height: isMultiMonthGrid ? '100%' : undefined,
+        }}
+      >
         <ErrorBoundary FallbackComponent={FeatureErrorFallback}>
           <BudgetPageHeader
             startMonth={prewarmStartMonth}
@@ -162,6 +197,8 @@ const DynamicBudgetTable = ({
             numMonths={numMonths}
             monthBounds={monthBounds}
             onBudgetAction={onBudgetAction}
+            isMultiMonthGrid={isMultiMonthGrid}
+            gridMinWidth={minWidth}
             {...props}
           />
         </ErrorBoundary>
@@ -177,6 +214,7 @@ type AutoSizingBudgetTableProps = Omit<
   'numMonths'
 > & {
   maxMonths: number;
+  isMultiMonthGrid?: boolean;
   onMonthSelect: (month: string, numMonths: number) => void;
 };
 

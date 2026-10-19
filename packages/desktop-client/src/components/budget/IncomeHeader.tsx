@@ -21,6 +21,7 @@ export function IncomeHeader({ onShowNewGroup }: IncomeHeaderProps) {
   return (
     <View style={{ flexDirection: 'row', flex: 1 }}>
       <View
+        className="actuynab-budget-grid-sidebar actuynab-budget-grid-sidebar-category"
         style={{
           width: 200 + 100 * categoryExpandedState,
           alignItems: 'flex-start',

@@ -81,6 +81,7 @@ export const BudgetTotals = memo(function BudgetTotals({
       }}
     >
       <View
+        className="actuynab-budget-grid-sidebar-header"
         style={{
           width: 200 + 100 * categoryExpandedState,
           color: theme.tableHeaderText,

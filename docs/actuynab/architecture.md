@@ -104,6 +104,13 @@ service; it is not a replacement database for budget calculations.
     category records through Actual's normal category API. No dashboard,
     preview, or sidebar component writes a financial record. See
     [YNAB 4-inspired experience](ynab4-experience.md).
+14. **Multi-month native budget grid.** M14 is an opt-in envelope-Budget
+    presentation that composes Actual's existing month-sheet providers,
+    `SheetCell` editor, and `budget/budget-amount` undoable handler. Its local
+    layout preference has no CRDT record, while the allocation mutation keeps
+    Actual's normal SQLite/CRDT sync path. It never reimplements availability,
+    carryover, transfers, card payments, or tracking-account calculations. See
+    [Multi-month budget grid](multi-month-budget.md).
 
 ## Financial correctness constraints
 

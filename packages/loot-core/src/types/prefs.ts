@@ -104,6 +104,12 @@ export type LocalPrefs = Partial<{
   'budget.summaryCollapsed': boolean;
   'budget.showHiddenCategories': boolean;
   'budget.startMonth': string;
+  /**
+   * Displays the envelope budget with three native month sheets side by side.
+   * This remains local so a user can compare it with Actual's standard view
+   * without changing another device's layout.
+   */
+  'budget.ynab4MultiMonthGrid': boolean;
   'flags.updateNotificationShownForVersion': string;
   'tour.introSeen': boolean;
   'schedules.showCompleted': boolean;

@@ -45,6 +45,7 @@ export function Budget() {
   );
   const [startMonthPref, setStartMonthPref] = useLocalPref('budget.startMonth');
   const startMonth = startMonthPref || currentMonth;
+  const [ynab4MultiMonthGrid] = useLocalPref('budget.ynab4MultiMonthGrid');
   const [bounds, setBounds] = useState({
     start: startMonth,
     end: startMonth,
@@ -52,6 +53,8 @@ export function Budget() {
   const [budgetType = 'envelope'] = useSyncedPref('budgetType');
   const [maxMonthsPref] = useGlobalPref('maxMonths');
   const maxMonths = maxMonthsPref || 1;
+  const isMultiMonthGrid =
+    budgetType === 'envelope' && ynab4MultiMonthGrid === true;
   const [initialized, setInitialized] = useState(false);
   const { data: { grouped: categoryGroups } = { grouped: [] } } =
     useCategories();
@@ -193,6 +196,7 @@ export function Budget() {
           startMonth={startMonth}
           monthBounds={bounds}
           maxMonths={maxMonths}
+          isMultiMonthGrid={isMultiMonthGrid}
           onMonthSelect={onMonthSelect}
           onDeleteCategory={onDeleteCategory}
           onDeleteGroup={onDeleteCategoryGroup}
@@ -222,6 +226,7 @@ export function Budget() {
           startMonth={startMonth}
           monthBounds={bounds}
           maxMonths={maxMonths}
+          isMultiMonthGrid={isMultiMonthGrid}
           onMonthSelect={onMonthSelect}
           onDeleteCategory={onDeleteCategory}
           onDeleteGroup={onDeleteCategoryGroup}

@@ -33,6 +33,8 @@ type BudgetTableProps = {
   prewarmStartMonth: string;
   startMonth: string;
   numMonths: number;
+  isMultiMonthGrid?: boolean;
+  gridMinWidth?: number;
   monthBounds: MonthBounds;
   onSaveCategory: (category: CategoryEntity) => void;
   onDeleteCategory: (id: CategoryEntity['id']) => void;
@@ -64,6 +66,8 @@ export function BudgetTable(props: BudgetTableProps) {
     prewarmStartMonth,
     startMonth,
     numMonths,
+    isMultiMonthGrid = false,
+    gridMinWidth,
     monthBounds,
     onSaveCategory,
     onDeleteCategory,
@@ -247,9 +251,32 @@ export function BudgetTable(props: BudgetTableProps) {
 
   return (
     <View
+      innerRef={isMultiMonthGrid ? scrollContainerRef : undefined}
       data-testid="budget-table"
+      data-multi-month-grid={isMultiMonthGrid || undefined}
       style={{
         flex: 1,
+        ...(isMultiMonthGrid && {
+          overflow: 'auto',
+          overscrollBehavior: 'contain',
+          '& .actuynab-budget-grid-sidebar': {
+            left: 0,
+            position: 'sticky',
+            zIndex: 2,
+          },
+          '& .actuynab-budget-grid-sidebar-category': {
+            backgroundColor: theme.budgetCurrentMonth,
+          },
+          '& .actuynab-budget-grid-sidebar-group': {
+            backgroundColor: theme.budgetHeaderCurrentMonth,
+          },
+          '& .actuynab-budget-grid-sidebar-header': {
+            backgroundColor: theme.budgetCurrentMonth,
+            left: 0,
+            position: 'sticky',
+            zIndex: 3,
+          },
+        }),
         ...(styles.lightScrollbar && {
           '& ::-webkit-scrollbar': {
             backgroundColor: 'transparent',
@@ -263,75 +290,83 @@ export function BudgetTable(props: BudgetTableProps) {
     >
       <View
         style={{
-          flexDirection: 'row',
-          overflow: 'hidden',
+          minWidth: isMultiMonthGrid ? gridMinWidth : undefined,
           flexShrink: 0,
-          // This is necessary to align with the table because the
-          // table has this padding to allow the shadow to show
-          paddingLeft: 5,
-          paddingRight: 5 + getScrollbarWidth(),
         }}
       >
-        <View style={{ width: 200 + 100 * categoryExpandedState }} />
+        <View
+          style={{
+            flexDirection: 'row',
+            overflow: 'hidden',
+            flexShrink: 0,
+            // This is necessary to align with the table because the
+            // table has this padding to allow the shadow to show
+            paddingLeft: 5,
+            paddingRight: 5 + getScrollbarWidth(),
+          }}
+        >
+          <View style={{ width: 200 + 100 * categoryExpandedState }} />
+          <MonthsProvider
+            startMonth={prewarmStartMonth}
+            numMonths={numMonths}
+            monthBounds={monthBounds}
+            type={type}
+          >
+            <BudgetSummaries />
+          </MonthsProvider>
+        </View>
+
         <MonthsProvider
-          startMonth={prewarmStartMonth}
+          startMonth={startMonth}
           numMonths={numMonths}
           monthBounds={monthBounds}
           type={type}
         >
-          <BudgetSummaries />
+          <BudgetTotals
+            toggleHiddenCategories={toggleHiddenCategories}
+            expandAllCategories={expandAllCategories}
+            collapseAllCategories={collapseAllCategories}
+          />
+          <View
+            innerRef={!isMultiMonthGrid ? scrollContainerRef : undefined}
+            data-testid="budget-table-scroll-container"
+            style={{
+              overflowY: isMultiMonthGrid ? 'visible' : 'scroll',
+              overflowAnchor: 'none',
+              flex: isMultiMonthGrid ? undefined : 1,
+              paddingLeft: 5,
+              paddingRight: 5,
+            }}
+          >
+            <View
+              style={{
+                flexShrink: 0,
+              }}
+              onKeyDown={onKeyDown}
+            >
+              <SchedulesProvider query={schedulesQuery}>
+                <BudgetCategories
+                  categoryGroups={categoryGroups}
+                  editingCell={editing}
+                  isMultiMonthGrid={isMultiMonthGrid}
+                  onEditMonth={onEditMonth}
+                  onEditName={onEditName}
+                  onSaveCategory={onSaveCategory}
+                  onSaveGroup={onSaveGroup}
+                  onDeleteCategory={onDeleteCategory}
+                  onDeleteGroup={onDeleteGroup}
+                  onReorderCategory={_onReorderCategory}
+                  onReorderGroup={_onReorderGroup}
+                  onBudgetAction={onBudgetAction}
+                  onShowActivity={_onShowActivity}
+                  onApplyBudgetTemplatesInGroup={onApplyBudgetTemplatesInGroup}
+                  onSortCategories={onSortCategories}
+                />
+              </SchedulesProvider>
+            </View>
+          </View>
         </MonthsProvider>
       </View>
-
-      <MonthsProvider
-        startMonth={startMonth}
-        numMonths={numMonths}
-        monthBounds={monthBounds}
-        type={type}
-      >
-        <BudgetTotals
-          toggleHiddenCategories={toggleHiddenCategories}
-          expandAllCategories={expandAllCategories}
-          collapseAllCategories={collapseAllCategories}
-        />
-        <View
-          ref={scrollContainerRef}
-          data-testid="budget-table-scroll-container"
-          style={{
-            overflowY: 'scroll',
-            overflowAnchor: 'none',
-            flex: 1,
-            paddingLeft: 5,
-            paddingRight: 5,
-          }}
-        >
-          <View
-            style={{
-              flexShrink: 0,
-            }}
-            onKeyDown={onKeyDown}
-          >
-            <SchedulesProvider query={schedulesQuery}>
-              <BudgetCategories
-                categoryGroups={categoryGroups}
-                editingCell={editing}
-                onEditMonth={onEditMonth}
-                onEditName={onEditName}
-                onSaveCategory={onSaveCategory}
-                onSaveGroup={onSaveGroup}
-                onDeleteCategory={onDeleteCategory}
-                onDeleteGroup={onDeleteGroup}
-                onReorderCategory={_onReorderCategory}
-                onReorderGroup={_onReorderGroup}
-                onBudgetAction={onBudgetAction}
-                onShowActivity={_onShowActivity}
-                onApplyBudgetTemplatesInGroup={onApplyBudgetTemplatesInGroup}
-                onSortCategories={onSortCategories}
-              />
-            </SchedulesProvider>
-          </View>
-        </View>
-      </MonthsProvider>
     </View>
   );
 }
