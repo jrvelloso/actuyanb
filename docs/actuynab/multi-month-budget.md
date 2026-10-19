@@ -87,6 +87,18 @@ Use the local Docker procedure in [Windows local Docker development](local-docke
 do not use real bank data. Browser E2E results are recorded separately from
 these focused tests.
 
+### Current validation evidence
+
+On the M14 branch, the focused layout test and native financial regression
+passed. The broader synthetic Household/financing/review suite (36 tests),
+ActivoBank import regression (9 tests), root typecheck, changed-file lint and
+format checks, migration check, and production browser build also passed.
+
+Chromium functional E2E, a browser reload, and a separate-client sync exercise
+were not run in this worktree because no safely controllable browser was
+available. They remain required operational checks; the procedure above is the
+reproducible acceptance run rather than evidence inferred from unit tests.
+
 ## Limits
 
 - The grid deliberately uses Actual's existing category rows rather than a
