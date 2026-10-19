@@ -172,6 +172,15 @@ budgeting views remain read-only: a writable multi-month grid is documented as
 a follow-up because it must reuse Actual's budget-sheet mutation and undo
 paths. See [YNAB 4-inspired experience](ynab4-experience.md).
 
+## Milestone 14 multi-month budget grid
+
+Milestone 14 adds an opt-in, local three-month envelope-budget grid on top of
+Actual's native sheet values and existing editable budget cells. It preserves
+category order/collapse state, native available-to-budget, carryover and
+overspending calculations, undo/redo, and CRDT persistence without adding a
+second financial model. On narrow screens the category column remains sticky
+while month columns scroll. See [Multi-month budget grid](multi-month-budget.md).
+
 ## Project documents
 
 - [Architecture](architecture.md) — package boundaries, extension seams, and
@@ -220,6 +229,10 @@ paths. See [YNAB 4-inspired experience](ynab4-experience.md).
 - [YNAB 4-inspired experience](ynab4-experience.md) - account-centred
   navigation, safe personal setup, category choices, and deferred
   multi-month-budget design.
+
+- [Multi-month budget grid](multi-month-budget.md) - opt-in native
+  three-month envelope budget, editing path, financial semantics, and
+  validation.
 
 ## Working agreement
 

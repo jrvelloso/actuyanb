@@ -310,6 +310,20 @@ writable multi-month grid is deferred until it can reuse Actual's budget-sheet
 mutation and undo paths. The branch is stacked on M12; M9 remains independent.
 See [YNAB 4-inspired experience](ynab4-experience.md).
 
+## M14 - YNAB 4 multi-month budget grid - in progress, stacked on M13
+
+**Goal:** provide a practical three-month envelope-budget view without
+changing Actual's financial model.
+
+M14 adds a reversible, local envelope-budget preference that fixes three
+native month sheets side by side. It retains the native category ordering,
+collapse state, MonthPicker navigation, sheet-backed Budgeted/Spent/Balance
+cells, available-to-budget summaries, editable budget mutation, Undo/Redo, and
+CRDT synchronization. A narrow viewport scrolls horizontally while the
+category column remains sticky; the standard Actual view remains available.
+The work has no migration, accounting model, or new financial storage. See
+[Multi-month budget grid](multi-month-budget.md).
+
 ## Deferred evaluation
 
 Open Banking/PSD2 automation, advanced forecasts, PWA capabilities, and a SaaS

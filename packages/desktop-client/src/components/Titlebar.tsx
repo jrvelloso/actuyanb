@@ -27,6 +27,7 @@ import { sync } from '#app/appSlice';
 import { SharedArrayBufferWarning } from '#components/SharedArrayBufferWarning';
 import { useGlobalPref } from '#hooks/useGlobalPref';
 import { useIsTestEnv } from '#hooks/useIsTestEnv';
+import { useLocalPref } from '#hooks/useLocalPref';
 import { useNavigate } from '#hooks/useNavigate';
 import { useSheetValue } from '#hooks/useSheetValue';
 import { useSyncedPref } from '#hooks/useSyncedPref';
@@ -251,14 +252,57 @@ function ServerSyncButton({ style, isMobile = false }: ServerSyncButtonProps) {
 }
 
 function BudgetTitlebar() {
+  const { t } = useTranslation();
   const [maxMonths, setMaxMonthsPref] = useGlobalPref('maxMonths');
+  const [budgetType = 'envelope'] = useSyncedPref('budgetType');
+  const [isMultiMonthGridPref, setMultiMonthGridPref] = useLocalPref(
+    'budget.ynab4MultiMonthGrid',
+  );
+  const isMultiMonthGrid =
+    budgetType === 'envelope' && isMultiMonthGridPref === true;
 
   return (
     <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-      <MonthCountSelector
-        maxMonths={maxMonths || 1}
-        onChange={value => setMaxMonthsPref(value)}
-      />
+      {budgetType === 'envelope' && (
+        <Tooltip
+          content={
+            isMultiMonthGrid ? (
+              <Trans>Use the standard budget grid</Trans>
+            ) : (
+              <Trans>Use a three-month budget grid</Trans>
+            )
+          }
+        >
+          <Button
+            variant="bare"
+            aria-pressed={isMultiMonthGrid}
+            aria-label={
+              isMultiMonthGrid
+                ? t('Use the standard budget grid')
+                : t('Use a three-month budget grid')
+            }
+            onPress={() => setMultiMonthGridPref(!isMultiMonthGrid)}
+            style={{
+              backgroundColor: isMultiMonthGrid
+                ? theme.buttonPrimaryBackground
+                : undefined,
+              color: isMultiMonthGrid
+                ? theme.buttonPrimaryText
+                : theme.buttonBareText,
+              marginRight: 8,
+              padding: '3px 6px',
+            }}
+          >
+            <Trans>3 months</Trans>
+          </Button>
+        </Tooltip>
+      )}
+      {!isMultiMonthGrid && (
+        <MonthCountSelector
+          maxMonths={maxMonths || 1}
+          onChange={value => setMaxMonthsPref(value)}
+        />
+      )}
     </View>
   );
 }

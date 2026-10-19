@@ -198,6 +198,7 @@ export function SidebarGroup({
   return (
     <View
       innerRef={innerRef}
+      className="actuynab-budget-grid-sidebar actuynab-budget-grid-sidebar-group"
       style={{
         ...style,
         width: 200 + 100 * categoryExpandedState,
