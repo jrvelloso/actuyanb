@@ -13,7 +13,7 @@ import type { NewsEntry, NewsFeed } from './types';
 export const UNSUPPORTED_NEWS_FEED_FORMAT = 'Unsupported news feed format';
 
 const REPO_NEWS_FEED_URL =
-  'https://raw.githubusercontent.com/actualbudget/actual/master/packages/desktop-client/src/data/news.json';
+  'https://raw.githubusercontent.com/jrvelloso/actuyanb/master/packages/desktop-client/src/data/news.json';
 
 /**
  * Where to load `news.json` from, in priority order:

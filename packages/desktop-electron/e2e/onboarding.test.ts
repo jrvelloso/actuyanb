@@ -22,7 +22,7 @@ test.describe('Onboarding', () => {
   }) => {
     const bootstrapPage = await configurationPage.clickOnStartSyncServer();
 
-    await expect(bootstrapPage.getHeading()).toHaveText('Welcome to Actual!');
+    await expect(bootstrapPage.getHeading()).toHaveText('Welcome to ActuYNAB!');
     await expect(electronPage).toHaveScreenshot();
   });
 });

@@ -26,7 +26,7 @@ export function OutOfSyncMigrationsModal() {
       {({ state }) => (
         <>
           <ModalHeader
-            title={<ModalTitle title={t('Please update Actual!')} />}
+            title={<ModalTitle title={t('Please update ActuYNAB!')} />}
           />
           <View
             style={{
@@ -42,9 +42,9 @@ export function OutOfSyncMigrationsModal() {
               <Paragraph style={{ fontSize: 16 }}>
                 <Trans>
                   It looks like you&apos;re using an outdated version of the
-                  Actual client. Your budget data has been updated by another
+                  ActuYNAB client. Your budget data has been updated by another
                   client, but this client is still on the old version. For the
-                  best experience, please update Actual to the latest version.
+                  best experience, please update ActuYNAB to the latest version.
                 </Trans>
               </Paragraph>
             </Text>
@@ -55,7 +55,7 @@ export function OutOfSyncMigrationsModal() {
               }}
             >
               <Trans>
-                If you can&apos;t update Actual at this time you can find the
+                If you can&apos;t update ActuYNAB at this time you can find the
                 latest release at{' '}
                 <Link variant="external" to="https://app.actualbudget.org">
                   app.actualbudget.org

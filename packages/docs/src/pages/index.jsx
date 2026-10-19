@@ -14,7 +14,7 @@ export default function Hello() {
 
   const title = 'Your Finances — made simple';
   const pageDescription =
-    'Actual Budget is a super fast and privacy-focused app for managing your finances. At its heart is the well proven and much loved Envelope Budgeting methodology.';
+    'ActuYNAB is a privacy-focused household finance app built on a proven envelope-budgeting model.';
 
   return (
     <Layout
@@ -27,9 +27,9 @@ export default function Hello() {
       <div className={`${classes.main} ${classes.container}`}>
         <h1 className={classes.heroHeading}>Your Finances — made simple</h1>
         <p className={classes.heroText}>
-          Actual Budget is a super fast and privacy-focused app for managing
-          your finances. At its heart is the well proven and much loved Envelope
-          Budgeting methodology.
+          ActuYNAB is a privacy-focused household finance app for managing your
+          finances. It builds on Actual Budget's proven Envelope Budgeting
+          methodology.
           <br />
           <strong>You own your data</strong> and can do whatever you want with
           it. Featuring multi-device sync, optional end-to-end encryption and so
@@ -37,19 +37,8 @@ export default function Hello() {
         </p>
         <div style={{ display: 'flex', flexDirection: 'column', gap: '1em' }}>
           <div>
-            <Button primary to="https://www.pikapods.com/pods?run=actual">
-              Set up on PikaPods in 2 minutes
-              <sup
-                style={{
-                  lineHeight: 0,
-                  fontSize: '0.75em',
-                  display: 'inline-block',
-                  transform: 'translateY(0.1em)',
-                }}
-              >
-                *
-              </sup>{' '}
-              <span aria-hidden="true">↗</span>
+            <Button primary to="https://github.com/jrvelloso/actuyanb">
+              View ActuYNAB on GitHub <span aria-hidden="true">↗</span>
             </Button>
             <Button to="/docs/install/">Set up manually</Button>
           </div>
@@ -60,15 +49,15 @@ export default function Hello() {
               light: '/img/homepage/actual-main-budget.webp',
               dark: '/img/homepage/actual-main-budget-dark.webp',
             }}
-            alt="Actual Budget"
+            alt="ActuYNAB"
           />
           <Button
-            to="https://demo.actualbudget.org/"
+            to="https://github.com/jrvelloso/actuyanb"
             className={classes.demoButton}
           >
             <div className={classes.demoButtonContent}>
               <div style={{ width: 24, height: 24 }}>{icons.play}</div> Try the
-              demo
+              project
             </div>
           </Button>
         </div>
@@ -106,8 +95,8 @@ export default function Hello() {
           title="Unabashedly local-first software"
           src="/img/homepage/local-first.svg"
         >
-          <strong>Actual is a local app, plain and simple.</strong> Your data is
-          synced in the background so all devices have access, but the app
+          <strong>ActuYNAB is a local app, plain and simple.</strong> Your data
+          is synced in the background so all devices have access, but the app
           totally works regardless of your network connection. This also allows{' '}
           <Link to="/docs/getting-started/sync#end-to-end-encryption">
             end-to-end encryption
@@ -149,7 +138,7 @@ export default function Hello() {
           srcDark="/img/homepage/actual-report-dashboard-dark.webp"
         >
           Intuitive reports give you a quick way to learn about your finances.
-          By default, we include net worth and cash flow reports. Actual also
+          By default, we include net worth and cash flow reports. ActuYNAB also
           includes a powerful custom report engine to design your own reports to
           fit your needs.
         </BigFeature>
@@ -188,7 +177,7 @@ export default function Hello() {
             icon={icons.bank}
             learnMore="/docs/advanced/bank-sync"
           >
-            Actual has built in support for bank syncing using goCardless
+            ActuYNAB has built in support for bank syncing using GoCardless
             (EU/UK) and SimpleFIN (US/Canada).
           </SmallFeature>
           <SmallFeature
@@ -205,7 +194,7 @@ export default function Hello() {
             icon={icons.dataTransferHorizontal}
             learnMore="/docs/transactions/transfers"
           >
-            Manage transfers easily by creating transfer transactions. Actual
+            Manage transfers easily by creating transfer transactions. ActuYNAB
             will link the transactions on both sides and update them together.
           </SmallFeature>
           <SmallFeature
@@ -230,7 +219,8 @@ export default function Hello() {
             learnMore="/docs/migration/"
           >
             We provide builtin YNAB4 & nYNAB importers that keep all of your
-            history. There are many more available from the Actual Community.
+            history. ActuYNAB retains compatibility with the upstream importer
+            formats.
           </SmallFeature>
           <SmallFeature title="Dark Mode" icon={icons.moon}>
             Choose your own style with a built in dark mode and dynamic theming
@@ -251,31 +241,14 @@ export default function Hello() {
           <div className={classes.ownYourDataContent}>
             {icons.shieldLock}
             <div>
-              Actual allows you to effortlessly sync changes by running your own
-              server. Access updates from anywhere with peace of mind. For those
-              seeking next-level security, our optional end-to-end encryption
-              ensures your data remains unreadable, even to the server.
+              ActuYNAB allows you to effortlessly sync changes by running your
+              own server. Access updates from anywhere with peace of mind. For
+              those seeking next-level security, our optional end-to-end
+              encryption ensures your data remains unreadable, even to the
+              server.
             </div>
           </div>
         </div>
-
-        <p
-          className={classes.container}
-          style={{ maxWidth: 500, marginTop: '12em', marginBottom: '-12em' }}
-        >
-          <small style={{ opacity: 0.6 }}>
-            * PikaPods donates 20% of fees people like you pay to run Actual on
-            their servers to{' '}
-            <a
-              style={{ color: 'inherit', textDecoration: 'underline' }}
-              href="https://opencollective.com/actual"
-            >
-              our Open Collective
-            </a>
-            . Regardless of this relationship, we believe PikaPods is the
-            easiest way to get started with Actual.
-          </small>
-        </p>
       </div>
     </Layout>
   );

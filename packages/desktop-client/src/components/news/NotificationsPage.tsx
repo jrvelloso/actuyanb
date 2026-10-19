@@ -17,9 +17,8 @@ import { getUnseenEntries } from '#news/utils';
 
 import { NewsEntryCard } from './NewsEntryCard';
 
-const RELEASE_NOTES_URL = 'https://actualbudget.org/docs/releases';
-const BLOG_URL = 'https://actualbudget.org/blog';
-const DISCORD_URL = 'https://discord.gg/pRYNYr4W5A';
+const RELEASE_NOTES_URL = 'https://github.com/jrvelloso/actuyanb/releases';
+const PROJECT_URL = 'https://github.com/jrvelloso/actuyanb';
 
 export function NotificationsPage() {
   const { t } = useTranslation();
@@ -84,7 +83,7 @@ export function NotificationsPage() {
             <Text>
               <Trans>
                 <strong>Notifications aren't available right now.</strong>{' '}
-                Actual couldn't load them, which usually means you're offline.
+                ActuYNAB couldn't load them, which usually means you're offline.
                 Everything else keeps working, and they'll load next time you're
                 connected.
               </Trans>
@@ -96,7 +95,9 @@ export function NotificationsPage() {
           <Setting>
             <Text>
               <Trans>
-                <strong>Update Actual to see the latest notifications.</strong>{' '}
+                <strong>
+                  Update ActuYNAB to see the latest notifications.
+                </strong>{' '}
                 This version can't read the newest notifications format.
               </Trans>
             </Text>
@@ -130,11 +131,8 @@ export function NotificationsPage() {
           <Link variant="external" to={RELEASE_NOTES_URL} linkColor="purple">
             <Trans>All release notes</Trans>
           </Link>
-          <Link variant="external" to={BLOG_URL} linkColor="purple">
-            <Trans>Blog</Trans>
-          </Link>
-          <Link variant="external" to={DISCORD_URL} linkColor="purple">
-            <Trans>Community (Discord)</Trans>
+          <Link variant="external" to={PROJECT_URL} linkColor="purple">
+            <Trans>ActuYNAB project</Trans>
           </Link>
         </View>
       </View>

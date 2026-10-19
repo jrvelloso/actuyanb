@@ -33,10 +33,10 @@ export function ImportActualModal() {
         );
       case 'not-zip-file':
         return t(
-          'This file is not valid. Please select an unencrypted archive of Actual data.',
+          'This file is not valid. Please select an unencrypted archive of ActuYNAB or Actual data.',
         );
       case 'invalid-zip-file':
-        return t('This archive is not a valid Actual export file.');
+        return t('This archive is not a valid ActuYNAB or Actual export file.');
       case 'invalid-metadata-file':
         return t('The metadata file in the given archive is corrupted.');
       case 'zip-too-large':
@@ -74,7 +74,7 @@ export function ImportActualModal() {
       {({ state }) => (
         <>
           <ModalHeader
-            title={t('Import from Actual export')}
+            title={t('Import from ActuYNAB or Actual export')}
             rightContent={<ModalCloseButton onPress={() => state.close()} />}
           />
           <View style={{ ...styles.smallText, lineHeight: 1.5, marginTop: 20 }}>
@@ -87,10 +87,10 @@ export function ImportActualModal() {
             <View style={{ '& > div': { lineHeight: '1.7em' } }}>
               <Paragraph>
                 <Trans>
-                  You can import data from another Actual account or instance.
-                  First export your data from a different account, and it will
-                  give you a compressed file. This file is a simple zip file
-                  that contains the <code>db.sqlite</code> and{' '}
+                  You can import data from another ActuYNAB or Actual account or
+                  instance. First export your data from a different account, and
+                  it will give you a compressed file. This file is a simple zip
+                  file that contains the <code>db.sqlite</code> and{' '}
                   <code>metadata.json</code> files.
                 </Trans>
               </Paragraph>

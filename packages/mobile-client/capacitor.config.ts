@@ -9,7 +9,7 @@ const actualAppWebBuildPath = path.join(
 
 const baseConfig: CapacitorConfig = {
   appId: 'org.actualbudget',
-  appName: 'Actual Budget',
+  appName: 'ActuYNAB',
   webDir: actualAppWebBuildPath,
   plugins: {
     SplashScreen: {

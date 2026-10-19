@@ -14,7 +14,7 @@ test.describe('Startup errors', () => {
 
     await expect(
       electronPage.getByText(
-        "Actual couldn't access the folder where it stores your budget files:",
+        "ActuYNAB couldn't access the folder where it stores your budget files:",
       ),
     ).toBeVisible();
 

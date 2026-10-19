@@ -70,7 +70,7 @@ export function UpdateNotification() {
                 }}
                 onClick={() =>
                   window.Actual.openURLInBrowser(
-                    'https://actualbudget.org/docs/releases',
+                    'https://github.com/jrvelloso/actuyanb/releases',
                   )
                 }
               >

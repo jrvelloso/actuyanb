@@ -134,7 +134,7 @@ export function FinancesApp() {
         addNotification({
           notification: {
             type: 'message',
-            title: t('A new version of Actual is available!'),
+            title: t('A new version of ActuYNAB is available!'),
             message: t(
               'Click the button below to reload and apply the update.',
             ),
@@ -170,15 +170,15 @@ export function FinancesApp() {
           addNotification({
             notification: {
               type: 'message',
-              title: t('A new version of Actual is available!'),
+              title: t('A new version of ActuYNAB is available!'),
               message:
                 (import.meta.env.REACT_APP_IS_PIKAPODS ?? '').toLowerCase() ===
                 'true'
                   ? t(
-                      'A new version of Actual is available! Your Pikapods instance will be automatically updated in the next few days - no action needed.',
+                      'A new version of ActuYNAB is available! Your Pikapods instance will be automatically updated in the next few days - no action needed.',
                     )
                   : t(
-                      'Version {{latestVersion}} of Actual was recently released.',
+                      'Version {{latestVersion}} of ActuYNAB was recently released.',
                       { latestVersion: versionInfo.latestVersion },
                     ),
               sticky: true,

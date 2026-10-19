@@ -63,7 +63,7 @@ function About() {
       title={t('About')}
       description={
         <Trans>
-          <span>Actual</span> is a super fast privacy-focused app for managing
+          <span>ActuYNAB</span> is a super fast privacy-focused app for managing
           your finances.
         </Trans>
       }
@@ -157,7 +157,7 @@ function AdvancedAbout() {
     <SettingsGroup
       title={t('Budget file')}
       description={t(
-        'IDs are the names Actual uses to identify your budget internally.',
+        'IDs are the names ActuYNAB uses to identify your budget internally.',
       )}
     >
       <SettingsRow
