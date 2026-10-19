@@ -85,10 +85,10 @@ Review each available light and dark theme through **Settings → Themes**:
 2. Check long account/category names, negative account balances, positive
    balances, and overspent categories. Text, borders, and status colours must
    remain distinguishable without relying only on colour.
-3. Open **Budget**, enable **Three months** in the budget preferences, and
-   confirm all three months, compact summaries, sticky categories, and
-   horizontal scrolling are still usable. Disable it and confirm the standard
-   view returns.
+3. Open **Budget**, use the **3 months** toggle in the title bar, and confirm
+   all three months, compact summaries, sticky categories, and horizontal
+   scrolling are still usable. Toggle it off and confirm the standard view
+   returns.
 4. Edit a synthetic budget allocation, reload, then use Undo and Redo. The
    same native value, carryover, and overspending behaviour must remain.
 5. Narrow the browser to a mobile-sized viewport. Navigation and tables must
