@@ -162,6 +162,16 @@ budget-month preference and formatting settings, and remains read-only until a
 user explicitly confirms work in the established review interface. See [Daily
 budget experience](daily-budget-experience.md).
 
+## Milestone 13 YNAB 4-inspired experience
+
+Milestone 13 makes the sidebar account-centred while retaining Actual's
+native account and navigation behavior. It adds an explicit, no-write
+Household setup preview and an optional, idempotent personal category template
+whose records are matched within their group. The dashboard and current
+budgeting views remain read-only: a writable multi-month grid is documented as
+a follow-up because it must reuse Actual's budget-sheet mutation and undo
+paths. See [YNAB 4-inspired experience](ynab4-experience.md).
+
 ## Project documents
 
 - [Architecture](architecture.md) — package boundaries, extension seams, and
@@ -206,6 +216,10 @@ budget experience](daily-budget-experience.md).
 
 - [Daily budget experience](daily-budget-experience.md) - native category
   balances, daily review navigation, preferences, safeguards, and validation.
+
+- [YNAB 4-inspired experience](ynab4-experience.md) - account-centred
+  navigation, safe personal setup, category choices, and deferred
+  multi-month-budget design.
 
 ## Working agreement
 

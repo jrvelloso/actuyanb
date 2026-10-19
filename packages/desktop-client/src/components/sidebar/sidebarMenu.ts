@@ -1,12 +1,17 @@
 export const SIDEBAR_MENU_ITEM_IDS = [
   'budget',
-  'household',
   'reports',
+  'household',
   'schedules',
   'payees',
   'tags',
   'rules',
   'bank-sync',
+] as const;
+
+export const PRIMARY_BUDGET_NAVIGATION_ITEM_IDS = [
+  'budget',
+  'reports',
 ] as const;
 
 export type SidebarMenuItemId = (typeof SIDEBAR_MENU_ITEM_IDS)[number];
@@ -15,6 +20,10 @@ export type SidebarMenuItem = {
   id: SidebarMenuItemId;
   hidden: boolean;
 };
+
+export function isPrimaryBudgetNavigationItem(id: SidebarMenuItemId): boolean {
+  return PRIMARY_BUDGET_NAVIGATION_ITEM_IDS.some(itemId => itemId === id);
+}
 
 const SETTINGS_SECTION_IDS = [
   'schedules',

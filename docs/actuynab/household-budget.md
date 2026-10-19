@@ -127,6 +127,21 @@ the native budget sheet for category budgeted, activity, remaining, and
 carryover values; highlights overspending; and reuses the M5 review modal for
 explicit user decisions. See [Daily budget experience](daily-budget-experience.md).
 
+## Personal setup and account navigation
+
+M13 places technical role/category configuration in **Household Settings** and
+keeps Household itself as the daily overview. Before a user applies a setup,
+the core returns a no-write preview of records to create, reuse, or resolve as
+conflicts. The preview protects incompatible and ambiguous account matches and
+category records that cannot safely be reused. Its optional personal category
+template is group-qualified and idempotent; it never changes existing budgets,
+goals, orders, or transactions. The sidebar presents native accounts in
+collapsible Budget Accounts and Off-Budget Accounts sections while leaving the
+configured role mapping as the only source of account-role meaning.
+
+See [YNAB 4-inspired experience](ynab4-experience.md) for the selected
+categories, matching/order rules, and multi-month-budget follow-up design.
+
 ## Validation
 
 The reusable fictional setup fixture is

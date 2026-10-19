@@ -23,6 +23,7 @@ import {
   configureHousehold,
   getHouseholdOverview,
   loadHouseholdProfile,
+  previewHouseholdSetup,
 } from './actuynab-household';
 import {
   confirmImportReview,
@@ -42,6 +43,7 @@ export type TransactionHandlers = {
   'actuynab-household-configure': typeof configureHousehold;
   'actuynab-household-overview': typeof getHouseholdOverview;
   'actuynab-household-profile': typeof loadHouseholdProfile;
+  'actuynab-household-preview': typeof previewHouseholdSetup;
   'actuynab-financing-candidates': typeof getFinancingBreakdownCandidates;
   'actuynab-financing-delete': typeof deleteFinancingBreakdown;
   'actuynab-financing-overview': typeof getHouseholdFinancingOverview;
@@ -189,6 +191,7 @@ app.method(
 app.method('actuynab-household-dashboard', getHouseholdDashboard);
 app.method('actuynab-household-overview', getHouseholdOverview);
 app.method('actuynab-household-profile', loadHouseholdProfile);
+app.method('actuynab-household-preview', previewHouseholdSetup);
 app.method('actuynab-financing-candidates', getFinancingBreakdownCandidates);
 app.method(
   'actuynab-financing-delete',

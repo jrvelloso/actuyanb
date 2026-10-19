@@ -12,6 +12,7 @@ import { Accounts } from './Accounts';
 import { BudgetName } from './BudgetName';
 import { PrimaryButtons } from './PrimaryButtons';
 import { SecondaryButtons } from './SecondaryButtons';
+import { SecondaryNavigation } from './SecondaryNavigation';
 import { useSidebar } from './SidebarProvider';
 import { SidebarShell } from './SidebarShell';
 import { ToggleButton } from './ToggleButton';
@@ -50,6 +51,8 @@ export function Sidebar() {
         <PrimaryButtons />
 
         <Accounts />
+
+        <SecondaryNavigation />
 
         <SecondaryButtons
           buttons={[

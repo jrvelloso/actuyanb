@@ -30,7 +30,10 @@ import { ContextMenu } from './ContextMenu';
 import { EnableBankingCallback } from './EnableBankingCallback';
 import { FeatureErrorFallback } from './FeatureErrorFallback';
 import { GlobalKeys } from './GlobalKeys';
-import { HouseholdPage } from './household/HouseholdPage';
+import {
+  HouseholdPage,
+  HouseholdSettingsPage,
+} from './household/HouseholdPage';
 import { MobileBankSyncAccountEditPage } from './mobile/banksync/MobileBankSyncAccountEditPage';
 import { MobileNavTabs } from './mobile/MobileNavTabs';
 import { TransactionEdit } from './mobile/transactions/TransactionEdit';
@@ -268,6 +271,11 @@ export function FinancesApp() {
                     <Route path="/reports/*" element={<Reports />} />
 
                     <Route path="/household" element={<HouseholdPage />} />
+
+                    <Route
+                      path="/household/settings"
+                      element={<HouseholdSettingsPage />}
+                    />
 
                     <Route
                       path="/budget"

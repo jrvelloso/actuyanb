@@ -62,7 +62,7 @@ export function AccountsHeaderRow({
         }}
         activeStyle={{ color: theme.sidebarItemTextSelected }}
       >
-        <Trans>Accounts</Trans>
+        <Trans>All Accounts</Trans>
       </Link>
       <SidebarIconButton
         Icon={allOpen ? SvgCheveronDownUp : SvgCheveronUpDown}

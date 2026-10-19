@@ -11,8 +11,8 @@ describe('parseSidebarMenuItems', () => {
   it('returns the defaults when nothing is saved', () => {
     expect(parseSidebarMenuItems(undefined)).toEqual([
       { id: 'budget', hidden: false },
-      { id: 'household', hidden: false },
       { id: 'reports', hidden: false },
+      { id: 'household', hidden: false },
       { id: 'schedules', hidden: false },
       { id: 'payees', hidden: true },
       { id: 'tags', hidden: true },
@@ -75,8 +75,8 @@ describe('parseSidebarMenuItems', () => {
     );
 
     expect(items.map(item => item.id)).toEqual([
-      'household',
       'reports',
+      'household',
       'schedules',
       'budget',
       'payees',
@@ -97,8 +97,8 @@ describe('parseSidebarMenuItems', () => {
 
     expect(items.filter(item => !item.hidden)).toEqual([
       { id: 'budget', hidden: false },
-      { id: 'household', hidden: false },
       { id: 'reports', hidden: false },
+      { id: 'household', hidden: false },
     ]);
   });
 });
@@ -118,8 +118,8 @@ describe('parseSidebarStartPage', () => {
   });
 
   it('falls back to the first page', () => {
-    expect(parseSidebarStartPage(undefined, items)).toBe('household');
-    expect(parseSidebarStartPage('unknown', items)).toBe('household');
+    expect(parseSidebarStartPage(undefined, items)).toBe('reports');
+    expect(parseSidebarStartPage('unknown', items)).toBe('reports');
   });
 });
 

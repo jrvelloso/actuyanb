@@ -296,6 +296,20 @@ financial write path, new preference store, migration, synchronization model,
 or automatic confirmation. The work is stacked on M11; M9 remains independent.
 See [Daily budget experience](daily-budget-experience.md).
 
+## M13 - YNAB 4-inspired experience - in progress, stacked on M12
+
+**Goal:** improve daily navigation and first-time personal-budget setup
+without replacing Actual's accounting or budget engine.
+
+M13 keeps Budget and Reports primary, groups actual accounts by their native
+on-/off-budget state, and moves technical setup to Household Settings. Setup
+offers a no-write create/reuse/conflict preview followed by an explicit
+confirmation. The personal category template is opt-in, idempotent, and
+group-qualified so duplicate names in different groups remain distinct. A
+writable multi-month grid is deferred until it can reuse Actual's budget-sheet
+mutation and undo paths. The branch is stacked on M12; M9 remains independent.
+See [YNAB 4-inspired experience](ynab4-experience.md).
+
 ## Deferred evaluation
 
 Open Banking/PSD2 automation, advanced forecasts, PWA capabilities, and a SaaS

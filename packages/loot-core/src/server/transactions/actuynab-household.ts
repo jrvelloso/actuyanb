@@ -85,17 +85,68 @@ export const HOUSEHOLD_ACCOUNT_PRESETS: readonly HouseholdAccountPreset[] = [
 
 const PROFILE_ID = 'actuynab-household-primary';
 
-const HOUSEHOLD_CATEGORY_TEMPLATE = [
-  ['Housing', ['Mortgage interest', 'Home insurance', 'Home maintenance']],
-  ['Monthly Bills', ['Electricity', 'Water', 'Internet and mobile']],
-  ['Food', ['Groceries', 'Dining out']],
-  ['Transport', ['Fuel', 'Public transport', 'Vehicle maintenance']],
-  ['Health & Personal Care', ['Healthcare', 'Personal care']],
-  ['Lifestyle', ['Entertainment', 'Clothing', 'Gifts']],
-  ['Sports', ['Sports & fitness']],
-  ['Irregular Expenses', ['Annual bills', 'Travel']],
-  ['Savings Goals', ['Emergency fund', 'Holidays']],
-] as const;
+type HouseholdCategoryTemplateGroup = {
+  categories: readonly string[];
+  name: string;
+};
+
+export type HouseholdCategoryTemplateKind = 'personal' | 'starter';
+
+const STARTER_CATEGORY_TEMPLATE: readonly HouseholdCategoryTemplateGroup[] = [
+  {
+    name: 'Housing',
+    categories: ['Mortgage interest', 'Home insurance', 'Home maintenance'],
+  },
+  {
+    name: 'Monthly Bills',
+    categories: ['Electricity', 'Water', 'Internet and mobile'],
+  },
+  { name: 'Food', categories: ['Groceries', 'Dining out'] },
+  {
+    name: 'Transport',
+    categories: ['Fuel', 'Public transport', 'Vehicle maintenance'],
+  },
+  {
+    name: 'Health & Personal Care',
+    categories: ['Healthcare', 'Personal care'],
+  },
+  { name: 'Lifestyle', categories: ['Entertainment', 'Clothing', 'Gifts'] },
+  { name: 'Sports', categories: ['Sports & fitness'] },
+  { name: 'Irregular Expenses', categories: ['Annual bills', 'Travel'] },
+  { name: 'Savings Goals', categories: ['Emergency fund', 'Holidays'] },
+];
+
+const PERSONAL_CATEGORY_TEMPLATE: readonly HouseholdCategoryTemplateGroup[] = [
+  { name: 'Car', categories: ['Car Insurance', 'Car Payment', 'Fuel'] },
+  {
+    name: 'Everyday Expenses',
+    categories: ['Household Goods', 'Medical', 'Restaurants', 'Spending Money'],
+  },
+  { name: 'Food', categories: ['Supermarket', 'Take out food'] },
+  { name: 'Fun', categories: ['Books', 'Tech'] },
+  {
+    name: 'Health Care',
+    categories: [
+      'Clothing',
+      'Doctors',
+      'Hair',
+      'Health Insurance',
+      'Nails',
+      'Pharmacy',
+    ],
+  },
+  { name: 'Home', categories: ['Home Maintenance', 'Home Stuff', 'Mortgage'] },
+  {
+    name: 'Monthly Bills',
+    categories: ['Electricity', 'Housekeeping', 'Internet', 'Mobile', 'Water'],
+  },
+  {
+    name: 'Rainy Day Funds',
+    categories: ['Birthdays', 'Christmas', 'Emergency Fund', 'Life Insurance'],
+  },
+  { name: 'Savings Goals', categories: ['Tech', 'Vacation'] },
+  { name: 'Sports', categories: ['Gym', 'Paddel'] },
+];
 
 type StoredProfile = {
   category_template_applied: number;
@@ -122,6 +173,36 @@ export type HouseholdSetupAccount = {
 export type ConfigureHouseholdInput = {
   accounts: HouseholdSetupAccount[];
   applyCategoryTemplate?: boolean;
+  categoryTemplate?: HouseholdCategoryTemplateKind | null;
+};
+
+export type HouseholdSetupPreviewAccount = {
+  accountId: string | null;
+  key: HouseholdAccountKey;
+  message: string | null;
+  name: string;
+  onBudget: boolean;
+  status: 'conflict' | 'create' | 'reuse';
+};
+
+export type HouseholdSetupPreviewCategory = {
+  message: string | null;
+  name: string;
+  status: 'conflict' | 'create' | 'reuse';
+};
+
+export type HouseholdSetupPreviewCategoryGroup = {
+  categories: HouseholdSetupPreviewCategory[];
+  message: string | null;
+  name: string;
+  status: 'conflict' | 'create' | 'reuse';
+};
+
+export type HouseholdSetupPreview = {
+  accounts: HouseholdSetupPreviewAccount[];
+  categoryGroups: HouseholdSetupPreviewCategoryGroup[];
+  categoryTemplate: HouseholdCategoryTemplateKind | null;
+  conflicts: string[];
 };
 
 export type HouseholdProfile = {
@@ -175,6 +256,49 @@ function identifierFor(scope: string, key: HouseholdAccountKey): string {
 
 function normalizedName(value: string): string {
   return value.trim().replace(/\s+/g, ' ').toLocaleUpperCase();
+}
+
+/**
+ * Returns a deterministic, display-name-based ordering without mutating the
+ * supplied template. Existing budget categories are deliberately not passed
+ * through this helper: their manual ordering remains an Actual user choice.
+ */
+export function sortHouseholdCategoryTemplate(
+  template: readonly HouseholdCategoryTemplateGroup[],
+): HouseholdCategoryTemplateGroup[] {
+  return template
+    .map(group => ({
+      name: group.name,
+      categories: [...group.categories].sort((left, right) =>
+        left.localeCompare(right, 'en', { sensitivity: 'base' }),
+      ),
+    }))
+    .sort((left, right) =>
+      left.name.localeCompare(right.name, 'en', { sensitivity: 'base' }),
+    );
+}
+
+function selectedCategoryTemplate(
+  input: Pick<
+    ConfigureHouseholdInput,
+    'applyCategoryTemplate' | 'categoryTemplate'
+  >,
+): HouseholdCategoryTemplateKind | null {
+  if (
+    input.categoryTemplate === 'personal' ||
+    input.categoryTemplate === 'starter'
+  ) {
+    return input.categoryTemplate;
+  }
+  return input.applyCategoryTemplate ? 'starter' : null;
+}
+
+function categoryTemplateFor(
+  kind: HouseholdCategoryTemplateKind,
+): readonly HouseholdCategoryTemplateGroup[] {
+  return kind === 'personal'
+    ? sortHouseholdCategoryTemplate(PERSONAL_CATEGORY_TEMPLATE)
+    : STARTER_CATEGORY_TEMPLATE;
 }
 
 function presetFor(key: HouseholdAccountKey): HouseholdAccountPreset {
@@ -243,56 +367,129 @@ export async function loadHouseholdProfile(): Promise<HouseholdProfile | null> {
   };
 }
 
-async function applyCategoryTemplate(): Promise<{
-  categories: number;
-  groups: number;
-}> {
-  const existingGroups = new Map(
-    (await db.getCategoriesGrouped()).map(group => [
-      normalizedName(group.name),
-      {
-        id: group.id,
-        categoryNames: new Set(
-          (group.categories ?? []).map(category =>
-            normalizedName(category.name),
-          ),
-        ),
-      },
-    ]),
-  );
-  let createdCategories = 0;
-  let createdGroups = 0;
+async function previewCategoryTemplate(
+  kind: HouseholdCategoryTemplateKind,
+): Promise<HouseholdSetupPreviewCategoryGroup[]> {
+  const groupsByName = new Map<
+    string,
+    Awaited<ReturnType<typeof db.getCategoriesGrouped>>
+  >();
+  for (const group of await db.getCategoriesGrouped()) {
+    const key = normalizedName(group.name);
+    groupsByName.set(key, [...(groupsByName.get(key) ?? []), group]);
+  }
 
-  for (const [groupName, categoryNames] of HOUSEHOLD_CATEGORY_TEMPLATE) {
-    const normalizedGroupName = normalizedName(groupName);
-    let group = existingGroups.get(normalizedGroupName);
-    if (!group) {
-      const id = await db.insertCategoryGroup({
-        name: groupName,
-        is_income: 0,
-        hidden: 0,
-      });
-      group = { id, categoryNames: new Set() };
-      existingGroups.set(normalizedGroupName, group);
-      createdGroups++;
+  return categoryTemplateFor(kind).map(({ name, categories }) => {
+    const matchingGroups = groupsByName.get(normalizedName(name)) ?? [];
+    if (matchingGroups.length !== 1) {
+      const message =
+        matchingGroups.length === 0
+          ? null
+          : `More than one existing category group is named ${name}.`;
+      return {
+        name,
+        status: matchingGroups.length === 0 ? 'create' : 'conflict',
+        message,
+        categories: categories.map(category => ({
+          name: category,
+          status: matchingGroups.length === 0 ? 'create' : 'conflict',
+          message,
+        })),
+      };
     }
 
-    for (const categoryName of categoryNames) {
-      const normalizedCategoryName = normalizedName(categoryName);
-      if (group.categoryNames.has(normalizedCategoryName)) {
-        continue;
-      }
-      await db.insertCategory({
-        name: categoryName,
-        cat_group: group.id,
+    const group = matchingGroups[0];
+    if (group.is_income === 1 || group.hidden === 1) {
+      const message = `${group.name} is not a visible spending category group.`;
+      return {
+        name,
+        status: 'conflict',
+        message,
+        categories: categories.map(category => ({
+          name: category,
+          status: 'conflict',
+          message,
+        })),
+      };
+    }
+
+    return {
+      name,
+      status: 'reuse',
+      message: null,
+      categories: categories.map(category => {
+        const matchingCategories = (group.categories ?? []).filter(
+          existing =>
+            normalizedName(existing.name) === normalizedName(category),
+        );
+        if (matchingCategories.length !== 1) {
+          const message =
+            matchingCategories.length === 0
+              ? null
+              : `More than one category named ${category} exists in ${name}.`;
+          return {
+            name: category,
+            status: matchingCategories.length === 0 ? 'create' : 'conflict',
+            message,
+          };
+        }
+        const existing = matchingCategories[0];
+        if (existing.is_income === 1 || existing.hidden === 1) {
+          return {
+            name: category,
+            status: 'conflict',
+            message: `${existing.name} is not a visible spending category.`,
+          };
+        }
+        return { name: category, status: 'reuse', message: null };
+      }),
+    };
+  });
+}
+
+async function applyCategoryTemplate(
+  kind: HouseholdCategoryTemplateKind,
+  preview: readonly HouseholdSetupPreviewCategoryGroup[],
+): Promise<{ categories: number; groups: number }> {
+  const groupIds = new Map<string, string>();
+  const existingGroups = await db.getCategoriesGrouped();
+  for (const group of existingGroups) {
+    groupIds.set(normalizedName(group.name), group.id);
+  }
+
+  let createdCategories = 0;
+  let createdGroups = 0;
+  for (const group of preview) {
+    let groupId = groupIds.get(normalizedName(group.name));
+    if (group.status === 'create') {
+      groupId = await db.insertCategoryGroup({
+        name: group.name,
         is_income: 0,
         hidden: 0,
       });
-      group.categoryNames.add(normalizedCategoryName);
+      groupIds.set(normalizedName(group.name), groupId);
+      createdGroups++;
+    }
+    if (!groupId) {
+      throw new Error(`Unable to resolve the ${group.name} category group.`);
+    }
+
+    for (const category of group.categories) {
+      if (category.status !== 'create') continue;
+      await db.insertCategory(
+        {
+          name: category.name,
+          cat_group: groupId,
+          is_income: 0,
+          hidden: 0,
+        },
+        // New personal-template categories are inserted in sorted sequence at
+        // the end of a group, preserving an existing user's manual ordering.
+        { atEnd: kind === 'personal' },
+      );
       createdCategories++;
     }
   }
-
   return { categories: createdCategories, groups: createdGroups };
 }
 
@@ -328,6 +525,110 @@ function validateInput(accounts: HouseholdSetupAccount[]) {
 }
 
 /**
+ * Produces the exact account/category plan shown before setup writes anything.
+ * The result deliberately identifies ambiguous or incompatible existing rows
+ * instead of guessing from an account or category name.
+ */
+export async function previewHouseholdSetup(
+  input: ConfigureHouseholdInput,
+): Promise<HouseholdSetupPreview> {
+  try {
+    validateInput(input.accounts);
+  } catch (error) {
+    return {
+      accounts: [],
+      categoryGroups: [],
+      categoryTemplate: null,
+      conflicts: [
+        error instanceof Error ? error.message : 'Invalid household setup.',
+      ],
+    };
+  }
+
+  const [accounts, roles] = await Promise.all([
+    db.getAccounts(),
+    storedRoles(),
+  ]);
+  const rolesByKey = new Map(roles.map(role => [role.role_key, role]));
+  const resolvedAccountIds = new Set<string>();
+  const conflicts: string[] = [];
+  const previewAccounts = input.accounts.map(configured => {
+    const preset = presetFor(configured.key);
+    const expectedOffBudget: 0 | 1 = preset.onBudget ? 0 : 1;
+    const existingRole = rolesByKey.get(configured.key);
+    let account = configured.accountId
+      ? accounts.find(candidate => candidate.id === configured.accountId)
+      : undefined;
+    let message: string | null = null;
+
+    if (configured.accountId && !account) {
+      message = `The selected account for ${configured.key} no longer exists.`;
+    }
+    if (
+      !account &&
+      existingRole &&
+      normalizedName(existingRole.account_name) ===
+        normalizedName(configured.name)
+    ) {
+      account = accounts.find(
+        candidate => candidate.id === existingRole.account_id,
+      );
+    }
+    if (!account && !message) {
+      const nameMatches = accounts.filter(
+        candidate =>
+          normalizedName(candidate.name) === normalizedName(configured.name),
+      );
+      const compatibleMatches = nameMatches.filter(
+        candidate => candidate.offbudget === expectedOffBudget,
+      );
+      if (compatibleMatches.length === 1) {
+        account = compatibleMatches[0];
+      } else if (compatibleMatches.length > 1) {
+        message = `More than one compatible account is named ${configured.name.trim()}. Choose one explicitly.`;
+      } else if (nameMatches.length > 0) {
+        message = `${configured.name.trim()} exists with an incompatible on/off-budget type. Choose a compatible account or a different name.`;
+      }
+    }
+    if (account && account.offbudget !== expectedOffBudget) {
+      message = `${account.name} has the wrong on/off-budget type for ${configured.key}.`;
+    }
+    if (account && resolvedAccountIds.has(account.id)) {
+      message = `${account.name} is selected for more than one household role.`;
+    }
+    if (account) resolvedAccountIds.add(account.id);
+    if (message) conflicts.push(message);
+
+    return {
+      accountId: account?.id ?? null,
+      key: configured.key,
+      message,
+      name: configured.name.trim(),
+      onBudget: preset.onBudget,
+      status: message ? 'conflict' : account ? 'reuse' : 'create',
+    } satisfies HouseholdSetupPreviewAccount;
+  });
+
+  const categoryTemplate = selectedCategoryTemplate(input);
+  const categoryGroups = categoryTemplate
+    ? await previewCategoryTemplate(categoryTemplate)
+    : [];
+  for (const group of categoryGroups) {
+    if (group.message) conflicts.push(group.message);
+    for (const category of group.categories) {
+      if (category.message) conflicts.push(category.message);
+    }
+  }
+
+  return {
+    accounts: previewAccounts,
+    categoryGroups,
+    categoryTemplate,
+    conflicts: [...new Set(conflicts)],
+  };
+}
+
+/**
  * Creates or adopts the selected Actual accounts and persists their household
  * roles. It never changes an adopted account's balance, transactions, or
  * off-budget state. Repeating the same setup is intentionally a no-op.
@@ -336,6 +637,10 @@ export async function configureHousehold(
   input: ConfigureHouseholdInput,
 ): Promise<HouseholdSetupResult> {
   validateInput(input.accounts);
+  const preview = await previewHouseholdSetup(input);
+  if (preview.conflicts.length > 0) {
+    throw new Error(preview.conflicts.join(' '));
+  }
   const existingRoles = new Map(
     (await storedRoles()).map(role => [role.role_key, role]),
   );
@@ -450,15 +755,16 @@ export async function configureHousehold(
       'SELECT id, category_template_applied FROM actuynab_household_profiles WHERE id = ?',
       [PROFILE_ID],
     );
-    if (input.applyCategoryTemplate) {
-      templateResult = await applyCategoryTemplate();
+    if (preview.categoryTemplate) {
+      templateResult = await applyCategoryTemplate(
+        preview.categoryTemplate,
+        preview.categoryGroups,
+      );
     }
     const profileRow = {
       id: PROFILE_ID,
       category_template_applied: Number(
-        Boolean(
-          input.applyCategoryTemplate || profile?.category_template_applied,
-        ),
+        Boolean(preview.categoryTemplate || profile?.category_template_applied),
       ),
       updated_at: new Date().toISOString(),
       tombstone: 0,

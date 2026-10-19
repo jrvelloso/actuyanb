@@ -4,6 +4,7 @@ import { theme } from '@actual-app/components/theme';
 import { spacing } from '@actual-app/components/tokens';
 import { View } from '@actual-app/components/view';
 
+import { SecondaryNavigation } from '#components/sidebar/SecondaryNavigation';
 import { useSidebar } from '#components/sidebar/SidebarProvider';
 import { SidebarShell } from '#components/sidebar/SidebarShell';
 import { ToggleButton } from '#components/sidebar/ToggleButton';
@@ -54,6 +55,8 @@ export function SidebarRedesign() {
         />
 
         <AccountsSection />
+
+        <SecondaryNavigation />
 
         <SidebarFooter />
       </View>

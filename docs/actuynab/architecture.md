@@ -97,6 +97,13 @@ service; it is not a replacement database for budget calculations.
     `budget.startMonth` preference. It opens existing category/account and M5
     review views, but creates no confirmation route or financial mutation.
     See [Daily budget experience](daily-budget-experience.md).
+13. **YNAB 4-inspired setup and navigation.** M13 groups the existing native
+    account routes in the sidebar without owning account values. Its Household
+    setup preview is a core read transaction; the existing configuration
+    transaction reruns that preview before applying optional, group-qualified
+    category records through Actual's normal category API. No dashboard,
+    preview, or sidebar component writes a financial record. See
+    [YNAB 4-inspired experience](ynab4-experience.md).
 
 ## Financial correctness constraints
 
