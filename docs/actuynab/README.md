@@ -181,6 +181,15 @@ overspending calculations, undo/redo, and CRDT persistence without adding a
 second financial model. On narrow screens the category column remains sticky
 while month columns scroll. See [Multi-month budget grid](multi-month-budget.md).
 
+## Milestone 15 visual identity foundation
+
+Milestone 15 establishes the shared semantic theme layer used by the desktop
+client and component library. It gives the existing light, dark, and midnight
+theme paths a consistent ActuYNAB palette, visible keyboard focus, compact
+sidebar selection, and table-friendly financial status colours. It does not
+alter a budget cell, financial calculation, local preference, sync record, or
+logo asset. See [Visual identity foundation](visual-identity.md).
+
 ## Project documents
 
 - [Architecture](architecture.md) — package boundaries, extension seams, and
@@ -233,6 +242,9 @@ while month columns scroll. See [Multi-month budget grid](multi-month-budget.md)
 - [Multi-month budget grid](multi-month-budget.md) - opt-in native
   three-month envelope budget, editing path, financial semantics, and
   validation.
+
+- [Visual identity foundation](visual-identity.md) - semantic tokens, theme
+  behaviour, manual review, and deferred refinements.
 
 ## Working agreement
 

@@ -170,14 +170,15 @@ export function Account<FieldName extends SheetFields<'account'>>({
               ...accountNameStyle,
               ...style,
               position: 'relative',
-              borderLeft: '4px solid transparent',
+              borderRadius: 4,
+              marginInline: 8,
               ...(updated && {
                 fontWeight: 700,
                 color: theme.sidebarItemTextUpdated,
               }),
             }}
             activeStyle={{
-              borderColor: theme.sidebarItemAccentSelected,
+              backgroundColor: theme.sidebarItemBackgroundSelected,
               color: theme.sidebarItemTextSelected,
               // This is kind of a hack, but we don't ever want the account
               // that the user is looking at to be "bolded" which means it
@@ -187,7 +188,7 @@ export function Account<FieldName extends SheetFields<'account'>>({
               fontWeight: (style && style.fontWeight) || 'normal',
               '& .dot': {
                 backgroundColor: theme.sidebarItemAccentSelected,
-                transform: 'translateX(-4.5px)',
+                transform: 'translateX(-1px)',
               },
             }}
           >
@@ -225,7 +226,7 @@ export function Account<FieldName extends SheetFields<'account'>>({
             <AlignedText
               style={
                 titleAccount && {
-                  borderBottom: `1.5px solid rgba(255,255,255,0.4)`,
+                  borderBottom: `1.5px solid ${theme.sidebarBorder}`,
                   paddingBottom: '3px',
                 }
               }

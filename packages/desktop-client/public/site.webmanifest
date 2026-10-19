@@ -1,6 +1,6 @@
 {
-  "name": "Actual",
-  "short_name": "Actual",
+  "name": "ActuYNAB",
+  "short_name": "ActuYNAB",
   "description": "A local-first personal finance tool",
   "icons": [
     {
@@ -70,20 +70,20 @@
     {
       "src": "/screenshot_wide.png",
       "form_factor": "wide",
-      "label": "Actual Budget Homepage",
+      "label": "ActuYNAB Budget Homepage",
       "type": "image/png",
       "sizes": "1280x720"
     },
     {
       "src": "/screenshot_narrow.png",
       "form_factor": "narrow",
-      "label": "Actual Budget Mobile Homepage",
+      "label": "ActuYNAB Budget Mobile Homepage",
       "type": "image/png",
       "sizes": "350x600"
     }
   ],
-  "theme_color": "#5c3dbb",
-  "background_color": "#5c3dbb",
+  "theme_color": "#0f766e",
+  "background_color": "#0b1220",
   "display": "standalone",
   "start_url": "./"
 }

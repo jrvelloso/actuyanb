@@ -291,4 +291,133 @@
   --color-chartQual7: var(--palette-chartQual7);
   --color-chartQual8: var(--palette-chartQual8);
   --color-chartQual9: var(--palette-chartQual9);
+
+  /* Midnight remains a supported dark variant while sharing ActuYNAB's
+     semantic roles. Keep this layer small: the existing midnight aliases
+     continue to describe its distinctive high-contrast surfaces. */
+  --color-surfaceBase: #0b1220;
+  --color-surfaceRaised: #111a2b;
+  --color-surfaceElevated: #1a2538;
+  --color-surfaceSunken: #08101e;
+  --color-surfaceNavigation: #08101e;
+  --color-textPrimary: #f8fafc;
+  --color-textSecondary: #cbd5e1;
+  --color-textMuted: #94a3b8;
+  --color-textOnAccent: #082f2a;
+  --color-borderSubtle: #233149;
+  --color-borderStrong: #334155;
+  --color-accentPrimary: var(--palette-actuynab-teal400);
+  --color-accentPrimaryHover: var(--palette-actuynab-teal300);
+  --color-accentPrimarySubtle: color-mix(
+    in srgb,
+    var(--color-accentPrimary) 18%,
+    var(--color-surfaceRaised)
+  );
+  --color-focusRing: var(--palette-actuynab-teal300);
+  --color-statusSuccess: var(--palette-actuynab-success400);
+  --color-statusSuccessSubtle: color-mix(
+    in srgb,
+    var(--color-statusSuccess) 18%,
+    var(--color-surfaceRaised)
+  );
+  --color-statusWarning: var(--palette-actuynab-warning400);
+  --color-statusWarningSubtle: color-mix(
+    in srgb,
+    var(--color-statusWarning) 18%,
+    var(--color-surfaceRaised)
+  );
+  --color-statusDanger: var(--palette-actuynab-danger400);
+  --color-statusDangerSubtle: color-mix(
+    in srgb,
+    var(--color-statusDanger) 18%,
+    var(--color-surfaceRaised)
+  );
+  --color-statusInformation: var(--palette-actuynab-info400);
+  --color-statusInformationSubtle: color-mix(
+    in srgb,
+    var(--color-statusInformation) 18%,
+    var(--color-surfaceRaised)
+  );
+  --color-scrollbarTrack: var(--color-surfaceRaised);
+  --color-scrollbarThumb: #64748b;
+  --color-shadowCard: 0 1px 2px rgb(0 0 0 / 0.24), 0 3px 10px rgb(0 0 0 / 0.2);
+  --color-shadowAmbient: 0 3px 8px rgb(0 0 0 / 0.3);
+  --color-shadowLarge:
+    0 18px 36px rgb(0 0 0 / 0.42), 0 8px 16px rgb(0 0 0 / 0.24);
+
+  --palette-purple50: var(--palette-actuynab-teal50);
+  --palette-purple100: var(--palette-actuynab-teal100);
+  --palette-purple125: var(--palette-actuynab-teal100);
+  --palette-purple150: var(--palette-actuynab-teal200);
+  --palette-purple200: var(--palette-actuynab-teal200);
+  --palette-purple300: var(--palette-actuynab-teal300);
+  --palette-purple400: var(--palette-actuynab-teal400);
+  --palette-purple500: var(--palette-actuynab-teal500);
+  --palette-purple600: var(--palette-actuynab-teal600);
+  --palette-purple700: var(--palette-actuynab-teal700);
+  --palette-purple800: var(--palette-actuynab-teal800);
+  --palette-purple900: var(--palette-actuynab-teal900);
+
+  --color-pageBackground: var(--color-surfaceBase);
+  --color-pageText: var(--color-textPrimary);
+  --color-pageTextLight: var(--color-textSecondary);
+  --color-pageTextSubdued: var(--color-textMuted);
+  --color-cardBackground: var(--color-surfaceRaised);
+  --color-cardBorder: var(--color-borderSubtle);
+  --color-cardShadow: var(--color-shadowCard);
+  --color-tableBackground: var(--color-surfaceRaised);
+  --color-tableHeaderBackground: var(--color-surfaceElevated);
+  --color-tableRowBackgroundHover: var(--color-surfaceElevated);
+  --color-tableText: var(--color-textPrimary);
+  --color-tableTextLight: var(--color-textSecondary);
+  --color-tableTextSubdued: var(--color-textMuted);
+  --color-tableBorder: var(--color-borderSubtle);
+  --color-tableBorderSelected: var(--color-accentPrimary);
+  --color-tableRowBackgroundHighlight: var(--color-accentPrimarySubtle);
+  --color-numberPositive: var(--color-statusSuccess);
+  --color-numberNegative: var(--color-statusDanger);
+  --color-numberNeutral: var(--color-textSecondary);
+  --color-budgetNumberNegative: var(--color-statusDanger);
+  --color-budgetNumberZero: var(--color-textMuted);
+  --color-sidebarBackground: var(--color-surfaceNavigation);
+  --color-sidebarItemBackgroundHover: color-mix(
+    in srgb,
+    var(--color-accentPrimary) 14%,
+    var(--color-surfaceNavigation)
+  );
+  --color-sidebarItemAccentSelected: var(--palette-actuynab-teal300);
+  --color-sidebarItemBackgroundSelected: color-mix(
+    in srgb,
+    var(--color-sidebarItemAccentSelected) 18%,
+    var(--color-surfaceNavigation)
+  );
+  --color-sidebarItemText: var(--color-textSecondary);
+  --color-sidebarItemTextSelected: var(--palette-actuynab-teal200);
+  --color-sidebarHeaderText: var(--color-textPrimary);
+  --color-sidebarTextSubdued: var(--color-textMuted);
+  --color-sidebarBorder: var(--color-borderSubtle);
+  --color-menuBackground: var(--color-surfaceElevated);
+  --color-menuBorder: var(--color-borderSubtle);
+  --color-modalBackground: var(--color-surfaceElevated);
+  --color-modalBorder: var(--color-borderStrong);
+  --color-buttonPrimaryText: var(--color-textOnAccent);
+  --color-buttonPrimaryBackground: var(--color-accentPrimary);
+  --color-buttonPrimaryBackgroundHover: var(--color-accentPrimaryHover);
+  --color-buttonPrimaryBorder: var(--color-accentPrimary);
+  --color-buttonPrimaryShadow: var(--color-shadowAmbient);
+  --color-buttonNormalBackground: var(--color-surfaceRaised);
+  --color-buttonNormalBackgroundHover: var(--color-surfaceElevated);
+  --color-buttonNormalBorder: var(--color-borderStrong);
+  --color-formInputBackground: var(--color-surfaceRaised);
+  --color-formInputBorder: var(--color-borderStrong);
+  --color-formInputBorderSelected: var(--color-accentPrimary);
+  --color-formInputText: var(--color-textPrimary);
+  --color-formInputTextPlaceholder: var(--color-textMuted);
+  --color-checkboxBackgroundSelected: var(--color-accentPrimary);
+  --color-checkboxBorderSelected: var(--color-accentPrimary);
+  --color-checkboxShadowSelected: var(--color-focusRing);
+  --color-budgetOtherMonth: var(--color-surfaceSunken);
+  --color-budgetCurrentMonth: var(--color-tableBackground);
+  --color-budgetHeaderOtherMonth: var(--color-surfaceNavigation);
+  --color-budgetHeaderCurrentMonth: var(--color-tableHeaderBackground);
 }

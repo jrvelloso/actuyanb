@@ -232,6 +232,10 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
           ...sizeOverrides,
           '&[data-hovered]': _getHoveredStyles(variant),
           '&[data-pressed]': _getActiveStyles(variant, bounce),
+          '&[data-focus-visible]': {
+            outline: '2px solid ' + theme.focusRing,
+            outlineOffset: 2,
+          },
         }),
       [bounce, variant, variantWithDisabled, sizeOverrides],
     );

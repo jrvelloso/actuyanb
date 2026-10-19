@@ -111,6 +111,13 @@ service; it is not a replacement database for budget calculations.
     Actual's normal SQLite/CRDT sync path. It never reimplements availability,
     carryover, transfers, card payments, or tracking-account calculations. See
     [Multi-month budget grid](multi-month-budget.md).
+15. **Visual identity foundation.** M15 extends the existing component-library
+    CSS theme files and `theme.ts` facade with semantic visual roles. Shared
+    controls and sidebar rows consume those roles; business state remains in
+    Actual's existing stores and budget cells retain their native mutation and
+    undo path. An approved logo can be integrated through the sidebar brand
+    token without coupling branding to financial or synchronization code. See
+    [Visual identity foundation](visual-identity.md).
 
 ## Financial correctness constraints
 

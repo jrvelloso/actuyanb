@@ -24,6 +24,60 @@
   --palette-navy800: #243b53;
   --palette-navy900: #102a43;
 
+  /* ActuYNAB primitives are consumed only by semantic --color-* tokens in
+     the theme sheets. Keep product components on those semantic tokens. */
+  --palette-actuynab-backgroundDark: #0b1220;
+  --palette-actuynab-surfaceDark: #111a2b;
+  --palette-actuynab-surfaceDarkElevated: #1a2538;
+  --palette-actuynab-backgroundLight: #f8fafc;
+  --palette-actuynab-surfaceLight: #ffffff;
+  --palette-actuynab-surfaceLightElevated: #f1f5f9;
+
+  --palette-actuynab-teal50: #f0fdfa;
+  --palette-actuynab-teal100: #ccfbf1;
+  --palette-actuynab-teal200: #99f6e4;
+  --palette-actuynab-teal300: #5eead4;
+  --palette-actuynab-teal400: #2dd4bf;
+  --palette-actuynab-teal500: #14b8a6;
+  --palette-actuynab-teal600: #0d9488;
+  --palette-actuynab-teal700: #0f766e;
+  --palette-actuynab-teal800: #115e59;
+  --palette-actuynab-teal900: #134e4a;
+
+  --palette-actuynab-success50: #f0fdf4;
+  --palette-actuynab-success100: #dcfce7;
+  --palette-actuynab-success300: #86efac;
+  --palette-actuynab-success400: #4ade80;
+  --palette-actuynab-success500: #22c55e;
+  --palette-actuynab-success700: #15803d;
+  --palette-actuynab-success900: #14532d;
+
+  --palette-actuynab-warning50: #fffbeb;
+  --palette-actuynab-warning100: #fef3c7;
+  --palette-actuynab-warning300: #fcd34d;
+  --palette-actuynab-warning400: #fbbf24;
+  --palette-actuynab-warning500: #f59e0b;
+  --palette-actuynab-warning700: #b45309;
+  --palette-actuynab-warning900: #78350f;
+
+  --palette-actuynab-danger50: #fef2f2;
+  --palette-actuynab-danger100: #fee2e2;
+  --palette-actuynab-danger300: #fca5a5;
+  --palette-actuynab-danger400: #f87171;
+  --palette-actuynab-danger500: #ef4444;
+  --palette-actuynab-danger600: #dc2626;
+  --palette-actuynab-danger700: #b91c1c;
+  --palette-actuynab-danger900: #7f1d1d;
+
+  --palette-actuynab-info50: #eff6ff;
+  --palette-actuynab-info100: #dbeafe;
+  --palette-actuynab-info300: #93c5fd;
+  --palette-actuynab-info400: #60a5fa;
+  --palette-actuynab-info500: #3b82f6;
+  --palette-actuynab-info600: #2563eb;
+  --palette-actuynab-info700: #1d4ed8;
+  --palette-actuynab-info900: #1e3a8a;
+
   --palette-blue50: #f5fcff;
   --palette-blue100: #e3f0ff;
   --palette-blue150: #b3d9ff;
